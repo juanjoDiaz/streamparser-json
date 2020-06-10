@@ -1,7 +1,11 @@
-const { readFileSync } = require('fs');
-const { test } = require('tap');
-const JsonParser = require('../src/jsonparse');
-const stringifiedJson = readFileSync(`${__dirname}/../samplejson/basic.json`);
+import { readFileSync } from 'fs';
+import tap from 'tap';
+import JsonParser from '../src/jsonparse';
+
+const { test } = tap;
+
+// TODO fix CWD
+const stringifiedJson = readFileSync(`${process.cwd()}/samplejson/basic.json`);
 
 test('complex objects', (t) => {
   t.plan(1);

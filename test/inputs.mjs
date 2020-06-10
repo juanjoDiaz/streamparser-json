@@ -1,6 +1,10 @@
-const { test } = require('tap');
-const JsonParser = require('../src/jsonparse');
-const { QUOTATION_MARK } = require('../src/utils/utf-8').charset;
+import tap from 'tap';
+import JsonParser from '../src/jsonparse';
+import { charset }  from '../src/utils/utf-8';
+
+const { test } = tap;
+
+const { QUOTATION_MARK } = charset;
 
 const quote = String.fromCharCode(QUOTATION_MARK);
 

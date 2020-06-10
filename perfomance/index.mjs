@@ -1,17 +1,17 @@
-const fs = require('fs');
-const Benchmark = require('benchmark');
-const JSONParse = require('jsonparse');
-const JSONParse2 = require('../src/jsonparse');
+import { readFileSync } from 'fs';
+import Benchmark from 'benchmark';
+import JSONParse from 'jsonparse';
+import JSONParse2 from '../src/jsonparse.mjs';
 
 console.log('==============');
 console.log('Complex object');
 console.log('==============');
-benchmark(fs.readFileSync('../samplejson/basic.json'));
+benchmark(readFileSync('../samplejson/basic.json'));
 
 console.log('==============================');
 console.log('Complex object with no numbers');
 console.log('==============================');
-benchmark(fs.readFileSync('../samplejson/basic-no-numbers.json'));
+benchmark(readFileSync('../samplejson/basic-no-numbers.json'));
 
 console.log('=======================');
 console.log('Object with many spaces');

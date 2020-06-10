@@ -1,11 +1,14 @@
-const { test } = require('tap');
-const JsonParse = require('../src/jsonparse');
-const { LATIN_SMALL_LETTER_A, QUOTATION_MARK, DIGIT_ONE } = require('../src/utils/utf-8').charset;
+import tap from 'tap';
+import JsonParser from '../src/jsonparse';
+import { charset } from '../src/utils/utf-8';
+
+const { test } = tap;
+const { LATIN_SMALL_LETTER_A, QUOTATION_MARK, DIGIT_ONE } = charset;
 
 const quote = String.fromCharCode(QUOTATION_MARK);
 
 test('can handle large strings without running out of memory', (t) => {
-    const parser = new JsonParse({ stringBufferSize: 64 * 1024 });
+    const parser = new JsonParser({ stringBufferSize: 64 * 1024 });
     const chunkSize = 1024;
     const chunks = 1024 * 200; // 200mb
     t.plan(1);
@@ -18,7 +21,7 @@ test('can handle large strings without running out of memory', (t) => {
 });
 
 test('can handle large numbers without running out of memory', (t) => {
-  const parser = new JsonParse({ numberBufferSize: 64 * 1024 });
+  const parser = new JsonParser({ numberBufferSize: 64 * 1024 });
   const chunkSize = 1024;
   const chunks = 1024 * 200; // 200mb
   t.plan(1);
@@ -31,7 +34,7 @@ test('can handle large numbers without running out of memory', (t) => {
 });
 
 test('can handle multi-byte unicode splits', (t) => {
-  const parser = new JsonParse({ numberBufferSize: 1 });
+  const parser = new JsonParser({ numberBufferSize: 1 });
   t.plan(1);
 
   parser.onToken = (type, value) => t.equal(value, '𠜎');

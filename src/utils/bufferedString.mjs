@@ -1,4 +1,4 @@
-class NonBufferedString {
+export class NonBufferedString {
   constructor() {
     this.string = undefined;
     this.decoder = new TextDecoder('utf-8');
@@ -28,7 +28,7 @@ class NonBufferedString {
   }
 }
 
-class BufferedString {
+export class BufferedString {
   constructor(bufferSize) {
     this.string = undefined;
     this.buffer = new Uint8Array(bufferSize);
@@ -69,8 +69,3 @@ class BufferedString {
     return bytes;
   }
 }
-
-module.exports = {
-  NonBufferedString,
-  BufferedString,
-};

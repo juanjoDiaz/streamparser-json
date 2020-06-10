@@ -1,4 +1,4 @@
-const TokenType = {
+export const TokenType = {
   LEFT_BRACE    : 0x1,
   RIGHT_BRACE   : 0x2,
   LEFT_BRACKET  : 0x3,
@@ -10,8 +10,4 @@ const TokenType = {
   NULL          : 0x9,
   STRING        : 0xa,
   NUMBER        : 0xb,
-};
-
-module.exports = {
-  TokenType,
 };

@@ -1,5 +1,5 @@
-const { TokenType } = require('./utils/constants');
-const { getKeyFromValue } = require('./utils/utils');
+import { TokenType } from './utils/constants.mjs';
+import { getKeyFromValue } from './utils/utils.mjs';
 
 const {
   LEFT_BRACE,
@@ -30,7 +30,7 @@ const ParserModes = {
   ARRAY: 0x2,
 }
 
-class Parser {
+export default class Parser {
   constructor () {
     this.state = ParserStates.VALUE;
     this.mode = undefined;
@@ -132,5 +132,3 @@ class Parser {
     // Override me
   }
 }
-
-module.exports = Parser;

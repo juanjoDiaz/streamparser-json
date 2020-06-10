@@ -1,7 +1,7 @@
-const Tokenizer = require('./tokenizer');
-const Parser = require('./parser');
+import Tokenizer from './tokenizer.mjs';
+import Parser from './parser.mjs';
 
-class JSONParser {
+export default class JSONParser {
   constructor (opts = {}) {
     this.tokenizer = new Tokenizer(opts);
     this.parser = new Parser();
@@ -17,5 +17,3 @@ class JSONParser {
     this.parser.onValue = cb;
   }
 }
-
-module.exports = JSONParser;

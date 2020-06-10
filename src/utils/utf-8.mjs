@@ -1,4 +1,4 @@
-const charset = {
+export const charset = {
   BACKSPACE: 0x8,                // "\b"
   FORM_FEED: 0xc,                // "\f"
   NEWLINE: 0xa,                  // "\n"
@@ -101,7 +101,7 @@ const charset = {
   TILDE: 0x7e,                   // ~
 };
 
-const escapedSequences = {
+export const escapedSequences = {
   [charset.QUOTATION_MARK]: charset.QUOTATION_MARK,
   [charset.REVERSE_SOLIDUS]: charset.REVERSE_SOLIDUS,
   [charset.SOLIDUS]: charset.SOLIDUS,
@@ -110,9 +110,4 @@ const escapedSequences = {
   [charset.LATIN_SMALL_LETTER_N]: charset.NEWLINE,
   [charset.LATIN_SMALL_LETTER_R]: charset.CARRIAGE_RETURN,
   [charset.LATIN_SMALL_LETTER_T]: charset.TAB,
-};
-
-module.exports = {
-  charset,
-  escapedSequences,
 };

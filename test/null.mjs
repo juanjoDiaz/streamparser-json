@@ -1,5 +1,7 @@
-const { test } = require('tap');
-const JsonParser = require('../src/jsonparse');
+import tap from 'tap';
+import JsonParser from '../src/jsonparse';
+
+const { test } = tap;
 
 const values = [
   'null',

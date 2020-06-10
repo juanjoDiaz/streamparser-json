@@ -1,6 +1,7 @@
-const utf8 = require('./utils/utf-8');
-const { NonBufferedString, BufferedString } = require('./utils/bufferedString');
-const { getKeyFromValue } = require('./utils/utils');
+import { charset, escapedSequences } from './utils/utf-8.mjs';
+import { NonBufferedString, BufferedString } from './utils/bufferedString.mjs';
+import { TokenType } from './utils/constants.mjs';
+import { getKeyFromValue } from './utils/utils.mjs';
 
 const {
   LEFT_BRACE,
@@ -14,7 +15,7 @@ const {
   NULL,
   STRING,
   NUMBER,
-} = require('./utils/constants').TokenType;
+} = TokenType;
 
 // Tokenizer States
 const TokenizerStates = {
@@ -53,7 +54,7 @@ const defaultOpts = {
   numberBufferSize: 0,
 };
 
-class Parser {
+export default class Parser {
   constructor (opts) {
     opts = { ...defaultOpts, ...opts };
 
@@ -86,75 +87,75 @@ class Parser {
         case TokenizerStates.START:
           this.offset += 1;
 
-          if (n === utf8.charset.SPACE
-            || n === utf8.charset.NEWLINE
-            || n === utf8.charset.CARRIAGE_RETURN
-            || n === utf8.charset.TAB) {
+          if (n === charset.SPACE
+            || n === charset.NEWLINE
+            || n === charset.CARRIAGE_RETURN
+            || n === charset.TAB) {
             // whitespace
             continue;
           }
 
-          if (n === utf8.charset.LEFT_CURLY_BRACKET) {
+          if (n === charset.LEFT_CURLY_BRACKET) {
             this.onToken(LEFT_BRACE, '{', this.offset);
             continue;
           }
-          if (n === utf8.charset.RIGHT_CURLY_BRACKET) {
+          if (n === charset.RIGHT_CURLY_BRACKET) {
             this.onToken(RIGHT_BRACE, '}', this.offset);
             continue;
           }
-          if (n === utf8.charset.LEFT_SQUARE_BRACKET) {
+          if (n === charset.LEFT_SQUARE_BRACKET) {
             this.onToken(LEFT_BRACKET, '[', this.offset);
             continue;
           }
-          if (n === utf8.charset.RIGHT_SQUARE_BRACKET) {
+          if (n === charset.RIGHT_SQUARE_BRACKET) {
             this.onToken(RIGHT_BRACKET, ']', this.offset);
             continue;
           }
-          if (n === utf8.charset.COLON) {
+          if (n === charset.COLON) {
             this.onToken(COLON, ':', this.offset);
             continue;
           }
-          if (n === utf8.charset.COMMA){
+          if (n === charset.COMMA){
             this.onToken(COMMA, ',', this.offset);
             continue;
           }
 
-          if(n === utf8.charset.LATIN_SMALL_LETTER_T){
+          if(n === charset.LATIN_SMALL_LETTER_T){
             this.state =  TokenizerStates.TRUE1; 
             continue;
           }
 
-          if(n === utf8.charset.LATIN_SMALL_LETTER_F){
+          if(n === charset.LATIN_SMALL_LETTER_F){
             this.state =  TokenizerStates.FALSE1; 
             continue;
           }
           
-          if(n === utf8.charset.LATIN_SMALL_LETTER_N){
+          if(n === charset.LATIN_SMALL_LETTER_N){
             this.state =  TokenizerStates.NULL1;
             continue;
           }
           
-          if(n === utf8.charset.QUOTATION_MARK){
+          if(n === charset.QUOTATION_MARK){
             this.bufferedString.reset();
             this.state =  TokenizerStates.STRING_DEFAULT;
             continue;
           }
 
-          if (n >= utf8.charset.DIGIT_ONE && n <= utf8.charset.DIGIT_NINE){
+          if (n >= charset.DIGIT_ONE && n <= charset.DIGIT_NINE){
             this.bufferedNumber.reset();
             this.bufferedNumber.appendChar(n);
             this.state =  TokenizerStates.NUMBER_AFTER_INITIAL_NON_ZERO;
             continue;
           }
 
-          if (n === utf8.charset.DIGIT_ZERO) {
+          if (n === charset.DIGIT_ZERO) {
             this.bufferedNumber.reset();
             this.bufferedNumber.appendChar(n);
             this.state =  TokenizerStates.NUMBER_AFTER_INITIAL_ZERO;
             continue;
           }
 
-          if(n === utf8.charset.HYPHEN_MINUS) {
+          if(n === charset.HYPHEN_MINUS) {
             this.bufferedNumber.reset();
             this.bufferedNumber.appendChar(n);
             this.state =  TokenizerStates.NUMBER_AFTER_INITIAL_MINUS;
@@ -164,7 +165,7 @@ class Parser {
           break;
         // STRING
         case TokenizerStates.STRING_DEFAULT:
-          if (n === utf8.charset.QUOTATION_MARK) {
+          if (n === charset.QUOTATION_MARK) {
             const string = this.bufferedString.toString();
             this.onToken(STRING, string, this.offset);
             this.offset += this.bufferedString.byteLength() + 1;
@@ -172,7 +173,7 @@ class Parser {
             continue;
           }
           
-          if (n === utf8.charset.REVERSE_SOLIDUS) {
+          if (n === charset.REVERSE_SOLIDUS) {
             this.state =  TokenizerStates.STRING_AFTER_BACKSLASH;
             continue;
           }
@@ -199,7 +200,7 @@ class Parser {
             continue;
           }
 
-          if (n >= utf8.charset.SPACE) {
+          if (n >= charset.SPACE) {
             this.bufferedString.appendChar(n);
             continue;
           }
@@ -214,14 +215,14 @@ class Parser {
           this.state =  TokenizerStates.STRING_DEFAULT;
           continue;
         case TokenizerStates.STRING_AFTER_BACKSLASH:
-          const controlChar = utf8.escapedSequences[n];
+          const controlChar = escapedSequences[n];
           if (controlChar) {
             this.bufferedString.appendChar(controlChar);
             this.state =  TokenizerStates.STRING_DEFAULT;
             continue;
           }
             
-          if (n === utf8.charset.LATIN_SMALL_LETTER_U) {
+          if (n === charset.LATIN_SMALL_LETTER_U) {
             this.unicode = "";
             this.state =  TokenizerStates.STRING_UNICODE_DIGIT_1;
             continue;
@@ -231,18 +232,18 @@ class Parser {
         case TokenizerStates.STRING_UNICODE_DIGIT_1:
         case TokenizerStates.STRING_UNICODE_DIGIT_2:
         case TokenizerStates.STRING_UNICODE_DIGIT_3:
-          if ((n >= utf8.charset.DIGIT_ZERO && n <= utf8.charset.DIGIT_NINE)
-            || (n >= utf8.charset.LATIN_CAPITAL_LETTER_A && n <= utf8.charset.LATIN_CAPITAL_LETTER_F)
-            || (n >= utf8.charset.LATIN_SMALL_LETTER_A && n <= utf8.charset.LATIN_SMALL_LETTER_F)) {
+          if ((n >= charset.DIGIT_ZERO && n <= charset.DIGIT_NINE)
+            || (n >= charset.LATIN_CAPITAL_LETTER_A && n <= charset.LATIN_CAPITAL_LETTER_F)
+            || (n >= charset.LATIN_SMALL_LETTER_A && n <= charset.LATIN_SMALL_LETTER_F)) {
             this.unicode += String.fromCharCode(n);
             this.state += 1;
             continue;
           }
           break;
         case TokenizerStates.STRING_UNICODE_DIGIT_4:
-          if ((n >= utf8.charset.DIGIT_ZERO && n <= utf8.charset.DIGIT_NINE)
-            || (n >= utf8.charset.LATIN_CAPITAL_LETTER_A && n <= utf8.charset.LATIN_CAPITAL_LETTER_F)
-            || (n >= utf8.charset.LATIN_SMALL_LETTER_A && n <= utf8.charset.LATIN_SMALL_LETTER_F)) {
+          if ((n >= charset.DIGIT_ZERO && n <= charset.DIGIT_NINE)
+            || (n >= charset.LATIN_CAPITAL_LETTER_A && n <= charset.LATIN_CAPITAL_LETTER_F)
+            || (n >= charset.LATIN_SMALL_LETTER_A && n <= charset.LATIN_SMALL_LETTER_F)) {
             const intVal = parseInt(this.unicode + String.fromCharCode(n), 16);
             if (this.highSurrogate === undefined) {
               if (intVal >= 0xD800 && intVal <= 0xDBFF) { //<55296,56319> - highSurrogate
@@ -263,13 +264,13 @@ class Parser {
           }
           // Number
           case TokenizerStates.NUMBER_AFTER_INITIAL_MINUS:
-            if (n === utf8.charset.DIGIT_ZERO) {
+            if (n === charset.DIGIT_ZERO) {
               this.bufferedNumber.appendChar(n);
               this.state =  TokenizerStates.NUMBER_AFTER_INITIAL_ZERO
               continue;
             }
 
-            if (n >= utf8.charset.DIGIT_ONE && n <= utf8.charset.DIGIT_NINE) {
+            if (n >= charset.DIGIT_ONE && n <= charset.DIGIT_NINE) {
               this.bufferedNumber.appendChar(n);
               this.state =  TokenizerStates.NUMBER_AFTER_INITIAL_NON_ZERO
               continue;
@@ -277,14 +278,14 @@ class Parser {
             
             break;
           case TokenizerStates.NUMBER_AFTER_INITIAL_ZERO:
-            if (n === utf8.charset.FULL_STOP) {
+            if (n === charset.FULL_STOP) {
               this.bufferedNumber.appendChar(n);
               this.state =  TokenizerStates.NUMBER_AFTER_FULL_STOP;
               continue;
             }
 
-            if(n === utf8.charset.LATIN_SMALL_LETTER_E
-              || n === utf8.charset.LATIN_CAPITAL_LETTER_E) {
+            if(n === charset.LATIN_SMALL_LETTER_E
+              || n === charset.LATIN_CAPITAL_LETTER_E) {
               this.bufferedNumber.appendChar(n);
               this.state =  TokenizerStates.NUMBER_AFTER_E;
               continue;
@@ -295,19 +296,19 @@ class Parser {
             this.state =  TokenizerStates.START;
             continue;
           case TokenizerStates.NUMBER_AFTER_INITIAL_NON_ZERO:
-            if (n >= utf8.charset.DIGIT_ZERO && n <= utf8.charset.DIGIT_NINE) {
+            if (n >= charset.DIGIT_ZERO && n <= charset.DIGIT_NINE) {
               this.bufferedNumber.appendChar(n);
               continue;
             }
 
-            if (n === utf8.charset.FULL_STOP) {
+            if (n === charset.FULL_STOP) {
               this.bufferedNumber.appendChar(n);
               this.state =  TokenizerStates.NUMBER_AFTER_FULL_STOP;
               continue;
             }
 
-            if(n === utf8.charset.LATIN_SMALL_LETTER_E
-              || n === utf8.charset.LATIN_CAPITAL_LETTER_E) {
+            if(n === charset.LATIN_SMALL_LETTER_E
+              || n === charset.LATIN_CAPITAL_LETTER_E) {
               this.bufferedNumber.appendChar(n);
               this.state =  TokenizerStates.NUMBER_AFTER_E;
               continue;
@@ -318,7 +319,7 @@ class Parser {
             this.state =  TokenizerStates.START;
             continue;
           case TokenizerStates.NUMBER_AFTER_FULL_STOP:
-            if (n >= utf8.charset.DIGIT_ZERO && n <= utf8.charset.DIGIT_NINE) {
+            if (n >= charset.DIGIT_ZERO && n <= charset.DIGIT_NINE) {
               this.bufferedNumber.appendChar(n);
               this.state =  TokenizerStates.NUMBER_AFTER_DECIMAL;
               continue;
@@ -326,12 +327,12 @@ class Parser {
 
             break;
           case TokenizerStates.NUMBER_AFTER_DECIMAL:
-            if (n >= utf8.charset.DIGIT_ZERO && n <= utf8.charset.DIGIT_NINE) {
+            if (n >= charset.DIGIT_ZERO && n <= charset.DIGIT_NINE) {
               this.bufferedNumber.appendChar(n);
               continue;
             }
 
-            if(n === utf8.charset.LATIN_SMALL_LETTER_E || n === utf8.charset.LATIN_CAPITAL_LETTER_E) {
+            if(n === charset.LATIN_SMALL_LETTER_E || n === charset.LATIN_CAPITAL_LETTER_E) {
               this.bufferedNumber.appendChar(n);
               this.state =  TokenizerStates.NUMBER_AFTER_E;
               continue;
@@ -342,14 +343,14 @@ class Parser {
             this.state =  TokenizerStates.START;
             continue;
           case TokenizerStates.NUMBER_AFTER_E:
-            if (n === utf8.charset.PLUS_SIGN || n === utf8.charset.HYPHEN_MINUS) {
+            if (n === charset.PLUS_SIGN || n === charset.HYPHEN_MINUS) {
               this.bufferedNumber.appendChar(n);
               this.state =  TokenizerStates.NUMBER_AFTER_E_AND_SIGN;
               continue;
             }
             // Allow cascading
           case TokenizerStates.NUMBER_AFTER_E_AND_SIGN:
-            if (n >= utf8.charset.DIGIT_ZERO && n <= utf8.charset.DIGIT_NINE) {
+            if (n >= charset.DIGIT_ZERO && n <= charset.DIGIT_NINE) {
               this.bufferedNumber.appendChar(n);
               this.state =  TokenizerStates.NUMBER_AFTER_E_AND_DIGIT;
               continue;
@@ -357,7 +358,7 @@ class Parser {
 
             break;
           case TokenizerStates.NUMBER_AFTER_E_AND_DIGIT:
-            if (n >= utf8.charset.DIGIT_ZERO && n <= utf8.charset.DIGIT_NINE) {
+            if (n >= charset.DIGIT_ZERO && n <= charset.DIGIT_NINE) {
               this.bufferedNumber.appendChar(n);
               continue;
             }
@@ -368,34 +369,34 @@ class Parser {
             continue;
         // TRUE
         case TokenizerStates.TRUE1:
-          if (n === utf8.charset.LATIN_SMALL_LETTER_R) { this.state =  TokenizerStates.TRUE2; continue; }
+          if (n === charset.LATIN_SMALL_LETTER_R) { this.state =  TokenizerStates.TRUE2; continue; }
           break;
         case TokenizerStates.TRUE2:
-          if (n === utf8.charset.LATIN_SMALL_LETTER_U) { this.state =  TokenizerStates.TRUE3; continue; }
+          if (n === charset.LATIN_SMALL_LETTER_U) { this.state =  TokenizerStates.TRUE3; continue; }
           break;
         case TokenizerStates.TRUE3:
-          if (n === utf8.charset.LATIN_SMALL_LETTER_E) { this.state =  TokenizerStates.START; this.onToken(TRUE, true, this.offset); this.offset += 3; continue; }
+          if (n === charset.LATIN_SMALL_LETTER_E) { this.state =  TokenizerStates.START; this.onToken(TRUE, true, this.offset); this.offset += 3; continue; }
           break;
         // FALSE
         case TokenizerStates.FALSE1:
-          if (n === utf8.charset.LATIN_SMALL_LETTER_A) { this.state =  TokenizerStates.FALSE2; continue; }
+          if (n === charset.LATIN_SMALL_LETTER_A) { this.state =  TokenizerStates.FALSE2; continue; }
           break;
         case TokenizerStates.FALSE2:
-          if (n === utf8.charset.LATIN_SMALL_LETTER_L) { this.state =  TokenizerStates.FALSE3; continue; }
+          if (n === charset.LATIN_SMALL_LETTER_L) { this.state =  TokenizerStates.FALSE3; continue; }
           break;
         case TokenizerStates.FALSE3:
-          if (n === utf8.charset.LATIN_SMALL_LETTER_S) { this.state =  TokenizerStates.FALSE4; continue; }
+          if (n === charset.LATIN_SMALL_LETTER_S) { this.state =  TokenizerStates.FALSE4; continue; }
           break;
         case TokenizerStates.FALSE4:
-          if (n === utf8.charset.LATIN_SMALL_LETTER_E) { this.state =  TokenizerStates.START; this.onToken(FALSE, false, this.offset); this.offset += 4; continue; }
+          if (n === charset.LATIN_SMALL_LETTER_E) { this.state =  TokenizerStates.START; this.onToken(FALSE, false, this.offset); this.offset += 4; continue; }
           break;
         // NULL
         case TokenizerStates.NULL1:
-          if (n === utf8.charset.LATIN_SMALL_LETTER_U) { this.state =  TokenizerStates.NULL2; continue; }
+          if (n === charset.LATIN_SMALL_LETTER_U) { this.state =  TokenizerStates.NULL2; continue; }
         case TokenizerStates.NULL2:
-          if (n === utf8.charset.LATIN_SMALL_LETTER_L) { this.state =  TokenizerStates.NULL3; continue; }
+          if (n === charset.LATIN_SMALL_LETTER_L) { this.state =  TokenizerStates.NULL3; continue; }
         case TokenizerStates.NULL3:
-          if (n === utf8.charset.LATIN_SMALL_LETTER_L) { this.state =  TokenizerStates.START; this.onToken(NULL, null, this.offset); this.offset += 3; continue; }
+          if (n === charset.LATIN_SMALL_LETTER_L) { this.state =  TokenizerStates.START; this.onToken(NULL, null, this.offset); this.offset += 3; continue; }
       }
 
       const errorState = this.state;
@@ -417,5 +418,3 @@ class Parser {
     // Override
   }
 }
-
-module.exports = Parser;

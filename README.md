@@ -1,11 +1,11 @@
 # JSONparse2
 
-Fast library to parse a JSON stream using utf-8 encoding from the server or the browser. Fully compliant with the JSON spec and `JSON.parse(...)`.
+Fast library to parse a JSON stream using utf-8 encoding in Node.js, Deno or any modern browser. Fully compliant with the JSON spec and `JSON.parse(...)`.
 
 *tldr;*
 
 ```javascript
-const { JSONparser } = require('jsonparse2');
+import { JSONparser } from 'jsonparse2';
 
 const parser = new JSONparser();
 parser.onValue = (value) => { /* process data */}
@@ -30,7 +30,7 @@ JSONparse2 requires a few ES6 classes:
 * [TextEncoder](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder)
 * [TextDecoder](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder)
 
-If you are targeting browsers or system in which these might be missing, you need to polyfil them.
+If you are targeting browsers or systems in which these might be missing, you need to polyfil them.
 
 ## Components
 
@@ -39,7 +39,7 @@ If you are targeting browsers or system in which these might be missing, you nee
 A JSON compliant tokenizer that parses a utf-8 stream into JSON tokens
 
 ```javascript
-const { Tokenizer } =  require('JSONparse2');
+import { Tokenizer } from 'jsonparse2';
 
 const tokenizer = new Tokenizer(opts);
 ```
@@ -53,7 +53,13 @@ The available options are:
 }
 ```
 
-If set to anything else than zero, instead of apppending the data as a string as it comes it,  the data is buffered using a TypedArray. Buffering is slower than appending strings in modern javascript engines. However, because of the way that V8 optimizes string concatenation parsing JSON objects containing very large strings or numbers might lead to memory exhaustion. For those cases, it's recomended to use a buffer. A reasonable size could be `64 * 1024` (64 KB).
+If buffer sizes are set to anything else than zero, instead of using a string to apppend the data as it comes in, the data is buffered using a TypedArray. A reasonable size could be `64 * 1024` (64 KB).
+
+### Buffering
+
+When parsing strings or numbers, JSONparse2 needs to gather the data in-memory until the whole value is ready.
+
+Strings are inmutable in Javascript so every string operation creates a new string. The V8 engine, behind Node, Deno and most modern browsers, performs a many different types of optimization. One of this optimizations is to over-allocate memory when it detects many string concatenations. This increases significatly the memory consumption and can easily exhaust your memory when parsing JSON containing very large strings or numbers. For those cases, JSONparse2 can buffer the characters using a TypedArray. This requires encoding/decoding from/to the buffer into an actual string once the value is ready. This is done using the `TextEncoder` and `TextDecoder` APIs. Unfortunately, these APIs creates a significant overhead when the strings are small so should be used only when strictly necessary.
 
 #### Methods
 
@@ -91,7 +97,7 @@ tokenizer.onToken = (token, value, offset) => { ... };
 A parser that processes JSON tokens as emitted by the `Tokenizer` and emits JSON values/objects.
 
 ```javascript
-const { Parser } =  require('JSONparse2');
+import { Parser } from 'jsonparse2';
 
 const parser = new Parser();
 ```
@@ -124,7 +130,7 @@ A drop-in replacement of `JSONparse` (with few ~~breaking changes~~ improvements
 
 
 ```javascript
-const { JsonParser } = require('JSONparse2');
+import { JsonParser } from 'jsonparse2';
 
 const parser = new JsonParser();
 ```
@@ -180,7 +186,7 @@ You push data using the `write` method which takes a string or an array-like obj
 You can subscribe to the resulting data using the 
 
 ```javascript
-const { JsonParser } = require('jsonparse2');
+import { JsonParser } from 'jsonparse2';
 
 const parser = new JsonParser({ stringBufferSize: undefined });
 parser.onValue = console.log;
@@ -198,7 +204,7 @@ parser.write('"');// logs "Hello world!"
 Write is always a synchronous operation so any error during the parsing of the stream will be thrown during the write operation. After an error, the parser can't continue parsing.
 
 ```javascript
-const { JsonParser } = require('jsonparse2');
+import { JsonParser } from 'jsonparse2';
 
 const parser = new JsonParser({ stringBufferSize: undefined });
 parser.onValue = console.log;
@@ -218,7 +224,7 @@ try {
 Imagine an endpoint that send a large amount of JSON objects one after the other (`{"id":1}{"id":2}{"id":3}...`).
 
 ```js
-  const { JSONparser } = require('jsonparse2');
+  import { JSONparser } from 'jsonparse2';
 
   const jsonparser = new JsonParser({ stringBufferSize: undefined });
   parser.onValue = (value, key, parent, stack) => {
@@ -241,7 +247,7 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 Imagine an endpoint that send a large amount of JSON objects one after the other (`[{"id":1},{"id":2},{"id":3},...]`).
 
 ```js
-  const { JsonParser } = require('jsonparse2');
+  import { JsonParser } from 'jsonparse2';
 
   const jsonparser = new JsonParser({ stringBufferSize: undefined });
   parser.onValue = (value, key, parent, stack) => {

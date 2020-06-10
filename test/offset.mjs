@@ -1,5 +1,8 @@
-const { test } = require('tap');
-const JsonParser = require('../src/jsonparse');
+import tap from 'tap';
+import JsonParser from '../src/jsonparse';
+import { TokenType } from '../src/utils/constants';
+
+const { test } = tap;
 
 const {
   LEFT_BRACE,
@@ -13,7 +16,7 @@ const {
   NULL,
   STRING,
   NUMBER,
-} = require('../src/utils/constants').TokenType;
+} = TokenType;
 
 const input = '{\n  "string": "value",\n  "number": 3,\n  "object"';
 const input2 = ': {\n  "key": "vд"\n  },\n  "array": [\n  -1,\n  12\n  ]\n  ';
