@@ -50,8 +50,11 @@ export default class Parser {
   write(token, value) {
     if(this.state === ParserStates.VALUE){
       if(token === STRING || token === NUMBER || token === TRUE || token === FALSE || token === NULL) {
-        if (this.mode) {
+        if (this.mode === ParserModes.OBJECT) {
           this.value[this.key] = value;
+          this.state = ParserStates.COMMA;
+        } else if (this.mode === ParserModes.ARRAY) {
+          this.value.push(value);
           this.state = ParserStates.COMMA;
         }
         this.onValue(value, this.key, this.value, this.stack);
@@ -60,7 +63,15 @@ export default class Parser {
 
       if(token === LEFT_BRACE){
         this.push();
-        this.value = this.value ? this.value[this.key] = {} : {};
+        if (this.mode === ParserModes.OBJECT) {
+          this.value = this.value[this.key] = {};
+        } else if (this.mode === ParserModes.ARRAY) {
+          const val = {};
+          this.value.push(val);
+          this.value = val;
+        } else {
+          this.value = {};
+        }
         this.mode = ParserModes.OBJECT;
         this.state = ParserStates.KEY;
         this.key = undefined;
@@ -69,7 +80,15 @@ export default class Parser {
 
       if(token === LEFT_BRACKET){
         this.push();
-        this.value = this.value ? this.value[this.key] = [] : [];
+        if (this.mode === ParserModes.OBJECT) {
+          this.value = this.value[this.key] = [];
+        } else if (this.mode === ParserModes.ARRAY) {
+          const val = [];
+          this.value.push(val);
+          this.value = val;
+        } else {
+          this.value = [];
+        }
         this.mode = ParserModes.ARRAY;
         this.state = ParserStates.VALUE;
         this.key = 0;

@@ -72,16 +72,19 @@ export default class Parser {
 
     this.offset = -1;
   }
-  write(buffer) {
-    if (typeof buffer === 'string') {
-      buffer = this.encoder.encode(buffer);
-    } else if (buffer.buffer || Array.isArray(buffer)){
-      buffer = Uint8Array.from(buffer)
+  write(input) {
+    let buffer;
+    if (input instanceof Uint8Array) {
+      buffer = input;
+    } else if (typeof input === 'string') {
+      buffer = this.encoder.encode(input);
+    } else if (input.buffer || Array.isArray(input)){
+      buffer = Uint8Array.from(input)
     } else {
       throw new TypeError('Unexpected type. The `write` function only accepts TypeArrays and Strings.')
     }
 
-    for (var i = 0; i < buffer.length; i++) {
+    for (var i = 0; i < buffer.length; i += 1) {
       const n = buffer[i]; // get current byte from buffer
       switch(this.state) {
         case TokenizerStates.START:
@@ -407,9 +410,8 @@ export default class Parser {
     }
   }
   emitNumber() {
-    const numberStr = this.bufferedNumber.toString();
-    this.onToken(NUMBER, this.parseNumber(numberStr), this.offset);
-    this.offset += numberStr.length - 1;
+    this.onToken(NUMBER, this.parseNumber(this.bufferedNumber.toString()), this.offset);
+    this.offset += this.bufferedNumber.byteLength - 1;
   }
   parseNumber(numberStr) {
     return Number(numberStr);
