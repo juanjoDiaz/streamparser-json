@@ -168,7 +168,7 @@ export default class Parser {
           if (n === charset.QUOTATION_MARK) {
             const string = this.bufferedString.toString();
             this.onToken(STRING, string, this.offset);
-            this.offset += this.bufferedString.byteLength() + 1;
+            this.offset += this.bufferedString.byteLength + 1;
             this.state =  TokenizerStates.START;
             continue;
           }
