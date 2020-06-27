@@ -1,13 +1,17 @@
 export class NonBufferedString {
+  private decoder: TextDecoder;
+  private string: string;
+  public byteLength: number;
+
   constructor() {
     this.decoder = new TextDecoder('utf-8');
     this.reset();
   }
-  appendChar(char) {
+  appendChar(char: number) {
     this.string += String.fromCharCode(char);
     this.byteLength += 1;
   }
-  appendBuf(buf, start = 0, end = buf.length) {
+  appendBuf(buf: Uint8Array, start: number = 0, end: number = buf.length) {
     this.string += this.decoder.decode(buf.subarray(start, end));
     this.byteLength += end - start;
   }
@@ -21,17 +25,23 @@ export class NonBufferedString {
 }
 
 export class BufferedString {
-  constructor(bufferSize) {
+  private decoder: TextDecoder;
+  private buffer: Uint8Array;
+  private bufferOffset: number;
+  private string: string;
+  public byteLength: number;
+
+  constructor(bufferSize: number) {
     this.decoder = new TextDecoder('utf-8');
     this.buffer = new Uint8Array(bufferSize);
     this.reset();
   }
-  appendChar(char) {
+  appendChar(char: number) {
     if (this.bufferOffset >= this.buffer.length) this.flushStringBuffer();
     this.buffer[this.bufferOffset++] = char;
     this.byteLength += 1;
   }
-  appendBuf(buf, start = 0, end = buf.length) {
+  appendBuf(buf: Uint8Array, start: number = 0, end: number = buf.length) {
     const size = end - start;
     if (this.bufferOffset + size > this.buffer.length) this.flushStringBuffer();
     this.buffer.set(buf.subarray(start, end), this.bufferOffset);
