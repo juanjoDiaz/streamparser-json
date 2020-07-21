@@ -2,7 +2,8 @@
   "name": "jsonparse",
   "description": "Streaming JSON parser in Javascript for Node.js and the browser",
   "version": "0.0.1",
-  "main": "src/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "author": "Juanjo Diaz <juanjo.diazmo@gmail.com>",
   "repository": {
     "type": "git",
@@ -10,13 +11,14 @@
   },
   "bugs": "https://github.com/juanjoDiaz/jsonparse2/issues",
   "devDependencies": {
+    "@types/node": "^14.0.23",
     "tap": "^14.10.7"
   },
   "scripts": {
-    "test": "tap test/*.mjs"
+    "test": "tap test/*.ts"
   },
   "license": "MIT",
-    "tags": [
+  "tags": [
     "json",
     "stream"
   ]

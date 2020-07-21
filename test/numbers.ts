@@ -54,12 +54,12 @@ const values = [
 const expected = values.map(str => JSON.parse(str));
 
 
-for (const stringNumberSize of [0, 64 * 1024]) {
+for (const numberBufferSize of [0, 64 * 1024]) {
   test('number', (t) => {
     t.plan(expected.length);
     let i = 0;
 
-    const p = new JsonParser({ stringNumberSize });
+    const p = new JsonParser({ numberBufferSize });
     p.onValue = (value) => {
       t.equal(value, expected[i], `Error on expectation ${i} (${value} !== ${expected[i]})`);
       i += 1;
@@ -75,7 +75,7 @@ for (const stringNumberSize of [0, 64 * 1024]) {
     t.plan(expected.length);
     let i = 0;
 
-    const p = new JsonParser({ stringNumberSize });
+    const p = new JsonParser({ numberBufferSize });
     p.onValue = (value) => {
       t.equal(value, expected[i], `Error on expectation ${i} (${value} !== ${expected[i]})`);
       i += 1;

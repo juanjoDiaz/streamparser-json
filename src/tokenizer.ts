@@ -1,7 +1,6 @@
-import { charset, escapedSequences } from './utils/utf-8.mjs';
-import { NonBufferedString, BufferedString } from './utils/bufferedString.mjs';
-import { TokenType } from './utils/constants.mjs';
-import { getKeyFromValue } from './utils/utils.mjs';
+import { charset, escapedSequences } from './utils/utf-8';
+import { StringBuilder, NonBufferedString, BufferedString } from './utils/bufferedString';
+import { TokenType } from './utils/constants';
 
 const {
   LEFT_BRACE,
@@ -18,62 +17,70 @@ const {
 } = TokenType;
 
 // Tokenizer States
-const TokenizerStates = {
-  START: 0x11,
-  STOP: 0x12,
-  ERROR: 0x13,
-  TRUE1: 0x21,
-  TRUE2: 0x22,
-  TRUE3: 0x23,
-  FALSE1: 0x31,
-  FALSE2: 0x32,
-  FALSE3: 0x33,
-  FALSE4: 0x34,
-  NULL1: 0x41,
-  NULL2: 0x42,
-  NULL3: 0x43,
-  STRING_DEFAULT: 0x51,
-  STRING_AFTER_BACKSLASH: 0x52,
-  STRING_UNICODE_DIGIT_1: 0x53,
-  STRING_UNICODE_DIGIT_2: 0x54,
-  STRING_UNICODE_DIGIT_3: 0x55,
-  STRING_UNICODE_DIGIT_4: 0x56,
-  STRING_INCOMPLETE_CHAR: 0x57,
-  NUMBER_AFTER_INITIAL_MINUS: 0x61,
-  NUMBER_AFTER_INITIAL_ZERO: 0x62,
-  NUMBER_AFTER_INITIAL_NON_ZERO: 0x63,
-  NUMBER_AFTER_FULL_STOP: 0x64,
-  NUMBER_AFTER_DECIMAL: 0x65,
-  NUMBER_AFTER_E: 0x66,
-  NUMBER_AFTER_E_AND_SIGN: 0x67,
-  NUMBER_AFTER_E_AND_DIGIT: 0x68,
+enum TokenizerStates {
+  START,
+  STOP,
+  ERROR,
+  TRUE1,
+  TRUE2,
+  TRUE3,
+  FALSE1,
+  FALSE2,
+  FALSE3,
+  FALSE4,
+  NULL1,
+  NULL2,
+  NULL3,
+  STRING_DEFAULT,
+  STRING_AFTER_BACKSLASH,
+  STRING_UNICODE_DIGIT_1,
+  STRING_UNICODE_DIGIT_2,
+  STRING_UNICODE_DIGIT_3,
+  STRING_UNICODE_DIGIT_4,
+  STRING_INCOMPLETE_CHAR,
+  NUMBER_AFTER_INITIAL_MINUS,
+  NUMBER_AFTER_INITIAL_ZERO,
+  NUMBER_AFTER_INITIAL_NON_ZERO,
+  NUMBER_AFTER_FULL_STOP,
+  NUMBER_AFTER_DECIMAL,
+  NUMBER_AFTER_E,
+  NUMBER_AFTER_E_AND_SIGN,
+  NUMBER_AFTER_E_AND_DIGIT,
 };
 
-const defaultOpts = {
+export interface TokenizerOptions {
+  stringBufferSize?: number;
+  numberBufferSize?: number;
+};
+
+const defaultOpts: TokenizerOptions = {
   stringBufferSize: 0,
   numberBufferSize: 0,
 };
 
 export default class Parser {
-  constructor (opts) {
+  private state =  TokenizerStates.START;
+
+  private bufferedString: StringBuilder;
+  private bufferedNumber: StringBuilder;
+
+  private unicode: string | undefined = undefined; // unicode escapes
+  private highSurrogate: number | undefined = undefined;
+  private bytes_remaining = 0; // number of bytes remaining in multi byte utf8 char to read after split boundary
+  private bytes_in_sequence = 0; // bytes in multi byte utf8 char to read
+  private char_split_buffer = new Uint8Array(4); // for rebuilding chars split before boundary is reached
+  private encoder = new TextEncoder();
+  private offset = -1;
+
+  constructor (opts: TokenizerOptions) {
     opts = { ...defaultOpts, ...opts };
-
-    this.state =  TokenizerStates.START;
-
-    this.bufferedString = opts.stringBufferSize > 4 ? new BufferedString(opts.stringBufferSize) : new NonBufferedString();
-    this.bufferedNumber = opts.numberBufferSize > 0 ? new BufferedString(opts.numberBufferSize) : new NonBufferedString();
-
-    this.unicode = undefined; // unicode escapes
-    this.highSurrogate = undefined;
-    this.bytes_remaining = 0; // number of bytes remaining in multi byte utf8 char to read after split boundary
-    this.bytes_in_sequence = 0; // bytes in multi byte utf8 char to read
-    this.char_split_buffer = new Uint8Array(4); // for rebuilding chars split before boundary is reached
-    this.encoder = new TextEncoder('utf-8');
-
-    this.offset = -1;
+  
+    this.bufferedString = opts.stringBufferSize && opts.stringBufferSize > 4 ? new BufferedString(opts.stringBufferSize) : new NonBufferedString();
+    this.bufferedNumber = opts.numberBufferSize && opts.numberBufferSize > 0 ? new BufferedString(opts.numberBufferSize) : new NonBufferedString();
   }
-  write(input) {
-    let buffer;
+
+  public write(input: any): void {
+    let buffer: Uint8Array;
     if (input instanceof Uint8Array) {
       buffer = input;
     } else if (typeof input === 'string') {
@@ -402,21 +409,20 @@ export default class Parser {
           if (n === charset.LATIN_SMALL_LETTER_L) { this.state =  TokenizerStates.START; this.onToken(NULL, null, this.offset); this.offset += 3; continue; }
       }
 
-      const errorState = this.state;
-      if (this.state !== TokenizerStates.STOP || this.state !== TokenizerStates.ERROR) {
-        this.state =  TokenizerStates.ERROR;
-      }
-      throw new Error(`Unexpected "${String.fromCharCode(n)}" at position "${i}" in state ${getKeyFromValue(TokenizerStates, errorState)}`);
+      throw new Error(`Unexpected "${String.fromCharCode(n)}" at position "${i}" in state ${TokenizerStates[this.state]}`);
     }
   }
-  emitNumber() {
+
+  private emitNumber(): void {
     this.onToken(NUMBER, this.parseNumber(this.bufferedNumber.toString()), this.offset);
     this.offset += this.bufferedNumber.byteLength - 1;
   }
-  parseNumber(numberStr) {
+
+  protected parseNumber(numberStr: string): number {
     return Number(numberStr);
   }
-  onToken(token, value, offset) {
+
+  public onToken(token: TokenType, value: any, offset: number): void {
     // Override
   }
 }

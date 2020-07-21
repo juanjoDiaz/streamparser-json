@@ -186,7 +186,6 @@ test('should flush the buffer if there is not space for incoming data', (t) => {
   p.write(quote);
 });
 
-
 test('fail on invalid values', (t) => {
   const values = [
     '\n',

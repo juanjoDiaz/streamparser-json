@@ -60,6 +60,8 @@ test('fail on invalid values', (t) => {
     '{"test": eer[ }',
     '{ test: 1 }',
     '{ "test", }',
+    '{ "test": 1 ;',
+    '{ "test": 1 ]',
     '{ "test": 1, }',
   ];
   t.plan(values.length);

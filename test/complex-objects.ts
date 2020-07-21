@@ -5,7 +5,7 @@ import JsonParser from '../src/jsonparse';
 const { test } = tap;
 
 // TODO fix CWD
-const stringifiedJson = readFileSync(`${process.cwd()}/samplejson/basic.json`);
+const stringifiedJson = readFileSync(`${process.cwd()}/samplejson/basic.json`).toString();
 
 test('complex objects', (t) => {
   t.plan(1);

@@ -59,6 +59,8 @@ test('fail on invalid values', (t) => {
     '[,',
     '[1, eer]',
     '[1,]',
+    '[1;',
+    '[1}',
   ];
   t.plan(values.length);
 
