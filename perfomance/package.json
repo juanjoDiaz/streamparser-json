@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "deno": "deno run --unstable --allow-read index.deno.ts",
+    "node": "node index.node.mjs ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
