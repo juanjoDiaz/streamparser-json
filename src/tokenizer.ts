@@ -58,7 +58,7 @@ const defaultOpts: TokenizerOptions = {
   numberBufferSize: 0,
 };
 
-export default class Parser {
+export default class Tokenizer {
   private state =  TokenizerStates.START;
 
   private bufferedString: StringBuilder;

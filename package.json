@@ -2,7 +2,9 @@
   "name": "jsonparse",
   "description": "Streaming JSON parser in Javascript for Node.js and the browser",
   "version": "0.0.1",
-  "main": "./dist/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/mjs/index.js",
+  "browser": "./dist/umd/index.js",
   "types": "./dist/index.d.ts",
   "author": "Juanjo Diaz <juanjo.diazmo@gmail.com>",
   "repository": {
@@ -11,15 +13,25 @@
   },
   "bugs": "https://github.com/juanjoDiaz/jsonparse2/issues",
   "devDependencies": {
-    "@types/node": "^14.0.23",
-    "tap": "^14.10.7"
+    "@types/node": "^14.0.24",
+    "rollup": "^2.22.1",
+    "rollup-plugin-typescript2": "^0.27.1",
+    "tap": "^14.10.7",
+    "typescript": "^3.9.7"
   },
   "scripts": {
+    "build:deno": "node build.deno.js ./src ./dist/deno",
+    "build:umd": "rollup -c",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:mjs": "tsc --module esnext --outDir ./dist/mjs && node build.mjs.js ./dist/mjs",
+    "build": "npm run build:deno && npm run build:umd && npm run build:cjs && npm run build:mjs",
+    "dev": "rollup -c -w",
     "test": "tap test/*.ts"
   },
   "license": "MIT",
   "tags": [
     "json",
     "stream"
-  ]
+  ],
+  "dependencies": {}
 }
