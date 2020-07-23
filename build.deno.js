@@ -1,13 +1,19 @@
 #!/usr/bin/env node
 
-const path = require('path');
-const { mkdirSync, readdirSync, lstatSync, readFileSync, writeFileSync } = require('fs');
+const path = require("path");
+const {
+  mkdirSync,
+  readdirSync,
+  lstatSync,
+  readFileSync,
+  writeFileSync,
+} = require("fs");
 
 function processDir(src, dest) {
   mkdirSync(dest, { recursive: true });
 
   readdirSync(src)
-    .forEach(name => {
+    .forEach((name) => {
       const currentPath = path.join(src, name);
       const destPath = path.join(dest, name);
       const currentStats = lstatSync(currentPath);
@@ -18,7 +24,10 @@ function processDir(src, dest) {
 
       writeFileSync(
         destPath,
-        readFileSync(currentPath).toString().replace(/from '(\.[.\\/-\w]+)'/gm, "from '$1.ts'"),
+        readFileSync(currentPath).toString().replace(
+          /from '(\.[.\\/-\w]+)'/gm,
+          "from '$1.ts'",
+        ),
       );
     });
 }

@@ -1,4 +1,4 @@
-import { TokenType } from './utils/constants';
+import { TokenType } from "./utils/constants";
 
 const {
   LEFT_BRACE,
@@ -30,9 +30,9 @@ export enum ParserMode {
 }
 
 export interface StackElement {
-  key: string | number | undefined
-  value: any
-  mode: ParserMode | undefined
+  key: string | number | undefined;
+  value: any;
+  mode: ParserMode | undefined;
 }
 
 export default class Parser {
@@ -48,14 +48,20 @@ export default class Parser {
 
   private pop(): void {
     const value = this.value;
-    ({ key: this.key, value: this.value, mode: this.mode } = this.stack.pop() as StackElement);
+    ({ key: this.key, value: this.value, mode: this.mode } = this.stack
+      .pop() as StackElement);
     this.onValue(value, this.key, this.value, this.stack);
-    this.state = this.mode !== undefined ? ParserState.COMMA : ParserState.VALUE;
+    this.state = this.mode !== undefined
+      ? ParserState.COMMA
+      : ParserState.VALUE;
   }
 
   public write(token: TokenType, value: any) {
-    if(this.state === ParserState.VALUE){
-      if(token === STRING || token === NUMBER || token === TRUE || token === FALSE || token === NULL) {
+    if (this.state === ParserState.VALUE) {
+      if (
+        token === STRING || token === NUMBER || token === TRUE ||
+        token === FALSE || token === NULL
+      ) {
         if (this.mode === ParserMode.OBJECT) {
           this.value[this.key as string] = value;
           this.state = ParserState.COMMA;
@@ -67,7 +73,7 @@ export default class Parser {
         return;
       }
 
-      if(token === LEFT_BRACE){
+      if (token === LEFT_BRACE) {
         this.push();
         if (this.mode === ParserMode.OBJECT) {
           this.value = this.value[this.key as string] = {};
@@ -84,7 +90,7 @@ export default class Parser {
         return;
       }
 
-      if(token === LEFT_BRACKET){
+      if (token === LEFT_BRACKET) {
         this.push();
         if (this.mode === ParserMode.OBJECT) {
           this.value = this.value[this.key as string] = [];
@@ -101,13 +107,16 @@ export default class Parser {
         return;
       }
 
-      if (this.mode === ParserMode.ARRAY && token === RIGHT_BRACKET && this.value.length === 0) {
+      if (
+        this.mode === ParserMode.ARRAY && token === RIGHT_BRACKET &&
+        this.value.length === 0
+      ) {
         this.pop();
         return;
       }
     }
 
-    if(this.state === ParserState.KEY){
+    if (this.state === ParserState.KEY) {
       if (token === STRING) {
         this.key = value;
         this.state = ParserState.COLON;
@@ -141,16 +150,27 @@ export default class Parser {
         }
       }
 
-      if (token === RIGHT_BRACE && this.mode === ParserMode.OBJECT || token === RIGHT_BRACKET && this.mode === ParserMode.ARRAY) {
+      if (
+        token === RIGHT_BRACE && this.mode === ParserMode.OBJECT ||
+        token === RIGHT_BRACKET && this.mode === ParserMode.ARRAY
+      ) {
         this.pop();
         return;
       }
     }
 
-    throw new Error("Unexpected " + TokenType[token] + (("(" + JSON.stringify(value) + ")")) + " in state " + ParserState[this.state]);
+    throw new Error(
+      "Unexpected " + TokenType[token] + (("(" + JSON.stringify(value) + ")")) +
+        " in state " + ParserState[this.state],
+    );
   }
 
-  public onValue(value: any, key: string | number | undefined, parent: any, stack: StackElement[]): void {
+  public onValue(
+    value: any,
+    key: string | number | undefined,
+    parent: any,
+    stack: StackElement[],
+  ): void {
     // Override me
   }
 }

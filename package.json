@@ -26,7 +26,7 @@
     "build:mjs": "tsc --module esnext --outDir ./dist/mjs && node build.mjs.js ./dist/mjs",
     "build": "npm run build:deno && npm run build:umd && npm run build:cjs && npm run build:mjs",
     "dev": "rollup -c -w",
-    "test": "tap test/*.ts"
+    "test": "TS_NODE_SKIP_PROJECT=true tap test/*.ts"
   },
   "license": "MIT",
   "tags": [

@@ -1,13 +1,14 @@
-import { readFileSync } from 'fs';
-import tap from 'tap';
-import JsonParser from '../src/jsonparse';
+import { readFileSync } from "fs";
+import tap from "tap";
+import JsonParser from "../src/jsonparse";
 
 const { test } = tap;
 
 // TODO fix CWD
-const stringifiedJson = readFileSync(`${process.cwd()}/samplejson/basic.json`).toString();
+const stringifiedJson = readFileSync(`${process.cwd()}/samplejson/basic.json`)
+  .toString();
 
-test('complex objects', (t) => {
+test("complex objects", (t) => {
   t.plan(1);
 
   const p = new JsonParser();

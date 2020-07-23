@@ -1,6 +1,6 @@
-import tap from 'tap';
-import JsonParser from '../src/jsonparse';
-import { charset }  from '../src/utils/utf-8';
+import tap from "tap";
+import JsonParser from "../src/jsonparse";
+import { charset } from "../src/utils/utf-8";
 
 const { test } = tap;
 
@@ -8,9 +8,9 @@ const { QUOTATION_MARK } = charset;
 
 const quote = String.fromCharCode(QUOTATION_MARK);
 
-test('write accept strings', (t) => {
+test("write accept strings", (t) => {
   t.plan(1);
-  const value = 'test';
+  const value = "test";
 
   const p = new JsonParser();
   p.onValue = (v) => t.equal(v, value);
@@ -19,9 +19,9 @@ test('write accept strings', (t) => {
   p.write(quote);
 });
 
-test('write accept Uint8Array', (t) => {
+test("write accept Uint8Array", (t) => {
   t.plan(1);
-  const value = 'test';
+  const value = "test";
 
   const p = new JsonParser();
   p.onValue = (v) => t.equal(v, value);
@@ -30,9 +30,9 @@ test('write accept Uint8Array', (t) => {
   p.write(quote);
 });
 
-test('write accept Uint16Array', (t) => {
+test("write accept Uint16Array", (t) => {
   t.plan(1);
-  const value = 'test';
+  const value = "test";
 
   const p = new JsonParser();
   p.onValue = (v) => t.equal(v, value);
@@ -41,9 +41,9 @@ test('write accept Uint16Array', (t) => {
   p.write(quote);
 });
 
-test('write accept Uint32Array', (t) => {
+test("write accept Uint32Array", (t) => {
   t.plan(1);
-  const value = 'test';
+  const value = "test";
 
   const p = new JsonParser();
   p.onValue = (v) => t.equal(v, value);
@@ -52,9 +52,9 @@ test('write accept Uint32Array', (t) => {
   p.write(quote);
 });
 
-test('write accept Array', (t) => {
+test("write accept Array", (t) => {
   t.plan(1);
-  const value = 'test';
+  const value = "test";
 
   const p = new JsonParser();
   p.onValue = (v) => t.equal(v, value);
@@ -63,14 +63,14 @@ test('write accept Array', (t) => {
   p.write(quote);
 });
 
-test('write throw on invalid type', (t) => {
+test("write throw on invalid type", (t) => {
   t.plan(1);
 
   const p = new JsonParser();
   try {
-    p.write(745674);
+    p.write(745674 as any);
     t.fail(`Expected to file on number input.`);
-  } catch(e) {
+  } catch (e) {
     t.pass();
   }
 });

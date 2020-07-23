@@ -7,7 +7,7 @@ export interface StringBuilder {
 }
 
 export class NonBufferedString implements StringBuilder {
-  private decoder = new TextDecoder('utf-8');
+  private decoder = new TextDecoder("utf-8");
   private string = "";
   public byteLength = 0;
 
@@ -16,7 +16,11 @@ export class NonBufferedString implements StringBuilder {
     this.byteLength += 1;
   }
 
-  public appendBuf(buf: Uint8Array, start: number = 0, end: number = buf.length): void {
+  public appendBuf(
+    buf: Uint8Array,
+    start: number = 0,
+    end: number = buf.length,
+  ): void {
     this.string += this.decoder.decode(buf.subarray(start, end));
     this.byteLength += end - start;
   }
@@ -32,7 +36,7 @@ export class NonBufferedString implements StringBuilder {
 }
 
 export class BufferedString implements StringBuilder {
-  private decoder = new TextDecoder('utf-8');
+  private decoder = new TextDecoder("utf-8");
   private buffer: Uint8Array;
   private bufferOffset = 0;
   private string = "";
@@ -48,7 +52,11 @@ export class BufferedString implements StringBuilder {
     this.byteLength += 1;
   }
 
-  public appendBuf(buf: Uint8Array, start: number = 0, end: number = buf.length): void {
+  public appendBuf(
+    buf: Uint8Array,
+    start: number = 0,
+    end: number = buf.length,
+  ): void {
     const size = end - start;
     if (this.bufferOffset + size > this.buffer.length) this.flushStringBuffer();
     this.buffer.set(buf.subarray(start, end), this.bufferOffset);
@@ -57,7 +65,9 @@ export class BufferedString implements StringBuilder {
   }
 
   private flushStringBuffer(): void {
-    this.string += this.decoder.decode(this.buffer.subarray(0, this.bufferOffset));
+    this.string += this.decoder.decode(
+      this.buffer.subarray(0, this.bufferOffset),
+    );
     this.bufferOffset = 0;
   }
 

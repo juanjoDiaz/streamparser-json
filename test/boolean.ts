@@ -1,59 +1,67 @@
-import tap from 'tap';
-import JsonParser from '../src/jsonparse';
+import tap from "tap";
+import JsonParser from "../src/jsonparse";
 
 const { test } = tap;
 
 const values = [
-  'true',
-  'false',
+  "true",
+  "false",
 ];
-const expected = values.map(str => JSON.parse(str));
+const expected = values.map((str) => JSON.parse(str));
 
-test('boolean', (t) => {
+test("boolean", (t) => {
   t.plan(expected.length);
   let i = 0;
 
   const p = new JsonParser();
   p.onValue = (value) => {
-    t.equal(value, expected[i], `Error on expectation ${i} (${value} !== ${expected[i]})`);
+    t.equal(
+      value,
+      expected[i],
+      `Error on expectation ${i} (${value} !== ${expected[i]})`,
+    );
     i += 1;
   };
 
-  values.forEach(str => p.write(str));
+  values.forEach((str) => p.write(str));
 });
 
-test('boolean chuncked', (t) => {
+test("boolean chuncked", (t) => {
   t.plan(expected.length);
   let i = 0;
 
   const p = new JsonParser();
   p.onValue = (value) => {
-    t.equal(value, expected[i], `Error on expectation ${i} (${value} !== ${expected[i]})`);
+    t.equal(
+      value,
+      expected[i],
+      `Error on expectation ${i} (${value} !== ${expected[i]})`,
+    );
     i += 1;
   };
 
-  values.forEach(str => str.split('').forEach(c => p.write(c)));
+  values.forEach((str) => str.split("").forEach((c) => p.write(c)));
 });
 
-test('fail on invalid values', (t) => {
+test("fail on invalid values", (t) => {
   const values = [
-    'tRue',
-    'trUe',
-    'truE',
-    'fAlse',
-    'faLse',
-    'falSe',
-    'falsE',
+    "tRue",
+    "trUe",
+    "truE",
+    "fAlse",
+    "faLse",
+    "falSe",
+    "falsE",
   ];
   t.plan(values.length);
 
-  values.forEach(str => {
+  values.forEach((str) => {
     const p = new JsonParser();
     try {
       p.write(str);
       t.fail(`Expected to fail on value "${str}"`);
-    } catch(e) {
+    } catch (e) {
       t.pass();
     }
-  })
+  });
 });
