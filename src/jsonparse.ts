@@ -3,6 +3,7 @@ import Parser, { StackElement } from "./parser";
 
 export default class JSONParser {
   private tokenizer: Tokenizer;
+
   private parser: Parser;
 
   constructor(opts: TokenizerOptions = {}) {
@@ -11,7 +12,7 @@ export default class JSONParser {
     this.tokenizer.onToken = this.parser.write.bind(this.parser);
   }
 
-  public write(input: Iterable<number> | string) {
+  public write(input: Iterable<number> | string): void {
     this.tokenizer.write(input);
   }
 

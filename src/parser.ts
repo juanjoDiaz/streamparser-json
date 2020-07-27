@@ -37,9 +37,13 @@ export interface StackElement {
 
 export default class Parser {
   private state: ParserState = ParserState.VALUE;
+
   private mode: ParserMode | undefined = undefined;
+
   private key: string | number | undefined = undefined;
+
   private value: any = undefined;
+
   private stack: StackElement[] = [];
 
   private push(): void {
@@ -47,7 +51,7 @@ export default class Parser {
   }
 
   private pop(): void {
-    const value = this.value;
+    const { value } = this;
     ({ key: this.key, value: this.value, mode: this.mode } = this.stack
       .pop() as StackElement);
     this.onValue(value, this.key, this.value, this.stack);
@@ -56,7 +60,7 @@ export default class Parser {
       : ParserState.VALUE;
   }
 
-  public write(token: TokenType, value: any) {
+  public write(token: TokenType, value: any): void {
     if (this.state === ParserState.VALUE) {
       if (
         token === STRING || token === NUMBER || token === TRUE ||

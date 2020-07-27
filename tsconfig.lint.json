@@ -8,11 +8,12 @@
     "strict": true,
   },
   "include": [
-    "src"
+    "src",
+    "test",
   ],
-  // "exclude": [
-  //   "node_modules",
-  //   "dist",
-  //   "test"
-  // ]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "performance",
+  ]
 }
