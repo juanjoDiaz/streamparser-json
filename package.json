@@ -13,10 +13,10 @@
   },
   "bugs": "https://github.com/juanjoDiaz/jsonparse2/issues",
   "devDependencies": {
-    "@types/node": "^14.0.24",
-    "rollup": "^2.22.1",
+    "@types/node": "^14.0.26",
+    "rollup": "^2.23.0",
     "rollup-plugin-typescript2": "^0.27.1",
-    "tap": "^14.10.7",
+    "tap": "^14.10.8",
     "typescript": "^3.9.7"
   },
   "scripts": {
