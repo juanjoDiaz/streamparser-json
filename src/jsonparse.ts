@@ -11,7 +11,7 @@ export default class JSONParser {
     this.tokenizer.onToken = this.parser.write.bind(this.parser);
   }
 
-  public write(input: Iterable<number> | string) {
+  public write(input: Iterable<number> | string): void {
     this.tokenizer.write(input);
   }
 

@@ -56,7 +56,7 @@ export default class Parser {
       : ParserState.VALUE;
   }
 
-  public write(token: TokenType, value: any) {
+  public write(token: TokenType, value: any): void{
     if (this.state === ParserState.VALUE) {
       if (
         token === STRING || token === NUMBER || token === TRUE ||
