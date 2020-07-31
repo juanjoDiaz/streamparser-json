@@ -1,13 +1,15 @@
 import Tokenizer, { TokenizerOptions } from "./tokenizer";
-import Parser, { StackElement } from "./parser";
+import Parser, { StackElement, ParserOptions } from "./parser";
+
+interface JSONParserOpts extends TokenizerOptions, ParserOptions {}
 
 export default class JSONParser {
   private tokenizer: Tokenizer;
   private parser: Parser;
 
-  constructor(opts: TokenizerOptions = {}) {
+  constructor(opts: JSONParserOpts = {}) {
     this.tokenizer = new Tokenizer(opts);
-    this.parser = new Parser();
+    this.parser = new Parser(opts);
     this.tokenizer.onToken = this.parser.write.bind(this.parser);
   }
 

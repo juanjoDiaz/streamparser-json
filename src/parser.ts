@@ -33,24 +33,66 @@ export interface StackElement {
   key: string | number | undefined;
   value: any;
   mode: ParserMode | undefined;
+  emit: boolean;
 }
 
+export interface ParserOptions {
+  path?: string;
+}
+
+const defaultOpts: ParserOptions = {
+  path: undefined,
+};
+
 export default class Parser {
+  private readonly path?: string[];
   private state: ParserState = ParserState.VALUE;
   private mode: ParserMode | undefined = undefined;
   private key: string | number | undefined = undefined;
   private value: any = undefined;
   private stack: StackElement[] = [];
 
+  constructor(opts?: ParserOptions) {
+    opts = { ...defaultOpts, ...opts };
+    if (opts.path === undefined || opts.path === '$*') {
+      this.path = undefined;
+    } else {
+      if (!opts.path.startsWith('$')) throw new Error(`Invalid selector "${opts.path}". Should start with "$".`);
+      this.path = opts.path.split('.').slice(1);
+      if (this.path.includes('')) throw new Error(`Invalid selector "${opts.path}". ".." syntax not supported.`);
+    }
+  }
+
+  private shouldEmit(): boolean {
+    if (this.path === undefined) return true;
+    if (this.path.length !== this.stack.length) return false;
+
+    for (let i = 0; i < this.path.length - 1; i++) {
+      const selector = this.path[i];
+      const key = this.stack[i + 1].key;
+      if (selector === '*') continue;
+      if (selector !== key) return false;
+    }
+
+    const selector = this.path[this.path.length - 1];
+    if (selector === '*') return true;
+    return selector === this.key?.toString();
+  }
+
   private push(): void {
-    this.stack.push({ key: this.key, value: this.value, mode: this.mode });
+    this.stack.push({ key: this.key, value: this.value, mode: this.mode, emit: this.shouldEmit() });
   }
 
   private pop(): void {
     const value = this.value;
-    ({ key: this.key, value: this.value, mode: this.mode } = this.stack
+
+    let emit;
+    ({ key: this.key, value: this.value, mode: this.mode, emit } = this.stack
       .pop() as StackElement);
-    this.onValue(value, this.key, this.value, this.stack);
+    
+    if (emit) {
+      this.onValue(value, this.key, this.value, this.stack);
+    }
     this.state = this.mode !== undefined
       ? ParserState.COMMA
       : ParserState.VALUE;
@@ -69,7 +111,10 @@ export default class Parser {
           this.value.push(value);
           this.state = ParserState.COMMA;
         }
-        this.onValue(value, this.key, this.value, this.stack);
+
+        if (this.shouldEmit()) {
+          this.onValue(value, this.key, this.value, this.stack);
+        }
         return;
       }
 

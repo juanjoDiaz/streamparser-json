@@ -1,6 +1,6 @@
 # JSONparse2
 
-Fast library to parse a JSON stream using utf-8 encoding in Node.js, Deno or any modern browser. Fully compliant with the JSON spec and `JSON.parse(...)`.
+Fast dependency-free library to parse a JSON stream using utf-8 encoding in Node.js, Deno or any modern browser. Fully compliant with the JSON spec and `JSON.parse(...)`.
 
 *tldr;*
 
@@ -55,7 +55,7 @@ The available options are:
 
 If buffer sizes are set to anything else than zero, instead of using a string to apppend the data as it comes in, the data is buffered using a TypedArray. A reasonable size could be `64 * 1024` (64 KB).
 
-### Buffering
+#### Buffering
 
 When parsing strings or numbers, JSONparse2 needs to gather the data in-memory until the whole value is ready.
 
@@ -99,10 +99,18 @@ A parser that processes JSON tokens as emitted by the `Tokenizer` and emits JSON
 ```javascript
 import { Parser } from 'jsonparse2';
 
-const parser = new Parser();
+const parser = new Parser(opts);
 ```
 
-It takes no options.
+The available options are:
+
+```javascript
+{
+  path: <string>, // paths to emit. Defaults to emit everything.
+}
+```
+
+Path is intended to suppot jsonpath although it only supports the root object selector (`$`) and subproperties selectors including wildcards (`$.a`, `$.*`, `$.a.b`, , `$.*.b`, etc). 
 
 #### Methods
 
@@ -249,14 +257,13 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 ```js
   import { JsonParser } from 'jsonparse2';
 
-  const jsonparser = new JsonParser({ stringBufferSize: undefined });
+  const jsonparser = new JsonParser({ stringBufferSize: undefined, path: '$.*' });
   parser.onValue = (value, key, parent, stack) => {
     if (stack.length === 0) /* We are done. Exit. */; 
-    if (stack > 1) return; // ignore inner values
     // By default, JSONparse2 keeps all the child elements in memory until the root parent is emitted.
     // Let's delete the objects after processing them in order to optimize memory.
     delete parent[key];
-    // TODO process `value`
+    // TODO process `value` which will be each of the values in the array.
   }
 
   const response = await fetch('http://example.com/');

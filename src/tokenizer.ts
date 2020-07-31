@@ -76,7 +76,7 @@ export default class Tokenizer {
   private encoder = new TextEncoder();
   private offset = -1;
 
-  constructor(opts: TokenizerOptions) {
+  constructor(opts?: TokenizerOptions) {
     opts = { ...defaultOpts, ...opts };
 
     this.bufferedString = opts.stringBufferSize && opts.stringBufferSize > 4
