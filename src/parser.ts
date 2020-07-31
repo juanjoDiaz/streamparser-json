@@ -38,14 +38,17 @@ export interface StackElement {
 
 export interface ParserOptions {
   path?: string;
+  keepStack?: boolean,
 }
 
 const defaultOpts: ParserOptions = {
   path: undefined,
+  keepStack: true,
 };
 
 export default class Parser {
   private readonly path?: string[];
+  private readonly keepStack: boolean;
   private state: ParserState = ParserState.VALUE;
   private mode: ParserMode | undefined = undefined;
   private key: string | number | undefined = undefined;
@@ -54,6 +57,7 @@ export default class Parser {
 
   constructor(opts?: ParserOptions) {
     opts = { ...defaultOpts, ...opts };
+
     if (opts.path === undefined || opts.path === '$*') {
       this.path = undefined;
     } else {
@@ -61,6 +65,8 @@ export default class Parser {
       this.path = opts.path.split('.').slice(1);
       if (this.path.includes('')) throw new Error(`Invalid selector "${opts.path}". ".." syntax not supported.`);
     }
+
+    this.keepStack = opts.keepStack as boolean;
   }
 
   private shouldEmit(): boolean {
@@ -89,13 +95,19 @@ export default class Parser {
     let emit;
     ({ key: this.key, value: this.value, mode: this.mode, emit } = this.stack
       .pop() as StackElement);
-    
-    if (emit) {
-      this.onValue(value, this.key, this.value, this.stack);
-    }
+
+    this.emit(value, emit)
+
     this.state = this.mode !== undefined
       ? ParserState.COMMA
       : ParserState.VALUE;
+  }
+
+  private emit(value: any, emit: boolean) {
+    if (!this.keepStack && this.stack.every(item => !item.emit)) delete this.value[this.key as string | number];
+    if (emit) {
+      this.onValue(value, this.key, this.value, this.stack);
+    }
   }
 
   public write(token: TokenType, value: any): void{
@@ -112,9 +124,7 @@ export default class Parser {
           this.state = ParserState.COMMA;
         }
 
-        if (this.shouldEmit()) {
-          this.onValue(value, this.key, this.value, this.stack);
-        }
+        this.emit(value, this.shouldEmit());
         return;
       }
 

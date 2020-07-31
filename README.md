@@ -106,11 +106,13 @@ The available options are:
 
 ```javascript
 {
-  path: <string>, // paths to emit. Defaults to emit everything.
+  path: <string>,
+  keepStack: <boolean>, // whether to keep all the properties in the stack
 }
 ```
 
-Path is intended to suppot jsonpath although it only supports the root object selector (`$`) and subproperties selectors including wildcards (`$.a`, `$.*`, `$.a.b`, , `$.*.b`, etc). 
+* path: Paths to emit. Defaults to `undefined` which emits everything. The `path` option is intended to suppot jsonpath although at the time being it only supports the root object selector (`$`) and subproperties selectors including wildcards (`$.a`, `$.*`, `$.a.b`, , `$.*.b`, etc). 
+* keepStack: Whether to keep full objects on the stack even if they won't be emitted. Defaults to `true`. When set to `false` the it does preserve properties in the parent object some ancestor will be emitted. This means that the parent object passed to the `onValue` function will be empty, which doesn't reflect the truth, but it's more memory-efficient.
 
 #### Methods
 
@@ -196,7 +198,7 @@ You can subscribe to the resulting data using the
 ```javascript
 import { JsonParser } from 'jsonparse2';
 
-const parser = new JsonParser({ stringBufferSize: undefined });
+const parser = new JsonParser({ stringBufferSize: undefined, path: '$' });
 parser.onValue = console.log;
 
 parser.write('"Hello world!"'); // logs "Hello world!"
