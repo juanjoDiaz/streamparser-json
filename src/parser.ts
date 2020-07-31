@@ -189,6 +189,7 @@ export default class Parser {
           return;
         }
 
+        /* istanbul ignore else */
         if (this.mode === ParserMode.OBJECT) {
           this.state = ParserState.KEY;
           return;
