@@ -283,9 +283,10 @@ JSONParser was awesome.... in 2011.
 
 JSONparse2 is:
 
-* As performant as the original an even faster in some cases
+* As performant as the original an even faster in some cases.
 * Works on the browser.
-* Well documented
+* Allow selector of what to emit.
+* Well documented.
 * Better designed and more plugable/configurable by clearly separates the tokenizer and parser processes.
 * Simpler and cleaner code. Uses ES6 and doesn't rely on deprecated Node.js methods.
 * 100% unit test coverage.
@@ -297,4 +298,5 @@ JSONparse2 is:
 * Big number are not kept as a string by default. you can achieve such behaviour by simply overriding the `parseNumber` method.
 * Characters above 244 are correctly parsed instead of throwing an error.
 * Trailing comas are not allowed in objects or arrays.
+* The `onError` callback has been removed. The `write` method is synchronous so wrapping it in a try-catch block will capture all possible errors.
 * JSONparse2 uses a string as internal buffer by default. This offers better performance but can lead to memory exhaustion if your JSON include very long strings (due to V8 optimizations). To get the exact same behaviour as in JSON parse you should set the `stringBufferSize` option to `64 * 1024`.
