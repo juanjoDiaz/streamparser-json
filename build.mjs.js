@@ -23,7 +23,7 @@ function processDir(src) {
       writeFileSync(
         currentPath.replace(/\.js$/, ".mjs"),
         readFileSync(currentPath).toString().replace(
-          /from '(\.[.\\/-\w]+)'/gm,
+          /from "(\.[.\\/-\w]+)"/gm,
           "from '$1.mjs'",
         ),
       );

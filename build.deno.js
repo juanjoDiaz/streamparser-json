@@ -25,7 +25,7 @@ function processDir(src, dest) {
       writeFileSync(
         destPath,
         readFileSync(currentPath).toString().replace(
-          /from '(\.[.\\/-\w]+)'/gm,
+          /from "(\.[.\\/-\w]+)"/gm,
           "from '$1.ts'",
         ),
       );
