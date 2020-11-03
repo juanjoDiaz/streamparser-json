@@ -13,18 +13,18 @@
   },
   "bugs": "https://github.com/juanjoDiaz/jsonparse2/issues",
   "devDependencies": {
-    "@types/node": "^14.0.26",
-    "rollup": "^2.23.0",
-    "rollup-plugin-typescript2": "^0.27.1",
+    "@types/node": "^14.14.6",
+    "rollup": "^2.33.1",
+    "rollup-plugin-typescript2": "^0.27.3",
     "tap": "^14.10.8",
-    "typescript": "^3.9.7"
+    "typescript": "^4.0.5"
   },
   "scripts": {
     "build:deno": "node build.deno.js ./src ./dist/deno",
     "build:umd": "rollup -c",
     "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
     "build:mjs": "tsc --module esnext --outDir ./dist/mjs && node build.mjs.js ./dist/mjs",
-    "build": "npm run build:deno && npm run build:umd && npm run build:cjs && npm run build:mjs",
+    "build": "npm run build:umd && npm run build:cjs && npm run build:mjs && npm run build:deno",
     "test": "TS_NODE_SKIP_PROJECT=true tap test"
   },
   "license": "MIT",
