@@ -25,7 +25,7 @@
     "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
     "build:mjs": "tsc --module esnext --outDir ./dist/mjs && node build.mjs.js ./dist/mjs",
     "build": "npm run build:umd && npm run build:cjs && npm run build:mjs && npm run build:deno",
-    "test": "TS_NODE_SKIP_PROJECT=true tap test"
+    "test": "TS_NODE_SKIP_PROJECT=true tap --timeout=60 test"
   },
   "license": "MIT",
   "tags": [
