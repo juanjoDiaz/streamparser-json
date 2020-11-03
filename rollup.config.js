@@ -19,4 +19,21 @@ export default [
       }),
     ],
   },
+  {
+    input: "src/transform-stream.ts",
+    output: {
+      file: pkg.browser,
+      format: "umd",
+      name: "JsonParserTransform",
+    },
+    plugins: [
+      typescript({
+        tsconfigOverride: {
+          compilerOptions: {
+            target: "es5",
+          },
+        },
+      }),
+    ],
+  },
 ];
