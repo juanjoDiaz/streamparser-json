@@ -1,6 +1,6 @@
 import { performance } from "perf_hooks";
 import { readFileSync } from "fs";
-import JSONParse2 from "../dist/mjs/jsonparse.mjs";
+import JSONParser from "../dist/mjs/jsonparse.mjs";
 
 function repeat(str, number) {
   return Array(number).fill(str).join("");
@@ -53,10 +53,10 @@ console.log("===========");
 benchmark(`${Array(100000).fill("9").join("")}`);
 
 function benchmark(jsonStr) {
-  const jsonparse2 = new JSONParse2();
+  const jsonparser = new JSONParser();
 
   const start = performance.now();
-  jsonparse2.write(jsonStr);
+  jsonparser.write(jsonStr);
   const end = performance.now();
   console.log(`Time: ${end - start} ms.`);
 }

@@ -9,9 +9,9 @@
   "author": "Juanjo Diaz <juanjo.diazmo@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/juanjoDiaz/jsonparse2.git"
+    "url": "https://github.com/juanjoDiaz/streamparser-json.git"
   },
-  "bugs": "https://github.com/juanjoDiaz/jsonparse2/issues",
+  "bugs": "https://github.com/juanjoDiaz/streamparser-json/issues",
   "devDependencies": {
     "@types/node": "^14.14.6",
     "rollup": "^2.33.1",

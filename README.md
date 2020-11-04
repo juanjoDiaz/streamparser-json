@@ -1,11 +1,11 @@
-# JSONparse2
+# @streamparser/json
 
 Fast dependency-free library to parse a JSON stream using utf-8 encoding in Node.js, Deno or any modern browser. Fully compliant with the JSON spec and `JSON.parse(...)`.
 
 *tldr;*
 
 ```javascript
-import { JSONparser } from 'jsonparse2';
+import { JSONparser } from '@streamparser/json';
 
 const parser = new JSONparser();
 parser.onValue = (value) => { /* process data */}
@@ -24,7 +24,7 @@ try {
 
 ## Dependencies / Polyfilling
 
-JSONparse2 requires a few ES6 classes:
+@streamparser/json requires a few ES6 classes:
 
 * [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)
 * [TextEncoder](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder)
@@ -39,7 +39,7 @@ If you are targeting browsers or systems in which these might be missing, you ne
 A JSON compliant tokenizer that parses a utf-8 stream into JSON tokens
 
 ```javascript
-import { Tokenizer } from 'jsonparse2';
+import { Tokenizer } from '@streamparser/json';
 
 const tokenizer = new Tokenizer(opts);
 ```
@@ -57,9 +57,9 @@ If buffer sizes are set to anything else than zero, instead of using a string to
 
 #### Buffering
 
-When parsing strings or numbers, JSONparse2 needs to gather the data in-memory until the whole value is ready.
+When parsing strings or numbers, the parser needs to gather the data in-memory until the whole value is ready.
 
-Strings are inmutable in Javascript so every string operation creates a new string. The V8 engine, behind Node, Deno and most modern browsers, performs a many different types of optimization. One of this optimizations is to over-allocate memory when it detects many string concatenations. This increases significatly the memory consumption and can easily exhaust your memory when parsing JSON containing very large strings or numbers. For those cases, JSONparse2 can buffer the characters using a TypedArray. This requires encoding/decoding from/to the buffer into an actual string once the value is ready. This is done using the `TextEncoder` and `TextDecoder` APIs. Unfortunately, these APIs creates a significant overhead when the strings are small so should be used only when strictly necessary.
+Strings are inmutable in Javascript so every string operation creates a new string. The V8 engine, behind Node, Deno and most modern browsers, performs a many different types of optimization. One of this optimizations is to over-allocate memory when it detects many string concatenations. This increases significatly the memory consumption and can easily exhaust your memory when parsing JSON containing very large strings or numbers. For those cases, the parser can buffer the characters using a TypedArray. This requires encoding/decoding from/to the buffer into an actual string once the value is ready. This is done using the `TextEncoder` and `TextDecoder` APIs. Unfortunately, these APIs creates a significant overhead when the strings are small so should be used only when strictly necessary.
 
 #### Methods
 
@@ -97,7 +97,7 @@ tokenizer.onToken = (token, value, offset) => { ... };
 A parser that processes JSON tokens as emitted by the `Tokenizer` and emits JSON values/objects.
 
 ```javascript
-import { Parser } from 'jsonparse2';
+import { Parser } from '@streamparser/json';
 
 const parser = new Parser(opts);
 ```
@@ -134,7 +134,7 @@ const parser = new Parser();
 parser.onValue = (value) => { ... };
 ```
 
-### JSONparse
+### JSONparser
 
 A drop-in replacement of `JSONparse` (with few ~~breaking changes~~ improvements. See below.).
 
@@ -181,7 +181,7 @@ jsonParser.onToken = (token, value, offset) => { ... };
 jsonParser.onValue = (value) => { ... };
 ```
 
-## Using JSONparse2
+## Usage
 
 You can use both components independently as
 
@@ -196,7 +196,7 @@ You push data using the `write` method which takes a string or an array-like obj
 You can subscribe to the resulting data using the 
 
 ```javascript
-import { JsonParser } from 'jsonparse2';
+import { JsonParser } from '@streamparser/json';
 
 const parser = new JsonParser({ stringBufferSize: undefined, path: '$' });
 parser.onValue = console.log;
@@ -214,7 +214,7 @@ parser.write('"');// logs "Hello world!"
 Write is always a synchronous operation so any error during the parsing of the stream will be thrown during the write operation. After an error, the parser can't continue parsing.
 
 ```javascript
-import { JsonParser } from 'jsonparse2';
+import { JsonParser } from '@streamparser/json';
 
 const parser = new JsonParser({ stringBufferSize: undefined });
 parser.onValue = console.log;
@@ -234,7 +234,7 @@ try {
 Imagine an endpoint that send a large amount of JSON objects one after the other (`{"id":1}{"id":2}{"id":3}...`).
 
 ```js
-  import { JSONparser } from 'jsonparse2';
+  import { JSONparser } from '@streamparser/json';
 
   const jsonparser = new JsonParser({ stringBufferSize: undefined });
   parser.onValue = (value, key, parent, stack) => {
@@ -257,12 +257,12 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 Imagine an endpoint that send a large amount of JSON objects one after the other (`[{"id":1},{"id":2},{"id":3},...]`).
 
 ```js
-  import { JsonParser } from 'jsonparse2';
+  import { JsonParser } from '@streamparser/json';
 
   const jsonparser = new JsonParser({ stringBufferSize: undefined, path: '$.*' });
   parser.onValue = (value, key, parent, stack) => {
     if (stack.length === 0) /* We are done. Exit. */; 
-    // By default, JSONparse2 keeps all the child elements in memory until the root parent is emitted.
+    // By default, the parser keeps all the child elements in memory until the root parent is emitted.
     // Let's delete the objects after processing them in order to optimize memory.
     delete parent[key];
     // TODO process `value` which will be each of the values in the array.
@@ -281,7 +281,7 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 
 JSONParser was awesome.... in 2011.
 
-JSONparse2 is:
+@streamparser/json is:
 
 * As performant as the original an even faster in some cases.
 * Works on the browser.
@@ -299,4 +299,4 @@ JSONparse2 is:
 * Characters above 244 are correctly parsed instead of throwing an error.
 * Trailing comas are not allowed in objects or arrays.
 * The `onError` callback has been removed. The `write` method is synchronous so wrapping it in a try-catch block will capture all possible errors.
-* JSONparse2 uses a string as internal buffer by default. This offers better performance but can lead to memory exhaustion if your JSON include very long strings (due to V8 optimizations). To get the exact same behaviour as in JSON parse you should set the `stringBufferSize` option to `64 * 1024`.
+* @streamparser/json uses a string as internal buffer by default. This offers better performance but can lead to memory exhaustion if your JSON include very long strings (due to V8 optimizations). To get the exact same behaviour as in JSON parse you should set the `stringBufferSize` option to `64 * 1024`.
