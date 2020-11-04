@@ -12,7 +12,7 @@ parser.onValue = (value) => { /* process data */}
 
 // Or passing the stream in several chunks 
 try {
-  p.write('{ "test": ["a"] }');
+  parser.write('{ "test": ["a"] }');
   // onValue will be called 3 times:
   // "a"
   // ["a"]
