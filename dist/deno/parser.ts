@@ -104,7 +104,9 @@ export default class Parser {
   }
 
   private emit(value: any, emit: boolean) {
-    if (!this.keepStack && this.stack.every(item => !item.emit)) delete this.value[this.key as string | number];
+    if (this.value && !this.keepStack && this.stack.every(item => !item.emit)) {
+      delete this.value[this.key as string | number];
+    }
     if (emit) {
       this.onValue(value, this.key, this.value, this.stack);
     }
