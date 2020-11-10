@@ -23,7 +23,7 @@ const {
 // Tokenizer States
 enum TokenizerStates {
   START,
-  STOP,
+  ENDED,
   ERROR,
   TRUE1,
   TRUE2,
@@ -189,9 +189,9 @@ export default class Tokenizer {
         case TokenizerStates.STRING_DEFAULT:
           if (n === charset.QUOTATION_MARK) {
             const string = this.bufferedString.toString();
+            this.state = TokenizerStates.START;
             this.onToken(STRING, string, this.offset);
             this.offset += this.bufferedString.byteLength + 1;
-            this.state = TokenizerStates.START;
             continue;
           }
 
@@ -343,8 +343,8 @@ export default class Tokenizer {
           }
 
           i -= 1;
-          this.emitNumber();
           this.state = TokenizerStates.START;
+          this.emitNumber();
           continue;
         case TokenizerStates.NUMBER_AFTER_INITIAL_NON_ZERO:
           if (n >= charset.DIGIT_ZERO && n <= charset.DIGIT_NINE) {
@@ -368,8 +368,8 @@ export default class Tokenizer {
           }
 
           i -= 1;
-          this.emitNumber();
           this.state = TokenizerStates.START;
+          this.emitNumber();
           continue;
         case TokenizerStates.NUMBER_AFTER_FULL_STOP:
           if (n >= charset.DIGIT_ZERO && n <= charset.DIGIT_NINE) {
@@ -395,8 +395,8 @@ export default class Tokenizer {
           }
 
           i -= 1;
-          this.emitNumber();
           this.state = TokenizerStates.START;
+          this.emitNumber();
           continue;
         case TokenizerStates.NUMBER_AFTER_E:
           if (n === charset.PLUS_SIGN || n === charset.HYPHEN_MINUS) {
@@ -420,8 +420,8 @@ export default class Tokenizer {
           }
 
           i -= 1;
-          this.emitNumber();
           this.state = TokenizerStates.START;
+          this.emitNumber();
           continue;
         // TRUE
         case TokenizerStates.TRUE1:
@@ -512,7 +512,19 @@ export default class Tokenizer {
     return Number(numberStr);
   }
 
+  public end() {
+    if (this.state !== TokenizerStates.START) {
+      throw new Error("Tokenizer ended in the middle of a token. Either not all the data was received or the data was invalid. " + TokenizerStates[this.state]);
+    }
+
+    this.state = TokenizerStates.ENDED;
+    this.onEnd();
+  }
+
   public onToken(token: TokenType, value: any, offset: number): void {
     // Override
+  }
+  public onEnd() {
+    // Override me
   }
 }

@@ -7,18 +7,20 @@ const testData = [
   { value: "[0,1,-1]", path: "$", expected: [[0,1,-1]] },
   { value: "[0,1,-1]", path: "$.*", expected: [0,1,-1] },
   { value: "[0,1,-1]", path: "$.1", expected: [1] },
-  { value: '{ "a": { "b": 1, "c": 2 }', path: "$.a.*", expected: [1,2] },
-  { value: '{ "a": { "b": 1, "c": 2 }', path: "$.a.c", expected: [2] },
-  { value: '{ "a": { "b": [1,2], "c": [3, 4] }', path: "$.a.*.*", expected: [1,2,3,4] },
-  { value: '{ "a": { "b": [1,2], "c": [3, 4] }', path: "$.a.*.1", expected: [2,4] },
-  { value: '{ "a": { "b": [1,2], "c": [3, 4] }', path: "$.a.c.*", expected: [3,4] },
-  { value: '{ "a": { "b": [1,2], "c": [3, 4] }', path: "$.a.c.1", expected: [4] },
+  { value: '{ "a": { "b": 1, "c": 2 } }', path: "$.a.*", expected: [1,2] },
+  { value: '{ "a": { "b": 1, "c": 2 } }', path: "$.a.c", expected: [2] },
+  { value: '{ "a": { "b": [1,2], "c": [3, 4] } }', path: "$.a.*.*", expected: [1,2,3,4] },
+  { value: '{ "a": { "b": [1,2], "c": [3, 4] } }', path: "$.a.*.1", expected: [2,4] },
+  { value: '{ "a": { "b": [1,2], "c": [3, 4] } }', path: "$.a.c.*", expected: [3,4] },
+  { value: '{ "a": { "b": [1,2], "c": [3, 4] } }', path: "$.a.c.1", expected: [4] },
 ];
 
 testData.forEach(({ value, path, expected }) => {
   test(`Using selector ${path} should emit only selected values`, {}, (t) => {
     t.plan(expected.length);
+
     let i = 0;
+
     const p = new JsonParser({ path });
     p.onValue = (value) => {
       t.deepEqual(
@@ -28,8 +30,11 @@ testData.forEach(({ value, path, expected }) => {
       );
       i += 1;
     };
+    p.onEnd = () => t.end();
 
     p.write(value);
+
+    p.end();
   });
 });
 

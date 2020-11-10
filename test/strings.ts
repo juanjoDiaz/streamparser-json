@@ -9,19 +9,45 @@ const { QUOTATION_MARK } = charset;
 const quote = String.fromCharCode(QUOTATION_MARK);
 
 for (const stringBufferSize of [0, 64 * 1024]) {
-  test(`simple string with stringBufferSize = ${stringBufferSize}`, (t) => {
-    const values = [
-      "Hello world!",
-      '\\r\\n\\f\\t\\\\\\/\\"',
-      "\\u039b\\u03ac\\u03bc\\u03b2\\u03b4\\u03b1",
-      "☃",
-      "├──",
-      "snow: ☃!",
-      "õ",
-    ];
-    const expected = values.map((str) => JSON.parse(`"${str}"`));
+  const values = [
+    "Hello world!",
+    '\\r\\n\\f\\t\\\\\\/\\"',
+    "\\u039b\\u03ac\\u03bc\\u03b2\\u03b4\\u03b1",
+    "☃",
+    "├──",
+    "snow: ☃!",
+    "õ",
+  ];
+  const expected = values.map((str) => JSON.parse(`"${str}"`));
 
+  test(`simple string with stringBufferSize = ${stringBufferSize}`, (t) => {
+    t.plan(expected.length + values.length);
+
+    let i = 0;
+
+    values.forEach((str) => {
+      const p = new JsonParser({ stringBufferSize });
+      p.onValue = (value) => {
+        t.equal(
+          value,
+          expected[i],
+          `Error on expectation ${i} (${value} !== ${expected[i]})`,
+        );
+        i += 1;
+      };
+      p.onEnd = () => t.pass();
+
+      p.write(quote);
+      str.split("").forEach((c) => p.write(c));
+      p.write(quote);
+
+      p.end();
+    });
+  });
+
+  test(`simple string unbound with stringBufferSize = ${stringBufferSize}`, (t) => {
     t.plan(expected.length);
+
     let i = 0;
 
     const p = new JsonParser({ stringBufferSize });
@@ -33,12 +59,15 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       );
       i += 1;
     };
+    p.onEnd = () => t.end();
 
     values.forEach((str) => {
       p.write(quote);
       str.split("").forEach((c) => p.write(c));
       p.write(quote);
     });
+
+    p.end();
   });
 
   test("multibyte characters", (t) => {
@@ -49,10 +78,13 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
       const p = new JsonParser({ stringBufferSize });
       p.onValue = (value) => t.equal(value, "д");
-
+      p.onEnd = () => t.end();
+  
       p.write(quote);
       p.write(new Uint8Array([0xd0, 0xb4]));
       p.write(quote);
+  
+      p.end();
     });
 
     t.test("3 byte utf8 'Han' character: 我", (t) => {
@@ -60,10 +92,13 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
       const p = new JsonParser({ stringBufferSize });
       p.onValue = (value) => t.equal(value, "我");
+      p.onEnd = () => t.end();
 
       p.write(quote);
       p.write(new Uint8Array([0xe6, 0x88, 0x91]));
       p.write(quote);
+
+      p.end();
     });
 
     t.test("4 byte utf8 character (unicode scalar U+2070E): 𠜎", (t) => {
@@ -71,10 +106,13 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
       const p = new JsonParser({ stringBufferSize });
       p.onValue = (value) => t.equal(value, "𠜎");
+      p.onEnd = () => t.end();
 
       p.write(quote);
       p.write(new Uint8Array([0xf0, 0xa0, 0x9c, 0x8e]));
       p.write(quote);
+
+      p.end();
     });
 
     t.test("chunking", (t) => {
@@ -87,11 +125,14 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "д");
+        p.onEnd = () => t.end();
 
         p.write(quote);
         p.write(new Uint8Array([0xd0]));
         p.write(new Uint8Array([0xb4]));
         p.write(quote);
+
+        p.end();
       });
 
       t.test("3 byte utf8 'Han' character chunked inbetween 2nd and 3rd byte: 我", (
@@ -101,11 +142,14 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "我");
+        p.onEnd = () => t.end();
 
         p.write(quote);
         p.write(new Uint8Array([0xe6, 0x88]));
         p.write(new Uint8Array([0x91]));
         p.write(quote);
+
+        p.end();
       });
 
       t.test("4 byte utf8 character (unicode scalar U+2070E) chunked inbetween 2nd and 3rd byte: 𠜎", (
@@ -115,11 +159,14 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "𠜎");
+        p.onEnd = () => t.end();
 
         p.write(quote);
         p.write(new Uint8Array([0xf0, 0xa0]));
         p.write(new Uint8Array([0x9c, 0x8e]));
         p.write(quote);
+
+        p.end();
       });
 
       t.test("1-4 byte utf8 character string chunked inbetween random bytes: Aж文𠜱B", (
@@ -129,6 +176,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "Aж文𠜱B");
+        p.onEnd = () => t.end();
 
         const eclectic_buffer = new Uint8Array([
           0x41, // A
@@ -152,6 +200,8 @@ for (const stringBufferSize of [0, 64 * 1024]) {
           p.write(second_buffer);
           p.write(quote);
         }
+
+        p.end();
       });
     });
 
@@ -163,8 +213,11 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "😋");
+        p.onEnd = () => t.end();
 
         p.write('"\\uD83D\\uDE0B"');
+
+        p.end();
       });
 
       t.test("parse chunked surrogate pair", (t) => {
@@ -172,11 +225,14 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "😋");
+        p.onEnd = () => t.end();
 
         p.write(quote);
         p.write("\\uD83D");
         p.write("\\uDE0B");
         p.write(quote);
+
+        p.end();
       });
 
       t.test("not error on broken surrogate pair", (t) => {
@@ -184,10 +240,13 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "�");
+        p.onEnd = () => t.end();
 
         p.write(quote);
         p.write("\\uD83D\\uEFFF");
         p.write(quote);
+
+        p.end();
       });
     });
   });
@@ -195,13 +254,17 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
 test("should flush the buffer if there is not space for incoming data", (t) => {
   t.plan(1);
+
   const p = new JsonParser({ stringBufferSize: 5 });
   p.onValue = (value) => t.equal(value, "aaaa𠜎");
+  p.onEnd = () => t.end();
 
   p.write(quote);
   p.write("aaaa");
   p.write("𠜎");
   p.write(quote);
+
+  p.end();
 });
 
 test("fail on invalid values", (t) => {
@@ -213,6 +276,7 @@ test("fail on invalid values", (t) => {
     "\\u12*",
     "\\u123*",
   ];
+
   t.plan(values.length);
 
   values.forEach((str) => {

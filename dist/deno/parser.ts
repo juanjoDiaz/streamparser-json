@@ -20,8 +20,8 @@ enum ParserState {
   KEY,
   COLON,
   COMMA,
-  STOP,
-  ERROR,
+  ENDED,
+  ERROR
 }
 // Parser Modes
 export enum ParserMode {
@@ -38,7 +38,7 @@ export interface StackElement {
 
 export interface ParserOptions {
   path?: string;
-  keepStack?: boolean,
+  keepStack?: boolean;
 }
 
 const defaultOpts: ParserOptions = {
@@ -107,6 +107,7 @@ export default class Parser {
     if (this.value && !this.keepStack && this.stack.every(item => !item.emit)) {
       delete this.value[this.key as string | number];
     }
+
     if (emit) {
       this.onValue(value, this.key, this.value, this.stack);
     }
@@ -223,12 +224,25 @@ export default class Parser {
     );
   }
 
+  public end() {
+    if (this.state !== ParserState.VALUE || this.stack.length > 0) {
+      throw new Error("Parser ended in mid-parsing. Either not all the data was received or the data was invalid." + this.state + " " + this.stack);
+    }
+
+    this.state = ParserState.ENDED;
+    this.onEnd();
+  }
+
   public onValue(
     value: any,
     key: string | number | undefined,
     parent: any,
     stack: StackElement[],
   ): void {
+    // Override me
+  }
+
+  public onEnd() {
     // Override me
   }
 }

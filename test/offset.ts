@@ -68,18 +68,21 @@ const offsets = [
 test("offset", (t) => {
   t.plan(offsets.length * 2 + 1);
 
-  const p = new JsonParser();
   let i = 0;
 
+  const p = new JsonParser();
   p.onToken = (token, value, offset) => {
     t.equal(offset, offsets[i][0]);
     t.equal(token, offsets[i][1]);
     i += 1;
   };
+  p.onEnd = () => t.end();
 
   p.write(input);
   p.write(input2);
   p.write(input3);
 
   t.equal(i, offsets.length);
+
+  p.end();
 });

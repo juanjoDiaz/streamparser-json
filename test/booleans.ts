@@ -4,11 +4,12 @@ import JsonParser from "../src/jsonparse";
 const { test } = tap;
 
 const values = [
-  "null",
+  "true",
+  "false",
 ];
 const expected = values.map((str) => JSON.parse(str));
 
-test("null", (t) => {
+test("boolean", (t) => {
   t.plan(expected.length + values.length);
 
   let i = 0;
@@ -31,7 +32,7 @@ test("null", (t) => {
   });
 });
 
-test("null unbound", (t) => {
+test("boolean unbound", (t) => {
   t.plan(expected.length);
 
   let i = 0;
@@ -45,7 +46,6 @@ test("null unbound", (t) => {
     );
     i += 1;
   };
-
   p.onEnd = () => t.end();
 
   values.forEach((str) => p.write(str));
@@ -53,7 +53,7 @@ test("null unbound", (t) => {
   p.end();
 });
 
-test("null chuncked", (t) => {
+test("boolean chuncked", (t) => {
   t.plan(expected.length + values.length);
 
   let i = 0;
@@ -77,15 +77,19 @@ test("null chuncked", (t) => {
 });
 
 test("fail on invalid values", (t) => {
-  const values = [
-    "nUll",
-    "nuLl",
-    "nulL",
+  const invalidValues = [
+    "tRue",
+    "trUe",
+    "truE",
+    "fAlse",
+    "faLse",
+    "falSe",
+    "falsE",
   ];
 
-  t.plan(values.length);
+  t.plan(invalidValues.length);
 
-  values.forEach((str) => {
+  invalidValues.forEach((str) => {
     const p = new JsonParser();
     try {
       p.write(str);
