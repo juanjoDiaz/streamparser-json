@@ -11,6 +11,7 @@ export default class JSONParser {
     this.tokenizer = new Tokenizer(opts);
     this.parser = new Parser(opts);
     this.tokenizer.onToken = this.parser.write.bind(this.parser);
+    this.parser.onError = (err) => this.tokenizer.error(err);
   }
 
   public write(input: Iterable<number> | string): void {
@@ -30,6 +31,10 @@ export default class JSONParser {
     ) => void,
   ) {
     this.parser.onValue = cb;
+  }
+
+  public set onError(cb: (err: Error) => void) {
+    this.tokenizer.onError = cb;
   }
 
   public set onEnd(cb: () => {}) {

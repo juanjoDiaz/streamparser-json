@@ -125,21 +125,18 @@ test("fail on invalid values", (t) => {
     "{,",
     '{"test": eer[ }',
     "{ test: 1 }",
-    '{ "test", }',
     '{ "test": 1 ;',
     '{ "test": 1 ]',
     '{ "test": 1, }',
+    '{ "test", }',
   ];
 
   t.plan(invalidValues.length);
 
   invalidValues.forEach((str) => {
     const p = new JsonParser();
-    try {
-      p.write(str);
-      t.fail(`Expected to fail on value "${str}"`);
-    } catch (e) {
-      t.pass();
-    }
+    p.onError = (err) => t.ok(true);
+    
+    p.write(str);
   });
 });

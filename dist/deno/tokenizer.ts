@@ -96,9 +96,8 @@ export default class Tokenizer {
     } else if ((input as any).buffer || Array.isArray(input)) {
       buffer = Uint8Array.from(input);
     } else {
-      throw new TypeError(
-        "Unexpected type. The `write` function only accepts TypeArrays and Strings.",
-      );
+      this.error(new TypeError("Unexpected type. The `write` function only accepts TypeArrays and Strings.",));
+      return;
     }
 
     for (var i = 0; i < buffer.length; i += 1) {
@@ -477,11 +476,13 @@ export default class Tokenizer {
             this.state = TokenizerStates.NULL2;
             continue;
           }
+          break;
         case TokenizerStates.NULL2:
           if (n === charset.LATIN_SMALL_LETTER_L) {
             this.state = TokenizerStates.NULL3;
             continue;
           }
+          break;
         case TokenizerStates.NULL3:
           if (n === charset.LATIN_SMALL_LETTER_L) {
             this.state = TokenizerStates.START;
@@ -489,13 +490,17 @@ export default class Tokenizer {
             this.offset += 3;
             continue;
           }
+          break;
+        case TokenizerStates.ERROR:;
+          return;
       }
 
-      throw new Error(
+      this.error(new Error(
         `Unexpected "${String.fromCharCode(n)}" at position "${i}" in state ${
           TokenizerStates[this.state]
         }`,
-      );
+      ));
+      return;
     }
   }
 
@@ -512,9 +517,15 @@ export default class Tokenizer {
     return Number(numberStr);
   }
 
+  public error(err: Error) {
+    this.state = TokenizerStates.ERROR;
+    this.onError(err);
+  }
+
   public end() {
     if (this.state !== TokenizerStates.START) {
-      throw new Error("Tokenizer ended in the middle of a token. Either not all the data was received or the data was invalid. " + TokenizerStates[this.state]);
+      this.error(new Error(`Tokenizer ended in the middle of a token (state: ${TokenizerStates[this.state]}). Either not all the data was received or the data was invalid.`));
+      return;
     }
 
     this.state = TokenizerStates.ENDED;
@@ -524,7 +535,12 @@ export default class Tokenizer {
   public onToken(token: TokenType, value: any, offset: number): void {
     // Override
   }
-  public onEnd() {
+
+  public onError(err: Error): void {
+    // Override
+  }
+
+  public onEnd(): void {
     // Override me
   }
 }

@@ -23,12 +23,9 @@ test("should fail if ending in the middle of parsing", (t) => {
 
   values.forEach((value) => {
     const p = new JsonParser();
-    try {
-      p.write(value);
-      p.end();
-      t.fail(`Expected to fail on value "${value}"`);
-    } catch (e) {
-      t.pass();
-    }
+    p.onError = () => t.ok(true);
+
+    p.write(value);
+    p.end();
   });
 });

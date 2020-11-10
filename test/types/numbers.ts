@@ -140,11 +140,8 @@ test("fail on invalid values", (t) => {
 
   values.forEach((str) => {
     const p = new JsonParser();
-    try {
-      p.write(str);
-      t.fail(`Expected to fail on value "${str}"`);
-    } catch (e) {
-      t.pass();
-    }
+    p.onError = () => t.ok(true);
+    
+    p.write(str);
   });
 });

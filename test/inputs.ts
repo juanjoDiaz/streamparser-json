@@ -90,10 +90,7 @@ test("write throw on invalid type", (t) => {
   t.plan(1);
 
   const p = new JsonParser();
-  try {
-    p.write(745674 as any);
-    t.fail(`Expected to file on number input.`);
-  } catch (e) {
-    t.pass();
-  }
+  p.onError = () => t.ok(true);
+  
+  p.write(745674 as any);
 });

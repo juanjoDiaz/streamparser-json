@@ -218,15 +218,18 @@ export default class Parser {
       }
     }
 
-    throw new Error(
-      "Unexpected " + TokenType[token] + (("(" + JSON.stringify(value) + ")")) +
-        " in state " + ParserState[this.state],
-    );
+    this.error(new Error(`Unexpected ${TokenType[token]} (${JSON.stringify(value)}) in state ${ParserState[this.state]}`));
+    return;
+  }
+
+  public error(err: Error) {
+    this.state = ParserState.ERROR;
+    this.onError(err);
   }
 
   public end() {
     if (this.state !== ParserState.VALUE || this.stack.length > 0) {
-      throw new Error("Parser ended in mid-parsing. Either not all the data was received or the data was invalid." + this.state + " " + this.stack);
+      this.error(new Error(`Parser ended in mid-parsing (state: ${ParserState[this.state]}). Either not all the data was received or the data was invalid.`));
     }
 
     this.state = ParserState.ENDED;
@@ -242,7 +245,11 @@ export default class Parser {
     // Override me
   }
 
-  public onEnd() {
+  public onError(err: Error): void {
+    // Override
+  }
+
+  public onEnd(): void {
     // Override me
   }
 }
