@@ -1,6 +1,6 @@
 import tap from "tap";
-import JsonParser from "../src/jsonparse";
-import { charset } from "../src/utils/utf-8";
+import JsonParser from "../../src/jsonparse";
+import { charset } from "../../src/utils/utf-8";
 
 const { test } = tap;
 const { LATIN_SMALL_LETTER_A, QUOTATION_MARK, DIGIT_ONE } = charset;

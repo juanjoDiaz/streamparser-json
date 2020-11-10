@@ -1,15 +1,14 @@
 import tap from "tap";
-import JsonParser from "../src/jsonparse";
+import JsonParser from "../../src/jsonparse";
 
 const { test } = tap;
 
 const values = [
-  "true",
-  "false",
+  "null",
 ];
 const expected = values.map((str) => JSON.parse(str));
 
-test("boolean", (t) => {
+test("null", (t) => {
   t.plan(expected.length + values.length);
 
   let i = 0;
@@ -32,7 +31,7 @@ test("boolean", (t) => {
   });
 });
 
-test("boolean unbound", (t) => {
+test("null unbound", (t) => {
   t.plan(expected.length);
 
   let i = 0;
@@ -46,6 +45,7 @@ test("boolean unbound", (t) => {
     );
     i += 1;
   };
+
   p.onEnd = () => t.end();
 
   values.forEach((str) => p.write(str));
@@ -53,7 +53,7 @@ test("boolean unbound", (t) => {
   p.end();
 });
 
-test("boolean chuncked", (t) => {
+test("null chuncked", (t) => {
   t.plan(expected.length + values.length);
 
   let i = 0;
@@ -77,19 +77,15 @@ test("boolean chuncked", (t) => {
 });
 
 test("fail on invalid values", (t) => {
-  const invalidValues = [
-    "tRue",
-    "trUe",
-    "truE",
-    "fAlse",
-    "faLse",
-    "falSe",
-    "falsE",
+  const values = [
+    "nUll",
+    "nuLl",
+    "nulL",
   ];
 
-  t.plan(invalidValues.length);
+  t.plan(values.length);
 
-  invalidValues.forEach((str) => {
+  values.forEach((str) => {
     const p = new JsonParser();
     try {
       p.write(str);

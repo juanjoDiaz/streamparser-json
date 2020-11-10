@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import tap from "tap";
-import JsonParser from "../src/jsonparse";
+import JsonParser from "../../src/jsonparse";
 
 const { test } = tap;
 
