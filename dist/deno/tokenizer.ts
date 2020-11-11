@@ -62,7 +62,13 @@ const defaultOpts: TokenizerOptions = {
   numberBufferSize: 0,
 };
 
-export class TokenizerError extends Error {}
+export class TokenizerError extends Error {
+  constructor(message: string) {
+    super(message);
+    // Typescript is broken. This is a workaround
+    Object.setPrototypeOf(this, TokenizerError.prototype);
+  }
+}
 
 export default class Tokenizer {
   private state = TokenizerStates.START;
@@ -99,7 +105,6 @@ export default class Tokenizer {
       buffer = Uint8Array.from(input);
     } else {
       this.error(new TypeError("Unexpected type. The `write` function only accepts TypeArrays and Strings.",));
-      return;
     }
 
     for (var i = 0; i < buffer.length; i += 1) {
@@ -493,8 +498,6 @@ export default class Tokenizer {
             continue;
           }
           break;
-        case TokenizerStates.ERROR:;
-          return;
       }
 
       this.error(new TokenizerError(
@@ -502,7 +505,6 @@ export default class Tokenizer {
           TokenizerStates[this.state]
         }`
       ));
-      return;
     }
   }
 
@@ -519,19 +521,18 @@ export default class Tokenizer {
     return Number(numberStr);
   }
 
-  public error(err: Error) {
+  public error(err: Error): never {
     this.state = TokenizerStates.ERROR;
     throw err;
   }
 
-  public end() {
+  public end(): void {
     if (this.state !== TokenizerStates.START) {
       this.error(new TokenizerError(
         `Tokenizer ended in the middle of a token (state: ${
           TokenizerStates[this.state]
         }). Either not all the data was received or the data was invalid.`
       ));
-      return;
     }
 
     this.state = TokenizerStates.ENDED;

@@ -107,12 +107,12 @@ The available options are:
 
 ```javascript
 {
-  path: <string>,
+  paths: <string[]>,
   keepStack: <boolean>, // whether to keep all the properties in the stack
 }
 ```
 
-* path: Paths to emit. Defaults to `undefined` which emits everything. The `path` option is intended to suppot jsonpath although at the time being it only supports the root object selector (`$`) and subproperties selectors including wildcards (`$.a`, `$.*`, `$.a.b`, , `$.*.b`, etc). 
+* paths: Array of paths to emit. Defaults to `undefined` which emits everything. The paths are intended to suppot jsonpath although at the time being it only supports the root object selector (`$`) and subproperties selectors including wildcards (`$.a`, `$.*`, `$.a.b`, , `$.*.b`, etc). 
 * keepStack: Whether to keep full objects on the stack even if they won't be emitted. Defaults to `true`. When set to `false` the it does preserve properties in the parent object some ancestor will be emitted. This means that the parent object passed to the `onValue` function will be empty, which doesn't reflect the truth, but it's more memory-efficient.
 
 #### Methods
@@ -201,7 +201,7 @@ You can subscribe to the resulting data using the
 ```javascript
 import { JsonParser } from '@streamparser/json';
 
-const parser = new JsonParser({ stringBufferSize: undefined, path: '$' });
+const parser = new JsonParser({ stringBufferSize: undefined, paths: ['$'] });
 parser.onValue = console.log;
 
 parser.write('"Hello world!"'); // logs "Hello world!"
@@ -262,7 +262,7 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 ```js
   import { JsonParser } from '@streamparser/json';
 
-  const jsonparser = new JsonParser({ stringBufferSize: undefined, path: '$.*' });
+  const jsonparser = new JsonParser({ stringBufferSize: undefined, paths: ['$.*'] });
   parser.onValue = (value, key, parent, stack) => {
     if (stack.length === 0) /* We are done. Exit. */; 
     // By default, the parser keeps all the child elements in memory until the root parent is emitted.

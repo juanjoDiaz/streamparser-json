@@ -41,8 +41,8 @@ export default class JSONParser {
     this.parser.onValue = cb;
   }
 
-  public end() {
-    this.tokenizer.end();
+  public end(): void {
     this.parser.end();
+    this.tokenizer.end();
   }
 }

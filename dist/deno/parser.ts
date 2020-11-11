@@ -37,19 +37,25 @@ export interface StackElement {
 }
 
 export interface ParserOptions {
-  path?: string;
+  paths?: string[];
   keepStack?: boolean;
 }
 
 const defaultOpts: ParserOptions = {
-  path: undefined,
+  paths: undefined,
   keepStack: true,
 };
 
-export class TokenParserError extends Error {}
+export class TokenParserError extends Error {
+  constructor(message: string) {
+    super(message);
+    // Typescript is broken. This is a workaround
+    Object.setPrototypeOf(this, TokenParserError.prototype);
+  }
+}
 
 export default class Parser {
-  private readonly path?: string[];
+  private readonly paths?: (string[] | undefined)[];
   private readonly keepStack: boolean;
   private state: ParserState = ParserState.VALUE;
   private mode: ParserMode | undefined = undefined;
@@ -60,31 +66,38 @@ export default class Parser {
   constructor(opts?: ParserOptions) {
     opts = { ...defaultOpts, ...opts };
 
-    if (opts.path === undefined || opts.path === '$*') {
-      this.path = undefined;
-    } else {
-      if (!opts.path.startsWith('$')) throw new TokenParserError(`Invalid selector "${opts.path}". Should start with "$".`);
-      this.path = opts.path.split('.').slice(1);
-      if (this.path.includes('')) throw new TokenParserError(`Invalid selector "${opts.path}". ".." syntax not supported.`);
+    if (opts.paths) {
+      this.paths = opts.paths.map((path) => {
+        if (path === undefined || path === '$*') return undefined;
+
+        if (!path.startsWith('$')) throw new TokenParserError(`Invalid selector "${path}". Should start with "$".`);
+        const pathParts = path.split('.').slice(1);
+        if (pathParts.includes('')) throw new TokenParserError(`Invalid selector "${path}". ".." syntax not supported.`);
+        return pathParts;
+      });
     }
 
     this.keepStack = opts.keepStack as boolean;
   }
 
   private shouldEmit(): boolean {
-    if (this.path === undefined) return true;
-    if (this.path.length !== this.stack.length) return false;
+    if (!this.paths) return true;
 
-    for (let i = 0; i < this.path.length - 1; i++) {
-      const selector = this.path[i];
-      const key = this.stack[i + 1].key;
-      if (selector === '*') continue;
-      if (selector !== key) return false;
-    }
+    return this.paths.some((path) => {
+      if (path === undefined) return true;
+      if (path.length !== this.stack.length) return false;
 
-    const selector = this.path[this.path.length - 1];
-    if (selector === '*') return true;
-    return selector === this.key?.toString();
+      for (let i = 0; i < path.length - 1; i++) {
+        const selector = path[i];
+        const key = this.stack[i + 1].key;
+        if (selector === '*') continue;
+        if (selector !== key) return false;
+      }
+
+      const selector = path[path.length - 1];
+      if (selector === '*') return true;
+      return selector === this.key?.toString();
+    }) ;
   }
 
   private push(): void {
@@ -221,15 +234,14 @@ export default class Parser {
     }
 
     this.error(new TokenParserError(`Unexpected ${TokenType[token]} (${JSON.stringify(value)}) in state ${ParserState[this.state]}`));
-    return;
   }
 
-  public error(err: Error) {
+  public error(err: Error): never {
     this.state = ParserState.ERROR;
     throw err;
   }
 
-  public end() {
+  public end(): void {
     if (this.state !== ParserState.VALUE || this.stack.length > 0) {
       this.error(new TokenParserError(`Parser ended in mid-parsing (state: ${ParserState[this.state]}). Either not all the data was received or the data was invalid.`));
     }
