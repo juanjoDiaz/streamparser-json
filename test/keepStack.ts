@@ -22,7 +22,6 @@ testData.forEach(({ value, path, expected }) => {
       }
       t.equals(Object.keys(parent).length, 0);
     };
-    p.onEnd = () => t.end();
 
     p.write(value);
 

@@ -62,6 +62,14 @@ const defaultOpts: TokenizerOptions = {
   numberBufferSize: 0,
 };
 
+export class TokenizerError extends Error {
+  constructor(message: string) {
+    super(message);
+    // Typescript is broken. This is a workaround
+    Object.setPrototypeOf(this, TokenizerError.prototype);
+  }
+}
+
 export default class Tokenizer {
   private state = TokenizerStates.START;
 
@@ -97,7 +105,6 @@ export default class Tokenizer {
       buffer = Uint8Array.from(input);
     } else {
       this.error(new TypeError("Unexpected type. The `write` function only accepts TypeArrays and Strings.",));
-      return;
     }
 
     for (var i = 0; i < buffer.length; i += 1) {
@@ -491,16 +498,13 @@ export default class Tokenizer {
             continue;
           }
           break;
-        case TokenizerStates.ERROR:;
-          return;
       }
 
-      this.error(new Error(
+      this.error(new TokenizerError(
         `Unexpected "${String.fromCharCode(n)}" at position "${i}" in state ${
           TokenizerStates[this.state]
-        }`,
+        }`
       ));
-      return;
     }
   }
 
@@ -517,30 +521,24 @@ export default class Tokenizer {
     return Number(numberStr);
   }
 
-  public error(err: Error) {
+  public error(err: Error): never {
     this.state = TokenizerStates.ERROR;
-    this.onError(err);
+    throw err;
   }
 
-  public end() {
+  public end(): void {
     if (this.state !== TokenizerStates.START) {
-      this.error(new Error(`Tokenizer ended in the middle of a token (state: ${TokenizerStates[this.state]}). Either not all the data was received or the data was invalid.`));
-      return;
+      this.error(new TokenizerError(
+        `Tokenizer ended in the middle of a token (state: ${
+          TokenizerStates[this.state]
+        }). Either not all the data was received or the data was invalid.`
+      ));
     }
 
     this.state = TokenizerStates.ENDED;
-    this.onEnd();
   }
 
   public onToken(token: TokenType, value: any, offset: number): void {
     // Override
-  }
-
-  public onError(err: Error): void {
-    // Override
-  }
-
-  public onEnd(): void {
-    // Override me
   }
 }

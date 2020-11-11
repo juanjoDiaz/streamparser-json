@@ -55,7 +55,7 @@ const expected = values.map((str) => JSON.parse(str));
 
 for (const numberBufferSize of [0, 64 * 1024]) {
   test("number", (t) => {
-    t.plan(expected.length + values.length);
+    t.plan(expected.length);
 
     let i = 0;
 
@@ -69,7 +69,6 @@ for (const numberBufferSize of [0, 64 * 1024]) {
         );
         i += 1;
       };
-      p.onEnd = () => t.pass();
 
       p.write(str);
       p.write(" ");
@@ -91,7 +90,6 @@ for (const numberBufferSize of [0, 64 * 1024]) {
       );
       i += 1;
     };
-    p.onEnd = () => t.end();
 
     values.forEach((str) => {
       p.write(str);
@@ -102,7 +100,7 @@ for (const numberBufferSize of [0, 64 * 1024]) {
   });
 
   test("number chuncked", (t) => {
-    t.plan(expected.length + values.length);
+    t.plan(expected.length);
     let i = 0;
 
     values.forEach((str) => {
@@ -116,7 +114,6 @@ for (const numberBufferSize of [0, 64 * 1024]) {
         i += 1;
       };
 
-      p.onEnd = () => t.pass();
       str.split("").forEach(c => p.write(c));
       p.write(" ");
       p.end();
@@ -140,8 +137,12 @@ test("fail on invalid values", (t) => {
 
   values.forEach((str) => {
     const p = new JsonParser();
-    p.onError = () => t.ok(true);
-    
-    p.write(str);
+
+    try {
+      p.write(str);
+      t.fail(`Expected to fail on value "${str}"`);
+    } catch (e) {
+      t.pass();
+    }
   });
 });

@@ -10,7 +10,7 @@ const values = [
 const expected = values.map((str) => JSON.parse(str));
 
 test("boolean", (t) => {
-  t.plan(expected.length + values.length);
+  t.plan(expected.length);
 
   let i = 0;
 
@@ -24,7 +24,6 @@ test("boolean", (t) => {
       );
       i += 1;
     };
-    p.onEnd = () => t.pass();
 
     p.write(str);
 
@@ -46,7 +45,6 @@ test("boolean unbound", (t) => {
     );
     i += 1;
   };
-  p.onEnd = () => t.end();
 
   values.forEach((str) => p.write(str));
 
@@ -54,7 +52,7 @@ test("boolean unbound", (t) => {
 });
 
 test("boolean chuncked", (t) => {
-  t.plan(expected.length + values.length);
+  t.plan(expected.length);
 
   let i = 0;
 
@@ -68,7 +66,6 @@ test("boolean chuncked", (t) => {
       );
       i += 1;
     };
-    p.onEnd = () => t.pass();
 
     str.split("").forEach(c => p.write(c));
 
@@ -91,8 +88,12 @@ test("fail on invalid values", (t) => {
 
   invalidValues.forEach((str) => {
     const p = new JsonParser();
-    p.onError = () => t.ok(true);
-    
-    p.write(str);
+
+    try {
+      p.write(str);
+      t.fail(`Expected to fail on value "${str}"`);
+    } catch (e) {
+      t.pass();
+    }
   });
 });

@@ -67,8 +67,6 @@ Strings are inmutable in Javascript so every string operation creates a new stri
 * **end()** closes the tokenizer so it can not be used anymore. Throws an error if the tokenizer was in the middle of parsing.
 * **parseNumber(numberStr)** method used internally to parse numbers. By default, it is equivalent to `Number(numberStr)` but the user can override it if he wants some other behaviour.
 * **onToken(token: TokenType, value: any, offset: number)** no-op method that the user should override to follow the tokenization process.
-* **onError(err: Error)** no-op method that the user should override to act on errors.
-* **onEnd()** no-op method that the user should override to act when the tokenizer is ended.
  
 ```javascript
 // You can override the overridable methods by creating your own class extending Tokenizer
@@ -122,8 +120,6 @@ The available options are:
 * **write(token: TokenType, value: any)** push data into the parser.
 * **end()** closes the parser so it can not be used anymore. Throws an error if the tokenizer was in the middle of parsing.
 * **onValue(value: any)** no-op method that the user should override to get the parsed value.
-* **onError(err: Error)** no-op method that the user should override to act on errors.
-* **onEnd()** no-op method that the user should override to act when the parser is ended.
  
 ```javascript
 // You can override the overridable methods by creating your own class extending Tokenizer
@@ -168,8 +164,6 @@ parser.onValue = (value) => { /* Process values */ }
 * **end()** alias to the Tokenizer end method.
 * **onToken(token: TokenType, value: any, offset: number)** alias to the Tokenizer onToken method (write only).
 * **onValue(value: any)** alias to the Parser onValue method (write only).
-* **onError(err: Error)** alias to the Tokenizer/Parser onError method (when the Parser Errors, the Tokenizer might emit a second error) (write only).
-* **onEnd()** alias to the Tokenizer onEnd method (which will call the Parser onEnd methods) (write only).
  
 ```javascript
 // You can override the overridable methods by creating your own class extending Tokenizer

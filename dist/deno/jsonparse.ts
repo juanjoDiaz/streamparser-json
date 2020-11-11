@@ -1,5 +1,5 @@
 import Tokenizer, { TokenizerOptions } from './tokenizer.ts';
-import Parser, { StackElement, ParserOptions } from './parser.ts';
+import Parser, { StackElement, ParserOptions, TokenParserError } from './parser.ts';
 
 interface JSONParserOpts extends TokenizerOptions, ParserOptions {}
 
@@ -11,11 +11,19 @@ export default class JSONParser {
     this.tokenizer = new Tokenizer(opts);
     this.parser = new Parser(opts);
     this.tokenizer.onToken = this.parser.write.bind(this.parser);
-    this.parser.onError = (err) => this.tokenizer.error(err);
   }
 
   public write(input: Iterable<number> | string): void {
-    this.tokenizer.write(input);
+    try {
+      this.tokenizer.write(input);
+    } catch(err) {
+      if (err instanceof TokenParserError) {
+        // Bubbles up the Parser errrors
+        this.tokenizer.error(err);
+      }
+
+      throw err;
+    }
   }
 
   public set onToken(cb: (token: number, value: any, offset: number) => void) {
@@ -31,14 +39,6 @@ export default class JSONParser {
     ) => void,
   ) {
     this.parser.onValue = cb;
-  }
-
-  public set onError(cb: (err: Error) => void) {
-    this.tokenizer.onError = cb;
-  }
-
-  public set onEnd(cb: () => {}) {
-    this.parser.onEnd = cb;
   }
 
   public end() {

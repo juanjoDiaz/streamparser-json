@@ -46,6 +46,8 @@ const defaultOpts: ParserOptions = {
   keepStack: true,
 };
 
+export class TokenParserError extends Error {}
+
 export default class Parser {
   private readonly path?: string[];
   private readonly keepStack: boolean;
@@ -61,9 +63,9 @@ export default class Parser {
     if (opts.path === undefined || opts.path === '$*') {
       this.path = undefined;
     } else {
-      if (!opts.path.startsWith('$')) throw new Error(`Invalid selector "${opts.path}". Should start with "$".`);
+      if (!opts.path.startsWith('$')) throw new TokenParserError(`Invalid selector "${opts.path}". Should start with "$".`);
       this.path = opts.path.split('.').slice(1);
-      if (this.path.includes('')) throw new Error(`Invalid selector "${opts.path}". ".." syntax not supported.`);
+      if (this.path.includes('')) throw new TokenParserError(`Invalid selector "${opts.path}". ".." syntax not supported.`);
     }
 
     this.keepStack = opts.keepStack as boolean;
@@ -218,22 +220,21 @@ export default class Parser {
       }
     }
 
-    this.error(new Error(`Unexpected ${TokenType[token]} (${JSON.stringify(value)}) in state ${ParserState[this.state]}`));
+    this.error(new TokenParserError(`Unexpected ${TokenType[token]} (${JSON.stringify(value)}) in state ${ParserState[this.state]}`));
     return;
   }
 
   public error(err: Error) {
     this.state = ParserState.ERROR;
-    this.onError(err);
+    throw err;
   }
 
   public end() {
     if (this.state !== ParserState.VALUE || this.stack.length > 0) {
-      this.error(new Error(`Parser ended in mid-parsing (state: ${ParserState[this.state]}). Either not all the data was received or the data was invalid.`));
+      this.error(new TokenParserError(`Parser ended in mid-parsing (state: ${ParserState[this.state]}). Either not all the data was received or the data was invalid.`));
     }
 
     this.state = ParserState.ENDED;
-    this.onEnd();
   }
 
   public onValue(
@@ -242,14 +243,6 @@ export default class Parser {
     parent: any,
     stack: StackElement[],
   ): void {
-    // Override me
-  }
-
-  public onError(err: Error): void {
-    // Override
-  }
-
-  public onEnd(): void {
     // Override me
   }
 }

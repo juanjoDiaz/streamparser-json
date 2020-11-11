@@ -62,6 +62,8 @@ const defaultOpts: TokenizerOptions = {
   numberBufferSize: 0,
 };
 
+export class TokenizerError extends Error {}
+
 export default class Tokenizer {
   private state = TokenizerStates.START;
 
@@ -495,10 +497,10 @@ export default class Tokenizer {
           return;
       }
 
-      this.error(new Error(
+      this.error(new TokenizerError(
         `Unexpected "${String.fromCharCode(n)}" at position "${i}" in state ${
           TokenizerStates[this.state]
-        }`,
+        }`
       ));
       return;
     }
@@ -519,28 +521,23 @@ export default class Tokenizer {
 
   public error(err: Error) {
     this.state = TokenizerStates.ERROR;
-    this.onError(err);
+    throw err;
   }
 
   public end() {
     if (this.state !== TokenizerStates.START) {
-      this.error(new Error(`Tokenizer ended in the middle of a token (state: ${TokenizerStates[this.state]}). Either not all the data was received or the data was invalid.`));
+      this.error(new TokenizerError(
+        `Tokenizer ended in the middle of a token (state: ${
+          TokenizerStates[this.state]
+        }). Either not all the data was received or the data was invalid.`
+      ));
       return;
     }
 
     this.state = TokenizerStates.ENDED;
-    this.onEnd();
   }
 
   public onToken(token: TokenType, value: any, offset: number): void {
     // Override
-  }
-
-  public onError(err: Error): void {
-    // Override
-  }
-
-  public onEnd(): void {
-    // Override me
   }
 }

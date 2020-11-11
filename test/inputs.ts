@@ -14,7 +14,6 @@ test("write accept strings", (t) => {
 
   const p = new JsonParser();
   p.onValue = (v) => t.equal(v, value);
-  p.onEnd = () => t.end();
 
   p.write(quote);
   p.write(value);
@@ -29,7 +28,6 @@ test("write accept Uint8Array", (t) => {
 
   const p = new JsonParser();
   p.onValue = (v) => t.equal(v, value);
-  p.onEnd = () => t.end();
 
   p.write(quote);
   p.write(new Uint8Array([116, 101, 115, 116]));
@@ -45,7 +43,6 @@ test("write accept Uint16Array", (t) => {
 
   const p = new JsonParser();
   p.onValue = (v) => t.equal(v, value);
-  p.onEnd = () => t.end();
 
   p.write(quote);
   p.write(new Uint16Array([116, 101, 115, 116]));
@@ -61,7 +58,6 @@ test("write accept Uint32Array", (t) => {
 
   const p = new JsonParser();
   p.onValue = (v) => t.equal(v, value);
-  p.onEnd = () => t.end();
 
   p.write(quote);
   p.write(new Uint32Array([116, 101, 115, 116]));
@@ -77,7 +73,6 @@ test("write accept Array", (t) => {
 
   const p = new JsonParser();
   p.onValue = (v) => t.equal(v, value);
-  p.onEnd = () => t.end();
 
   p.write(quote);
   p.write([116, 101, 115, 116]);
@@ -90,7 +85,10 @@ test("write throw on invalid type", (t) => {
   t.plan(1);
 
   const p = new JsonParser();
-  p.onError = () => t.ok(true);
-  
-  p.write(745674 as any);
+
+  try {
+    p.write(745674 as any);
+  } catch (e) {
+    t.pass();
+  }
 });

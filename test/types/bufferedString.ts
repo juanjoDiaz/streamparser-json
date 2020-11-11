@@ -20,7 +20,6 @@ test("can handle large strings without running out of memory", (t) => {
       chunkSize * chunks,
       "token should be size of input json",
     );
-  p.onEnd = () => t.end();
 
   p.write(quote);
   Array(chunks).fill(new Uint8Array(chunkSize).fill(LATIN_SMALL_LETTER_A))
@@ -39,7 +38,6 @@ test("can handle large numbers without running out of memory", (t) => {
   const p = new JsonParser({ numberBufferSize: 64 * 1024 });
   p.onToken = (type, value) =>
     t.equal(value, 1.1111111111111112, "token should be correct");
-  p.onEnd = () => t.end();
 
   p.write("1.");
   Array(chunks)
@@ -55,7 +53,6 @@ test("can handle multi-byte unicode splits", (t) => {
 
   const p = new JsonParser({ numberBufferSize: 1 });
   p.onToken = (type, value) => t.equal(value, "𠜎");
-  p.onEnd = () => t.end();
 
   p.write('"𠜎"');
 

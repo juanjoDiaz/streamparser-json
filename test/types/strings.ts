@@ -21,7 +21,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
   const expected = values.map((str) => JSON.parse(`"${str}"`));
 
   test(`simple string with stringBufferSize = ${stringBufferSize}`, (t) => {
-    t.plan(expected.length + values.length);
+    t.plan(expected.length);
 
     let i = 0;
 
@@ -35,7 +35,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
         );
         i += 1;
       };
-      p.onEnd = () => t.pass();
 
       p.write(quote);
       str.split("").forEach((c) => p.write(c));
@@ -59,7 +58,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       );
       i += 1;
     };
-    p.onEnd = () => t.end();
 
     values.forEach((str) => {
       p.write(quote);
@@ -78,7 +76,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
       const p = new JsonParser({ stringBufferSize });
       p.onValue = (value) => t.equal(value, "д");
-      p.onEnd = () => t.end();
   
       p.write(quote);
       p.write(new Uint8Array([0xd0, 0xb4]));
@@ -92,7 +89,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
       const p = new JsonParser({ stringBufferSize });
       p.onValue = (value) => t.equal(value, "我");
-      p.onEnd = () => t.end();
 
       p.write(quote);
       p.write(new Uint8Array([0xe6, 0x88, 0x91]));
@@ -106,7 +102,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
       const p = new JsonParser({ stringBufferSize });
       p.onValue = (value) => t.equal(value, "𠜎");
-      p.onEnd = () => t.end();
 
       p.write(quote);
       p.write(new Uint8Array([0xf0, 0xa0, 0x9c, 0x8e]));
@@ -125,7 +120,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "д");
-        p.onEnd = () => t.end();
 
         p.write(quote);
         p.write(new Uint8Array([0xd0]));
@@ -142,7 +136,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "我");
-        p.onEnd = () => t.end();
 
         p.write(quote);
         p.write(new Uint8Array([0xe6, 0x88]));
@@ -159,7 +152,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "𠜎");
-        p.onEnd = () => t.end();
 
         p.write(quote);
         p.write(new Uint8Array([0xf0, 0xa0]));
@@ -176,7 +168,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "Aж文𠜱B");
-        p.onEnd = () => t.end();
 
         const eclectic_buffer = new Uint8Array([
           0x41, // A
@@ -213,7 +204,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "😋");
-        p.onEnd = () => t.end();
 
         p.write('"\\uD83D\\uDE0B"');
 
@@ -225,7 +215,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "😋");
-        p.onEnd = () => t.end();
 
         p.write(quote);
         p.write("\\uD83D");
@@ -240,7 +229,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 
         const p = new JsonParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "�");
-        p.onEnd = () => t.end();
 
         p.write(quote);
         p.write("\\uD83D\\uEFFF");
@@ -257,7 +245,6 @@ test("should flush the buffer if there is not space for incoming data", (t) => {
 
   const p = new JsonParser({ stringBufferSize: 5 });
   p.onValue = (value) => t.equal(value, "aaaa𠜎");
-  p.onEnd = () => t.end();
 
   p.write(quote);
   p.write("aaaa");
@@ -281,10 +268,14 @@ test("fail on invalid values", (t) => {
 
   values.forEach((str) => {
     const p = new JsonParser();
-    p.onError = (err) => t.ok(true);
 
-    p.write(quote);
-    p.write(str);
-    p.write(quote);
+    try {
+      p.write(quote);
+      p.write(str);
+      p.write(quote);
+      t.fail('Expected to fail');
+    } catch (e) {
+      t.pass();
+    }
   });
 });

@@ -30,7 +30,6 @@ testData.forEach(({ value, path, expected }) => {
       );
       i += 1;
     };
-    p.onEnd = () => t.end();
 
     p.write(value);
 

@@ -17,7 +17,6 @@ test("complex objects", (t) => {
       t.deepEqual(JSON.parse(stringifiedJson), value);
     }
   };
-  p.onEnd = () => t.end();
 
   p.write(stringifiedJson);
 
