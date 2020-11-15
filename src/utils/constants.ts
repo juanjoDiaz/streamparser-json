@@ -10,4 +10,5 @@ export enum TokenType {
   NULL = 0x9,
   STRING = 0xa,
   NUMBER = 0xb,
+  SEPARATOR = 0xc,
 }

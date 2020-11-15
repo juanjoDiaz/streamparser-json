@@ -25,29 +25,7 @@ test("null", (t) => {
     };
 
     p.write(str);
-
-    p.end();
   });
-});
-
-test("null unbound", (t) => {
-  t.plan(expected.length);
-
-  let i = 0;
-
-  const p = new JsonParser();
-  p.onValue = (value) => {
-    t.equal(
-      value,
-      expected[i],
-      `Error on expectation ${i} (${value} !== ${expected[i]})`,
-    );
-    i += 1;
-  };
-
-  values.forEach((str) => p.write(str));
-
-  p.end();
 });
 
 test("null chuncked", (t) => {
@@ -67,8 +45,6 @@ test("null chuncked", (t) => {
     };
 
     str.split("").forEach(c => p.write(c));
-
-    p.end();
   });
 });
 

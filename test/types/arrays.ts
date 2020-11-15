@@ -59,34 +59,7 @@ test("arrays", (t) => {
     };
 
     p.write(str);
-
-    p.end();
   });
-});
-
-test("arrays unbound", (t) => {
-  t.plan(expected.length);
-
-  let i = 0;
-
-  const p = new JsonParser();
-  p.onValue = (value, key, parent, stack) => {
-    const keys = stack
-      .slice(1)
-      .map((item) => item.key)
-      .concat(key !== undefined ? key : []);
-
-      t.deepEqual(
-        [keys, value],
-        expected[i],
-        `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`,
-      );
-      i += 1;
-  };
-
-  values.forEach((str) => p.write(str));
-
-  p.end();
 });
 
 test("arrays chuncked", (t) => {
@@ -111,8 +84,6 @@ test("arrays chuncked", (t) => {
     };
 
     str.split("").forEach(c => p.write(c));
-
-    p.end();
   });
 });
 

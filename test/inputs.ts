@@ -18,8 +18,6 @@ test("write accept strings", (t) => {
   p.write(quote);
   p.write(value);
   p.write(quote);
-
-  p.end();
 });
 
 test("write accept Uint8Array", (t) => {
@@ -32,8 +30,6 @@ test("write accept Uint8Array", (t) => {
   p.write(quote);
   p.write(new Uint8Array([116, 101, 115, 116]));
   p.write(quote);
-
-  p.end();
 });
 
 test("write accept Uint16Array", (t) => {
@@ -47,8 +43,6 @@ test("write accept Uint16Array", (t) => {
   p.write(quote);
   p.write(new Uint16Array([116, 101, 115, 116]));
   p.write(quote);
-
-  p.end();
 });
 
 test("write accept Uint32Array", (t) => {
@@ -62,8 +56,6 @@ test("write accept Uint32Array", (t) => {
   p.write(quote);
   p.write(new Uint32Array([116, 101, 115, 116]));
   p.write(quote);
-
-  p.end();
 });
 
 test("write accept Array", (t) => {
@@ -77,8 +69,6 @@ test("write accept Array", (t) => {
   p.write(quote);
   p.write([116, 101, 115, 116]);
   p.write(quote);
-
-  p.end();
 });
 
 test("write throw on invalid type", (t) => {

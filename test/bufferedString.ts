@@ -1,6 +1,6 @@
 import tap from "tap";
-import JsonParser from "../../src/jsonparse";
-import { charset } from "../../src/utils/utf-8";
+import JsonParser from "../src/jsonparse";
+import { charset } from "../src/utils/utf-8";
 
 const { test } = tap;
 const { LATIN_SMALL_LETTER_A, QUOTATION_MARK, DIGIT_ONE } = charset;
@@ -25,8 +25,6 @@ test("can handle large strings without running out of memory", (t) => {
   Array(chunks).fill(new Uint8Array(chunkSize).fill(LATIN_SMALL_LETTER_A))
     .forEach((buffer) => p.write(buffer));
   p.write(quote);
-
-  p.end();
 });
 
 test("can handle large numbers without running out of memory", (t) => {
@@ -44,8 +42,6 @@ test("can handle large numbers without running out of memory", (t) => {
     .fill(new Uint8Array(chunkSize).fill(DIGIT_ONE))
     .forEach((buffer) => p.write(buffer));
   p.write(" ");
-
-  p.end();
 });
 
 test("can handle multi-byte unicode splits", (t) => {
@@ -55,6 +51,4 @@ test("can handle multi-byte unicode splits", (t) => {
   p.onToken = (type, value) => t.equal(value, "𠜎");
 
   p.write('"𠜎"');
-
-  p.end();
 });

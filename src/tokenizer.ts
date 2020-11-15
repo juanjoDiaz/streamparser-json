@@ -50,16 +50,19 @@ enum TokenizerStates {
   NUMBER_AFTER_E,
   NUMBER_AFTER_E_AND_SIGN,
   NUMBER_AFTER_E_AND_DIGIT,
+  SEPARATOR,
 }
 
 export interface TokenizerOptions {
   stringBufferSize?: number;
   numberBufferSize?: number;
+  separator?: string;
 }
 
 const defaultOpts: TokenizerOptions = {
   stringBufferSize: 0,
   numberBufferSize: 0,
+  separator: undefined,
 };
 
 export class TokenizerError extends Error {
@@ -73,6 +76,9 @@ export class TokenizerError extends Error {
 export default class Tokenizer {
   private state = TokenizerStates.START;
 
+  private separator?: string;
+  private separatorBytes?: Uint8Array;
+  private separatorIndex: number = 0;
   private bufferedString: StringBuilder;
   private bufferedNumber: StringBuilder;
 
@@ -93,6 +99,13 @@ export default class Tokenizer {
     this.bufferedNumber = opts.numberBufferSize && opts.numberBufferSize > 0
       ? new BufferedString(opts.numberBufferSize)
       : new NonBufferedString();
+    
+    this.separator = opts.separator;
+    this.separatorBytes = opts.separator ? this.encoder.encode(opts.separator) : undefined;
+  }
+
+  public get isEnded(): boolean {
+    return this.state === TokenizerStates.ENDED;
   }
 
   public write(input: Iterable<number> | string): void {
@@ -112,6 +125,16 @@ export default class Tokenizer {
       switch (this.state) {
         case TokenizerStates.START:
           this.offset += 1;
+
+          if (this.separatorBytes && n === this.separatorBytes[0]) {
+            if (this.separatorBytes.length === 1) {
+              this.state = TokenizerStates.START;
+              this.onToken(TokenType.SEPARATOR, this.separator, this.offset + this.separatorBytes.length - 1);
+              continue;
+            }
+            this.state = TokenizerStates.SEPARATOR;
+            continue;
+          }
 
           if (
             n === charset.SPACE ||
@@ -498,6 +521,17 @@ export default class Tokenizer {
             continue;
           }
           break;
+        case TokenizerStates.SEPARATOR:
+          this.separatorIndex += 1;
+          if (!this.separatorBytes || n !== this.separatorBytes[this.separatorIndex]) {
+            break;
+          }
+          if (this.separatorIndex === this.separatorBytes.length - 1) {
+            this.state = TokenizerStates.START;
+            this.onToken(TokenType.SEPARATOR, this.separator, this.offset + this.separatorIndex);
+            this.separatorIndex = 0;
+          }
+          continue;
       }
 
       this.error(new TokenizerError(
@@ -522,7 +556,9 @@ export default class Tokenizer {
   }
 
   public error(err: Error): never {
-    this.state = TokenizerStates.ERROR;
+    if (this.state !== TokenizerStates.ENDED) {
+      this.state = TokenizerStates.ERROR;
+    }
     throw err;
   }
 

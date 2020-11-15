@@ -39,33 +39,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       p.write(quote);
       str.split("").forEach((c) => p.write(c));
       p.write(quote);
-
-      p.end();
     });
-  });
-
-  test(`simple string unbound with stringBufferSize = ${stringBufferSize}`, (t) => {
-    t.plan(expected.length);
-
-    let i = 0;
-
-    const p = new JsonParser({ stringBufferSize });
-    p.onValue = (value) => {
-      t.equal(
-        value,
-        expected[i],
-        `Error on expectation ${i} (${value} !== ${expected[i]})`,
-      );
-      i += 1;
-    };
-
-    values.forEach((str) => {
-      p.write(quote);
-      str.split("").forEach((c) => p.write(c));
-      p.write(quote);
-    });
-
-    p.end();
   });
 
   test("multibyte characters", (t) => {
@@ -80,8 +54,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       p.write(quote);
       p.write(new Uint8Array([0xd0, 0xb4]));
       p.write(quote);
-  
-      p.end();
     });
 
     t.test("3 byte utf8 'Han' character: 我", (t) => {
@@ -93,8 +65,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       p.write(quote);
       p.write(new Uint8Array([0xe6, 0x88, 0x91]));
       p.write(quote);
-
-      p.end();
     });
 
     t.test("4 byte utf8 character (unicode scalar U+2070E): 𠜎", (t) => {
@@ -106,8 +76,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       p.write(quote);
       p.write(new Uint8Array([0xf0, 0xa0, 0x9c, 0x8e]));
       p.write(quote);
-
-      p.end();
     });
 
     t.test("chunking", (t) => {
@@ -125,8 +93,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
         p.write(new Uint8Array([0xd0]));
         p.write(new Uint8Array([0xb4]));
         p.write(quote);
-
-        p.end();
       });
 
       t.test("3 byte utf8 'Han' character chunked inbetween 2nd and 3rd byte: 我", (
@@ -141,8 +107,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
         p.write(new Uint8Array([0xe6, 0x88]));
         p.write(new Uint8Array([0x91]));
         p.write(quote);
-
-        p.end();
       });
 
       t.test("4 byte utf8 character (unicode scalar U+2070E) chunked inbetween 2nd and 3rd byte: 𠜎", (
@@ -157,17 +121,12 @@ for (const stringBufferSize of [0, 64 * 1024]) {
         p.write(new Uint8Array([0xf0, 0xa0]));
         p.write(new Uint8Array([0x9c, 0x8e]));
         p.write(quote);
-
-        p.end();
       });
 
       t.test("1-4 byte utf8 character string chunked inbetween random bytes: Aж文𠜱B", (
         t,
       ) => {
         t.plan(11);
-
-        const p = new JsonParser({ stringBufferSize });
-        p.onValue = (value) => t.equal(value, "Aж文𠜱B");
 
         const eclectic_buffer = new Uint8Array([
           0x41, // A
@@ -184,6 +143,9 @@ for (const stringBufferSize of [0, 64 * 1024]) {
         ]); // B
 
         for (let i = 0; i < 11; i++) {
+          const p = new JsonParser({ stringBufferSize });
+          p.onValue = (value) => t.equal(value, "Aж文𠜱B");
+
           const first_buffer = eclectic_buffer.slice(0, i);
           const second_buffer = eclectic_buffer.slice(i);
           p.write(quote);
@@ -191,8 +153,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
           p.write(second_buffer);
           p.write(quote);
         }
-
-        p.end();
       });
     });
 
@@ -206,8 +166,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
         p.onValue = (value) => t.equal(value, "😋");
 
         p.write('"\\uD83D\\uDE0B"');
-
-        p.end();
       });
 
       t.test("parse chunked surrogate pair", (t) => {
@@ -220,8 +178,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
         p.write("\\uD83D");
         p.write("\\uDE0B");
         p.write(quote);
-
-        p.end();
       });
 
       t.test("not error on broken surrogate pair", (t) => {
@@ -233,8 +189,6 @@ for (const stringBufferSize of [0, 64 * 1024]) {
         p.write(quote);
         p.write("\\uD83D\\uEFFF");
         p.write(quote);
-
-        p.end();
       });
     });
   });
@@ -250,8 +204,6 @@ test("should flush the buffer if there is not space for incoming data", (t) => {
   p.write("aaaa");
   p.write("𠜎");
   p.write(quote);
-
-  p.end();
 });
 
 test("fail on invalid values", (t) => {

@@ -72,31 +72,7 @@ for (const numberBufferSize of [0, 64 * 1024]) {
 
       p.write(str);
       p.write(" ");
-
-      p.end();
     });
-  });
-
-  test("number unbound", (t) => {
-    t.plan(expected.length);
-    let i = 0;
-
-    const p = new JsonParser({ numberBufferSize });
-    p.onValue = (value) => {
-      t.equal(
-        value,
-        expected[i],
-        `Error on expectation ${i} (${value} !== ${expected[i]})`,
-      );
-      i += 1;
-    };
-
-    values.forEach((str) => {
-      p.write(str);
-      p.write(" ");
-    });
-
-    p.end();
   });
 
   test("number chuncked", (t) => {
@@ -116,7 +92,6 @@ for (const numberBufferSize of [0, 64 * 1024]) {
 
       str.split("").forEach(c => p.write(c));
       p.write(" ");
-      p.end();
     });
   });
 }

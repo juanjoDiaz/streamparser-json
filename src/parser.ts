@@ -12,6 +12,7 @@ const {
   NULL,
   STRING,
   NUMBER,
+  SEPARATOR,
 } = TokenType;
 
 // Parser States
@@ -21,7 +22,8 @@ enum ParserState {
   COLON,
   COMMA,
   ENDED,
-  ERROR
+  ERROR,
+  SEPARATOR,
 }
 // Parser Modes
 export enum ParserMode {
@@ -39,11 +41,13 @@ export interface StackElement {
 export interface ParserOptions {
   paths?: string[];
   keepStack?: boolean;
+  separator?: string;
 }
 
 const defaultOpts: ParserOptions = {
   paths: undefined,
   keepStack: true,
+  separator: undefined,
 };
 
 export class TokenParserError extends Error {
@@ -57,6 +61,7 @@ export class TokenParserError extends Error {
 export default class Parser {
   private readonly paths?: (string[] | undefined)[];
   private readonly keepStack: boolean;
+  private readonly separator?: string;
   private state: ParserState = ParserState.VALUE;
   private mode: ParserMode | undefined = undefined;
   private key: string | number | undefined = undefined;
@@ -78,6 +83,7 @@ export default class Parser {
     }
 
     this.keepStack = opts.keepStack as boolean;
+    this.separator = opts.separator;
   }
 
   private shouldEmit(): boolean {
@@ -111,11 +117,11 @@ export default class Parser {
     ({ key: this.key, value: this.value, mode: this.mode, emit } = this.stack
       .pop() as StackElement);
 
-    this.emit(value, emit)
-
     this.state = this.mode !== undefined
       ? ParserState.COMMA
       : ParserState.VALUE;
+
+    this.emit(value, emit);
   }
 
   private emit(value: any, emit: boolean) {
@@ -126,9 +132,22 @@ export default class Parser {
     if (emit) {
       this.onValue(value, this.key, this.value, this.stack);
     }
+
+    if (this.stack.length === 0) {
+      if (this.separator) {
+        this.state = ParserState.SEPARATOR;
+      } else if (this.separator === undefined) {
+        this.end();
+      }
+      // else if separator === '', expect next JSON object.
+    }
   }
 
-  public write(token: TokenType, value: any): void{
+  public get isEnded(): boolean {
+    return this.state === ParserState.ENDED;
+  }
+
+  public write(token: TokenType, value: any): void {
     if (this.state === ParserState.VALUE) {
       if (
         token === STRING || token === NUMBER || token === TRUE ||
@@ -233,11 +252,20 @@ export default class Parser {
       }
     }
 
+    if (this.state === ParserState.SEPARATOR) {
+      if (token === SEPARATOR && value === this.separator) {
+        this.state = ParserState.VALUE;
+        return;
+      }
+    }
+
     this.error(new TokenParserError(`Unexpected ${TokenType[token]} (${JSON.stringify(value)}) in state ${ParserState[this.state]}`));
   }
 
   public error(err: Error): never {
-    this.state = ParserState.ERROR;
+    if (this.state !== ParserState.ENDED) {
+      this.state = ParserState.ERROR;
+    }
     throw err;
   }
 

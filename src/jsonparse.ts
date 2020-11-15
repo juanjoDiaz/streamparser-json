@@ -13,9 +13,16 @@ export default class JSONParser {
     this.tokenizer.onToken = this.parser.write.bind(this.parser);
   }
 
+  public get isEnded(): boolean {
+    return this.tokenizer.isEnded && this.parser.isEnded;
+  }
+
   public write(input: Iterable<number> | string): void {
     try {
       this.tokenizer.write(input);
+      if (this.parser.isEnded) {
+        this.tokenizer.end();
+      }
     } catch(err) {
       if (err instanceof TokenParserError) {
         // Bubbles up the Parser errrors

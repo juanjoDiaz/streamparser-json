@@ -82,6 +82,4 @@ test("offset", (t) => {
   p.write(input3);
 
   t.equal(i, offsets.length);
-
-  p.end();
 });

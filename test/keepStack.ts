@@ -24,7 +24,5 @@ testData.forEach(({ value, paths, expected }) => {
     };
 
     p.write(value);
-
-    p.end();
   });
 });
