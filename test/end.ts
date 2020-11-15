@@ -23,7 +23,7 @@ test("should fail if writing after ending", (t) => {
 test("should auto-end after emiting one object", (t) => {
   const values = [
     "2 2",
-    "2.33456 {}",
+    "2.33456{}",
     "{}{}{}",
   ];
 
@@ -42,11 +42,39 @@ test("should auto-end after emiting one object", (t) => {
   });
 });
 
+test("should emit numbers if ending on a valid number", (t) => {
+  const values = [
+    "0",
+    "2",
+    "2.33456",
+    "2.33456e+1",
+    "-2",
+    "-2.33456",
+    "-2.33456e+1",
+  ];
+
+  const expected = values.map((str) => JSON.parse(str));
+
+  t.plan(expected.length * 2);
+  
+  let i = 0;
+
+  values.forEach((str) => {
+    const p = new JsonParser({ separator: '' });
+    p.onValue = (value) => t.equal(value, expected[i++])
+
+    p.write(str);
+    p.end();
+
+    t.ok(p.isEnded);
+  })
+});
+
 test("should fail if ending in the middle of parsing", (t) => {
   const values = [
     "2.",
-    "2.33456",
     "2.33456e",
+    "2.33456e+",
     '"asdfasd',
     'tru',
     '"fa',

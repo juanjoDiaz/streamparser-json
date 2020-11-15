@@ -563,12 +563,22 @@ export default class Tokenizer {
   }
 
   public end(): void {
-    if (this.state !== TokenizerStates.START) {
-      this.error(new TokenizerError(
-        `Tokenizer ended in the middle of a token (state: ${
-          TokenizerStates[this.state]
-        }). Either not all the data was received or the data was invalid.`
-      ));
+    switch (this.state) {
+      case TokenizerStates.NUMBER_AFTER_INITIAL_ZERO:
+      case TokenizerStates.NUMBER_AFTER_INITIAL_NON_ZERO:
+      case TokenizerStates.NUMBER_AFTER_DECIMAL:
+      case TokenizerStates.NUMBER_AFTER_E_AND_DIGIT:
+        this.emitNumber();
+        break;
+      case TokenizerStates.START:
+      case TokenizerStates.ERROR:
+        break;
+      default:
+        this.error(new TokenizerError(
+          `Tokenizer ended in the middle of a token (state: ${
+            TokenizerStates[this.state]
+          }). Either not all the data was received or the data was invalid.`
+        ));
     }
 
     this.state = TokenizerStates.ENDED;

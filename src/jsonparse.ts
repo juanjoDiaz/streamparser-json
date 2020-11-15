@@ -25,8 +25,17 @@ export default class JSONParser {
       }
     } catch(err) {
       if (err instanceof TokenParserError) {
-        // Bubbles up the Parser errrors
-        this.tokenizer.error(err);
+        if (this.parser.isEnded) {
+          try {
+            // The tokenizer ended before processing the all the passed tokens
+            this.tokenizer.error(err);
+          } catch(err) {
+            this.end();
+          }
+        } else {
+          // Bubbles up the Parser errrors
+          this.tokenizer.error(err);
+        }
       }
 
       throw err;
@@ -49,7 +58,9 @@ export default class JSONParser {
   }
 
   public end(): void {
-    this.parser.end();
     this.tokenizer.end();
+    if (!this.parser.isEnded) {
+      this.parser.end();
+    }
   }
 }

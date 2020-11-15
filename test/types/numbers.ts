@@ -71,7 +71,7 @@ for (const numberBufferSize of [0, 64 * 1024]) {
       };
 
       p.write(str);
-      p.write(" ");
+      p.end();
     });
   });
 
@@ -91,7 +91,7 @@ for (const numberBufferSize of [0, 64 * 1024]) {
       };
 
       str.split("").forEach(c => p.write(c));
-      p.write(" ");
+      p.end();
     });
   });
 }
