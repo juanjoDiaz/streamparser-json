@@ -22,8 +22,8 @@ function copyReadme(dest) {
         "import Tokenizer from 'https://deno.land/x/streamparser_json@v0.0.3/tokenizer.ts';/",
       )
       .replace(
-        /import { Parser } from '@streamparser\/json';/gm,
-        "import Parser from 'https://deno.land/x/streamparser_json@v0.0.3/parser.ts';/",
+        /import { TokenParser } from '@streamparser\/json';/gm,
+        "import TokenParser from 'https://deno.land/x/streamparser_json@v0.0.3/tokenparser.ts';/",
       ),
   );
 }
@@ -53,5 +53,5 @@ function processDir(src, dest) {
 
 const src = process.argv[2]; // './src'
 const dest = process.argv[3]; // './dist'
-copyReadme(dest);
 processDir(src, dest);
+copyReadme(dest);
