@@ -589,6 +589,7 @@ export default class Tokenizer {
 
   public onToken(token: TokenType, value: any, offset: number): void {
     // Override me
+    throw new TokenizerError('Can\'t emit tokens before the "onToken" callback has been set up.');
   }
 
   public onError(err: Error): void {

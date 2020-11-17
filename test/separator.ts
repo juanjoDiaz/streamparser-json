@@ -93,6 +93,7 @@ test(`separator: fail on invalid value`, {}, (t) => {
   t.plan(1);
 
   const p = new JsonParser({ separator: 'abc' });
+  p.onValue = () => {};
 
   try {
     p.write('abe');

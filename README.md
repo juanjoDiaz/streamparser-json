@@ -171,7 +171,7 @@ parser.onValue = (value) => { /* Process values */ }
 * **write(token: TokenType, value: any)** alias to the Tokenizer write method.
 * **end()** alias to the Tokenizer end method.
 * **isEnded** readonly boolean property indicating whether the JSONparser is ended or is still accepting data.
-* **onToken(token: TokenType, value: any, offset: number)** alias to the Tokenizer onToken method (write only).
+* **onToken(token: TokenType, value: any, offset: number)** alias to the Tokenizer onToken method. (write only).
 * **onValue(value: any)** alias to the Parser onValue method (write only).
 * **onError(err: Error)** alias to the Tokenizer/Parser onError method  (write only).
 * **onEnd()** alias to the Tokenizer onEnd method (which will call the Parser onEnd methods) (write only).

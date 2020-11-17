@@ -286,6 +286,7 @@ export default class Parser {
     stack: StackElement[],
   ): void {
     // Override me
+    throw new TokenParserError('Can\'t emit data before the "onValue" callback has been set up.');
   }
 
   public onError(err: Error): void {

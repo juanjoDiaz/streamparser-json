@@ -7,6 +7,7 @@ test("should fail if writing after ending", (t) => {
   t.plan(2);
 
   const p = new JsonParser({ separator: '' });
+  p.onValue = () => {};
 
   p.write('"test"');
   p.end();
@@ -31,6 +32,7 @@ test("should auto-end after emiting one object", (t) => {
 
   values.forEach((str) => {
     const p = new JsonParser();
+    p.onValue = () => {};
 
     try {
       p.write(str);
@@ -90,6 +92,8 @@ test("should fail if ending in the middle of parsing", (t) => {
 
   values.forEach((str) => {
     const p = new JsonParser();
+    p.onValue = () => {};
+
     p.write(str);
 
     try {

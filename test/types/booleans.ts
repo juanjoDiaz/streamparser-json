@@ -64,6 +64,7 @@ test("fail on invalid values", (t) => {
 
   invalidValues.forEach((str) => {
     const p = new JsonParser();
+    p.onValue = () => {};
 
     try {
       p.write(str);
