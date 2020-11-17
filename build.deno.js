@@ -15,7 +15,7 @@ function copyReadme(dest) {
     readFileSync("./README.md").toString()
       .replace(
         /import \{ JSONparser \} from '@streamparser\/json';/gm,
-        "import JSONparser from 'https://deno.land/x/streamparser_json@v0.0.3/jsonparse.ts';/",
+        "import JSONparser from 'https://deno.land/x/streamparser_json@v0.0.3/jsonparser.ts';/",
       )
       .replace(
         /import { Tokenizer } from '@streamparser\/json';/gm,

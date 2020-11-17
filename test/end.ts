@@ -1,12 +1,12 @@
 import tap from "tap";
-import JsonParser from "../src/jsonparse";
+import JSONParser from "../src/jsonparser";
 
 const { test } = tap;
 
 test("should fail if writing after ending", (t) => {
   t.plan(2);
 
-  const p = new JsonParser({ separator: '' });
+  const p = new JSONParser({ separator: '' });
   p.onValue = () => {};
 
   p.write('"test"');
@@ -31,7 +31,7 @@ test("should auto-end after emiting one object", (t) => {
   t.plan(values.length * 2);
 
   values.forEach((str) => {
-    const p = new JsonParser();
+    const p = new JSONParser();
     p.onValue = () => {};
 
     try {
@@ -62,7 +62,7 @@ test("should emit numbers if ending on a valid number", (t) => {
   let i = 0;
 
   values.forEach((str) => {
-    const p = new JsonParser({ separator: '' });
+    const p = new JSONParser({ separator: '' });
     p.onValue = (value) => t.equal(value, expected[i++])
 
     p.write(str);
@@ -91,7 +91,7 @@ test("should fail if ending in the middle of parsing", (t) => {
   t.plan(values.length);
 
   values.forEach((str) => {
-    const p = new JsonParser();
+    const p = new JSONParser();
     p.onValue = () => {};
 
     p.write(str);

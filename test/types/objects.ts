@@ -1,6 +1,6 @@
 const { readFileSync } = require('fs');
 import tap from "tap";
-import JsonParser from "../../src/jsonparse";
+import JSONParser from "../../src/jsonparser";
 
 const { test } = tap;
 
@@ -44,7 +44,7 @@ test("objects", (t) => {
   let i = 0;
 
   values.forEach((str) => {
-    const p = new JsonParser();
+    const p = new JSONParser();
     p.onValue = function (value) {
       const keys = this.stack
         .slice(1)
@@ -69,7 +69,7 @@ test("objects chuncked", (t) => {
   let i = 0;
 
   values.forEach((str) => {
-    const p = new JsonParser();
+    const p = new JSONParser();
     p.onValue = function (value) {
       const keys = this.stack
         .slice(1)
@@ -94,7 +94,7 @@ test("objects complex ", (t) => {
   const stringifiedJson = readFileSync(`${process.cwd()}/samplejson/basic.json`)
     .toString();
 
-  const p = new JsonParser();
+  const p = new JSONParser();
   p.onValue = (value, key, parent, stack) => {
     if (stack.length === 0) {
       t.deepEqual(JSON.parse(stringifiedJson), value);
@@ -118,7 +118,7 @@ test("fail on invalid values", (t) => {
   t.plan(invalidValues.length);
 
   invalidValues.forEach((str) => {
-    const p = new JsonParser();
+    const p = new JSONParser();
     p.onValue = () => {};
 
     try {

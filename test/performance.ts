@@ -1,5 +1,5 @@
 import tap from "tap";
-import JsonParser from "../src/jsonparse";
+import JSONParser from "../src/jsonparser";
 import { charset } from "../src/utils/utf-8";
 
 const { test } = tap;
@@ -30,7 +30,7 @@ test ("buffered parsing", (t) => {
 
     const chunk = new Uint8Array(oneKB).fill(LATIN_SMALL_LETTER_A);
 
-    const p = new JsonParser({ stringBufferSize: 64 * 1024 });
+    const p = new JSONParser({ stringBufferSize: 64 * 1024 });
     p.onToken = (type, value) =>
       t.equal(
         value.length,
@@ -50,7 +50,7 @@ test ("buffered parsing", (t) => {
 
     const chunk = new Uint8Array(oneKB).fill(DIGIT_ONE);
 
-    const p = new JsonParser({ numberBufferSize: 64 * 1024 });
+    const p = new JSONParser({ numberBufferSize: 64 * 1024 });
     p.onToken = (type, value) =>
       t.equal(value, 1.1111111111111112, "token should be correct");
 
@@ -64,7 +64,7 @@ test ("buffered parsing", (t) => {
   t.test("can handle multi-byte unicode splits", (t) => {
     t.plan(1);
 
-    const p = new JsonParser({ stringBufferSize: 1 });
+    const p = new JSONParser({ stringBufferSize: 1 });
     p.onToken = (type, value) => t.equal(value, "𠜎");
 
     p.write('"𠜎"');
@@ -82,7 +82,7 @@ test(`should keep memory stable if keepStack === false on array`, {}, (t) => {
   const thirtyMBs = 20 * 1024 * 1024;
   let valuesLeft = kbsIn200MBs;
 
-  const p = new JsonParser({ paths: ['$.*'], keepStack: false, stringBufferSize: oneKB });
+  const p = new JSONParser({ paths: ['$.*'], keepStack: false, stringBufferSize: oneKB });
   p.onValue = () => {
     if (valuesLeft-- % oneKB !== 0) return;
 
@@ -119,7 +119,7 @@ test(`should keep memory stable if keepStack === false on object`, {}, (t) => {
   const thirtyMBs = 20 * 1024 * 1024;
   let valuesLeft = kbsIn200MBs;
 
-  const p = new JsonParser({ paths: ['$.*'], keepStack: false, stringBufferSize: oneKB });  p.onValue = () => {
+  const p = new JSONParser({ paths: ['$.*'], keepStack: false, stringBufferSize: oneKB });  p.onValue = () => {
     if (valuesLeft-- % oneKB !== 0) return;
 
     const actualMemoryUsage = process.memoryUsage().heapUsed;

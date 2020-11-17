@@ -1,5 +1,5 @@
 import { readFileStrSync } from "https://deno.land/std/fs/mod.ts";
-import JSONParse2 from "../dist/deno/jsonparse.ts";
+import JSONParse2 from "../dist/deno/jsonparser.ts";
 
 function repeat(str: string, number: number): string {
   return Array(number).fill(str).join("");

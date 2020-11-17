@@ -1,5 +1,5 @@
 import tap from "tap";
-import JsonParser from "../../src/jsonparse";
+import JSONParser from "../../src/jsonparser";
 
 const { test } = tap;
 
@@ -60,7 +60,7 @@ for (const numberBufferSize of [0, 64 * 1024]) {
     let i = 0;
 
     values.forEach((str) => {
-      const p = new JsonParser({ numberBufferSize });
+      const p = new JSONParser({ numberBufferSize });
       p.onValue = (value) => {
         t.equal(
           value,
@@ -80,7 +80,7 @@ for (const numberBufferSize of [0, 64 * 1024]) {
     let i = 0;
 
     values.forEach((str) => {
-      const p = new JsonParser({ numberBufferSize });
+      const p = new JSONParser({ numberBufferSize });
       p.onValue = (value) => {
         t.equal(
           value,
@@ -111,7 +111,7 @@ test("fail on invalid values", (t) => {
   t.plan(values.length);
 
   values.forEach((str) => {
-    const p = new JsonParser();
+    const p = new JSONParser();
     p.onValue = () => {};
 
     try {

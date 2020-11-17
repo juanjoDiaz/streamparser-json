@@ -1,5 +1,5 @@
 import tap from "tap";
-import JsonParser from "../src/jsonparse";
+import JSONParser from "../src/jsonparser";
 
 const { test } = tap;
 
@@ -15,7 +15,7 @@ testData.forEach(({ value, paths, expected }) => {
   test(`should keep parent empty if keepStack === false`, {}, (t) => {
     t.plan(expected);
 
-    const p = new JsonParser({ paths, keepStack: false });
+    const p = new JSONParser({ paths, keepStack: false });
     p.onValue = (value, key, parent) => {
       if (parent === undefined) {
         t.pass();

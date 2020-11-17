@@ -150,9 +150,9 @@ A drop-in replacement of `JSONparse` (with few ~~breaking changes~~ improvements
 
 
 ```javascript
-import { JsonParser } from 'jsonparse2';
+import { JSONParser } from '@streamparser/json';
 
-const parser = new JsonParser();
+const parser = new JSONParser();
 ```
 
 It takes the same options as the tokenizer.
@@ -178,7 +178,7 @@ tokenParser.onValue = (value) => { /* Process values */ }
  
 ```javascript
 // You can override the overridable methods by creating your own class extending Tokenizer
-class MyJsonParser extends JsonParser {
+class MyJsonParser extends JSONParser {
   onToken(value: any) {
     // ...
   }
@@ -190,7 +190,7 @@ class MyJsonParser extends JsonParser {
 const myJsonParser = new MyJsonParser();
 
 // or just overriding it
-const jsonParser = new JsonParser();
+const jsonParser = new JSONParser();
 jsonParser.onToken = (token, value, offset) => { ... };
 jsonParser.onValue = (value) => { ... };
 ```
@@ -210,9 +210,9 @@ You push data using the `write` method which takes a string or an array-like obj
 You can subscribe to the resulting data using the 
 
 ```javascript
-import { JsonParser } from '@streamparser/json';
+import { JSONParser } from '@streamparser/json';
 
-const parser = new JsonParser({ stringBufferSize: undefined, paths: ['$'] });
+const parser = new JSONParser({ stringBufferSize: undefined, paths: ['$'] });
 parser.onValue = console.log;
 
 parser.write('"Hello world!"'); // logs "Hello world!"
@@ -228,9 +228,9 @@ parser.write('"');// logs "Hello world!"
 Write is always a synchronous operation so any error during the parsing of the stream will be thrown during the write operation. After an error, the parser can't continue parsing.
 
 ```javascript
-import { JsonParser } from '@streamparser/json';
+import { JSONParser } from '@streamparser/json';
 
-const parser = new JsonParser({ stringBufferSize: undefined });
+const parser = new JSONParser({ stringBufferSize: undefined });
 parser.onValue = console.log;
 
 try {
@@ -243,9 +243,9 @@ try {
 You can also handle errors using callbacks:
 
 ```javascript
-import { JsonParser } from '@streamparser/json';
+import { JSONParser } from '@streamparser/json';
 
-const parser = new JsonParser({ stringBufferSize: undefined });
+const parser = new JSONParser({ stringBufferSize: undefined });
 parser.onValue = console.log;
 parser.onError = console.error;
 
@@ -259,10 +259,10 @@ parser.write('"""');
 Imagine an endpoint that send a large amount of JSON objects one after the other (`{"id":1}{"id":2}{"id":3}...`).
 
 ```js
-  import { JSONparser } from '@streamparser/json';
+  import { JSONParser} from '@streamparser/json';
 
-  const jsonparser = new JsonParser({ stringBufferSize: undefined });
-  parser.onValue = (value, key, parent, stack) => {
+  const jsonparser = new JSONParser();
+  jsonparser.onValue = (value, key, parent, stack) => {
 	if (stack > 0) return; // ignore inner values
     // TODO process element
   }
@@ -272,7 +272,7 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
   while(true) {
     const { done, value } = await reader.read();
     if (done) break;
-    jsonparse.write(value);
+    jsonparser.write(value);
   }
 ```
 
@@ -282,10 +282,10 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 Imagine an endpoint that send a large amount of JSON objects one after the other (`[{"id":1},{"id":2},{"id":3},...]`).
 
 ```js
-  import { JsonParser } from '@streamparser/json';
+  import { JSONParser } from '@streamparser/json';
 
-  const jsonparser = new JsonParser({ stringBufferSize: undefined, paths: ['$.*'] });
-  parser.onValue = (value, key, parent, stack) => {
+  const jsonparser = new JSONParser({ stringBufferSize: undefined, paths: ['$.*'] });
+  jsonparser.onValue = (value, key, parent, stack) => {
     if (stack.length === 0) /* We are done. Exit. */; 
     // By default, the parser keeps all the child elements in memory until the root parent is emitted.
     // Let's delete the objects after processing them in order to optimize memory.
@@ -298,7 +298,7 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
   while(true) {
     const { done, value } = await reader.read();
     if (done) break;
-    jsonparse.write(value);
+    jsonparser.write(value);
   }
 ```
 

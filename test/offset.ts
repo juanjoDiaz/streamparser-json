@@ -1,5 +1,5 @@
 import tap from "tap";
-import JsonParser from "../src/jsonparse";
+import JSONParser from "../src/jsonparser";
 import { TokenType } from "../src/utils/constants";
 
 const { test } = tap;
@@ -70,7 +70,7 @@ test("offset", (t) => {
 
   let i = 0;
 
-  const p = new JsonParser();
+  const p = new JSONParser();
   p.onToken = (token, value, offset) => {
     t.equal(offset, offsets[i][0]);
     t.equal(token, offsets[i][1]);

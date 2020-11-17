@@ -1,5 +1,5 @@
 import tap from "tap";
-import JsonParser from "../../src/jsonparse";
+import JSONParser from "../../src/jsonparser";
 import { charset } from "../../src/utils/utf-8";
 
 const { test } = tap;
@@ -26,7 +26,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
     let i = 0;
 
     values.forEach((str) => {
-      const p = new JsonParser({ stringBufferSize });
+      const p = new JSONParser({ stringBufferSize });
       p.onValue = (value) => {
         t.equal(
           value,
@@ -48,7 +48,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
     t.test("2 byte utf8 'De' character: д", (t) => {
       t.plan(1);
 
-      const p = new JsonParser({ stringBufferSize });
+      const p = new JSONParser({ stringBufferSize });
       p.onValue = (value) => t.equal(value, "д");
   
       p.write(quote);
@@ -59,7 +59,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
     t.test("3 byte utf8 'Han' character: 我", (t) => {
       t.plan(1);
 
-      const p = new JsonParser({ stringBufferSize });
+      const p = new JSONParser({ stringBufferSize });
       p.onValue = (value) => t.equal(value, "我");
 
       p.write(quote);
@@ -70,7 +70,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
     t.test("4 byte utf8 character (unicode scalar U+2070E): 𠜎", (t) => {
       t.plan(1);
 
-      const p = new JsonParser({ stringBufferSize });
+      const p = new JSONParser({ stringBufferSize });
       p.onValue = (value) => t.equal(value, "𠜎");
 
       p.write(quote);
@@ -86,7 +86,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       ) => {
         t.plan(1);
 
-        const p = new JsonParser({ stringBufferSize });
+        const p = new JSONParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "д");
 
         p.write(quote);
@@ -100,7 +100,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       ) => {
         t.plan(1);
 
-        const p = new JsonParser({ stringBufferSize });
+        const p = new JSONParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "我");
 
         p.write(quote);
@@ -114,7 +114,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       ) => {
         t.plan(1);
 
-        const p = new JsonParser({ stringBufferSize });
+        const p = new JSONParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "𠜎");
 
         p.write(quote);
@@ -143,7 +143,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
         ]); // B
 
         for (let i = 0; i < 11; i++) {
-          const p = new JsonParser({ stringBufferSize });
+          const p = new JSONParser({ stringBufferSize });
           p.onValue = (value) => t.equal(value, "Aж文𠜱B");
 
           const first_buffer = eclectic_buffer.slice(0, i);
@@ -162,7 +162,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       t.test("parse surrogate pair", (t) => {
         t.plan(1);
 
-        const p = new JsonParser({ stringBufferSize });
+        const p = new JSONParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "😋");
 
         p.write('"\\uD83D\\uDE0B"');
@@ -171,7 +171,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       t.test("parse chunked surrogate pair", (t) => {
         t.plan(1);
 
-        const p = new JsonParser({ stringBufferSize });
+        const p = new JSONParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "😋");
 
         p.write(quote);
@@ -183,7 +183,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
       t.test("not error on broken surrogate pair", (t) => {
         t.plan(1);
 
-        const p = new JsonParser({ stringBufferSize });
+        const p = new JSONParser({ stringBufferSize });
         p.onValue = (value) => t.equal(value, "�");
 
         p.write(quote);
@@ -197,7 +197,7 @@ for (const stringBufferSize of [0, 64 * 1024]) {
 test("should flush the buffer if there is not space for incoming data", (t) => {
   t.plan(1);
 
-  const p = new JsonParser({ stringBufferSize: 5 });
+  const p = new JSONParser({ stringBufferSize: 5 });
   p.onValue = (value) => t.equal(value, "aaaa𠜎");
 
   p.write(quote);
@@ -219,7 +219,7 @@ test("fail on invalid values", (t) => {
   t.plan(values.length);
 
   values.forEach((str) => {
-    const p = new JsonParser();
+    const p = new JSONParser();
     p.onValue = () => {};
 
     try {

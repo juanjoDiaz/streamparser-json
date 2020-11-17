@@ -1,5 +1,5 @@
 import tap from "tap";
-import JsonParser from "../src/jsonparse";
+import JSONParser from "../src/jsonparser";
 import { charset } from "../src/utils/utf-8";
 
 const { test } = tap;
@@ -12,7 +12,7 @@ test("write accept strings", (t) => {
   t.plan(1);
   const value = "test";
 
-  const p = new JsonParser();
+  const p = new JSONParser();
   p.onValue = (v) => t.equal(v, value);
 
   p.write(quote);
@@ -24,7 +24,7 @@ test("write accept Uint8Array", (t) => {
   t.plan(1);
   const value = "test";
 
-  const p = new JsonParser();
+  const p = new JSONParser();
   p.onValue = (v) => t.equal(v, value);
 
   p.write(quote);
@@ -37,7 +37,7 @@ test("write accept Uint16Array", (t) => {
 
   const value = "test";
 
-  const p = new JsonParser();
+  const p = new JSONParser();
   p.onValue = (v) => t.equal(v, value);
 
   p.write(quote);
@@ -50,7 +50,7 @@ test("write accept Uint32Array", (t) => {
 
   const value = "test";
 
-  const p = new JsonParser();
+  const p = new JSONParser();
   p.onValue = (v) => t.equal(v, value);
 
   p.write(quote);
@@ -63,7 +63,7 @@ test("write accept Array", (t) => {
 
   const value = "test";
 
-  const p = new JsonParser();
+  const p = new JSONParser();
   p.onValue = (v) => t.equal(v, value);
 
   p.write(quote);
@@ -74,7 +74,7 @@ test("write accept Array", (t) => {
 test("write throw on invalid type", (t) => {
   t.plan(1);
 
-  const p = new JsonParser();
+  const p = new JSONParser();
   p.onValue = () => {};
 
   try {

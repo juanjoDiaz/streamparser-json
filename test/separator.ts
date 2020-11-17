@@ -1,5 +1,5 @@
 import tap from "tap";
-import JsonParser from "../src/jsonparse";
+import JSONParser from "../src/jsonparser";
 
 const { test } = tap;
 
@@ -19,7 +19,7 @@ test("separator: empty string", (t) => {
 
   let i = 0;
 
-  const p = new JsonParser({ separator: '' });
+  const p = new JSONParser({ separator: '' });
   p.onValue = (value) => {
     t.deepEqual(
       value,
@@ -40,7 +40,7 @@ test("separator: ND-JSON", (t) => {
   const separator = '\n';
   let i = 0;
 
-  const p = new JsonParser({ separator });
+  const p = new JSONParser({ separator });
   p.onValue = (value) => {
     t.deepEqual(
       value,
@@ -70,7 +70,7 @@ separators.forEach((separator) => {
 
     let i = 0;
 
-    const p = new JsonParser({ separator });
+    const p = new JSONParser({ separator });
     p.onValue = (value) => {
       t.deepEqual(
         value,
@@ -92,7 +92,7 @@ separators.forEach((separator) => {
 test(`separator: fail on invalid value`, {}, (t) => {
   t.plan(1);
 
-  const p = new JsonParser({ separator: 'abc' });
+  const p = new JSONParser({ separator: 'abc' });
   p.onValue = () => {};
 
   try {

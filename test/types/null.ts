@@ -1,5 +1,5 @@
 import tap from "tap";
-import JsonParser from "../../src/jsonparse";
+import JSONParser from "../../src/jsonparser";
 
 const { test } = tap;
 
@@ -14,7 +14,7 @@ test("null", (t) => {
   let i = 0;
 
   values.forEach((str) => {
-    const p = new JsonParser();
+    const p = new JSONParser();
     p.onValue = (value) => {
       t.equal(
         value,
@@ -34,7 +34,7 @@ test("null chuncked", (t) => {
   let i = 0;
 
   values.forEach((str) => {
-    const p = new JsonParser();
+    const p = new JSONParser();
     p.onValue = (value) => {
       t.equal(
         value,
@@ -58,7 +58,7 @@ test("fail on invalid values", (t) => {
   t.plan(values.length);
 
   values.forEach((str) => {
-    const p = new JsonParser();
+    const p = new JSONParser();
     p.onValue = () => {};
 
     try {

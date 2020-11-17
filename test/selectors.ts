@@ -1,5 +1,5 @@
 import tap from "tap";
-import JsonParser from "../src/jsonparse";
+import JSONParser from "../src/jsonparser";
 
 const { test } = tap;
 
@@ -24,7 +24,7 @@ testData.forEach(({ value, paths, expected }) => {
 
     let i = 0;
 
-    const p = new JsonParser({ paths });
+    const p = new JSONParser({ paths });
     p.onValue = (value) => {
       t.deepEqual(
         value,
@@ -50,7 +50,7 @@ invalidTestData.forEach(({ paths, expectedError }) => {
     t.plan(1);
 
     try {
-      new JsonParser({ paths });
+      new JSONParser({ paths });
       t.fail('Error expected on invalid selector');
     } catch (err) {
       t.equal(err.message, expectedError);
