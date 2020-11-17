@@ -1,31 +1,31 @@
 import Tokenizer, { TokenizerOptions } from "./tokenizer";
-import Parser, { StackElement, ParserOptions, TokenParserError } from "./parser";
+import TokenParser, { StackElement, TokenParserOptions, TokenParserError } from "./tokenparser";
 
-interface JSONParserOpts extends TokenizerOptions, ParserOptions {}
+interface JSONParserOpts extends TokenizerOptions, TokenParserOptions {}
 
 export default class JSONParser {
   private tokenizer: Tokenizer;
-  private parser: Parser;
+  private tokenParser: TokenParser;
 
   constructor(opts: JSONParserOpts = {}) {
     this.tokenizer = new Tokenizer(opts);
-    this.parser = new Parser(opts);
-    this.tokenizer.onToken = this.parser.write.bind(this.parser);
+    this.tokenParser = new TokenParser(opts);
+    this.tokenizer.onToken = this.tokenParser.write.bind(this.tokenParser);
   }
 
   public get isEnded(): boolean {
-    return this.tokenizer.isEnded && this.parser.isEnded;
+    return this.tokenizer.isEnded && this.tokenParser.isEnded;
   }
 
   public write(input: Iterable<number> | string): void {
     try {
       this.tokenizer.write(input);
-      if (this.parser.isEnded) {
+      if (this.tokenParser.isEnded) {
         this.tokenizer.end();
       }
     } catch(err) {
       if (err instanceof TokenParserError) {
-        if (this.parser.isEnded) {
+        if (this.tokenParser.isEnded) {
           try {
             // The tokenizer ended before processing the all the passed tokens
             this.tokenizer.error(err);
@@ -41,8 +41,8 @@ export default class JSONParser {
 
   public end() {
     this.tokenizer.end();
-    if (!this.parser.isEnded) {
-      this.parser.end();
+    if (!this.tokenParser.isEnded) {
+      this.tokenParser.end();
     }
   }
 
@@ -58,7 +58,7 @@ export default class JSONParser {
       stack: StackElement[],
     ) => void,
   ) {
-    this.parser.onValue = cb;
+    this.tokenParser.onValue = cb;
   }
 
   public set onError(cb: (err: Error) => void) {
@@ -66,6 +66,6 @@ export default class JSONParser {
   }
 
   public set onEnd(cb: () => {}) {
-    this.parser.onEnd = cb;
+    this.tokenParser.onEnd = cb;
   }
 }

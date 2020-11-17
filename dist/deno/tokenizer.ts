@@ -50,16 +50,19 @@ enum TokenizerStates {
   NUMBER_AFTER_E,
   NUMBER_AFTER_E_AND_SIGN,
   NUMBER_AFTER_E_AND_DIGIT,
+  SEPARATOR,
 }
 
 export interface TokenizerOptions {
   stringBufferSize?: number;
   numberBufferSize?: number;
+  separator?: string;
 }
 
 const defaultOpts: TokenizerOptions = {
   stringBufferSize: 0,
   numberBufferSize: 0,
+  separator: undefined,
 };
 
 export class TokenizerError extends Error {
@@ -73,6 +76,9 @@ export class TokenizerError extends Error {
 export default class Tokenizer {
   private state = TokenizerStates.START;
 
+  private separator?: string;
+  private separatorBytes?: Uint8Array;
+  private separatorIndex: number = 0;
   private bufferedString: StringBuilder;
   private bufferedNumber: StringBuilder;
 
@@ -93,6 +99,13 @@ export default class Tokenizer {
     this.bufferedNumber = opts.numberBufferSize && opts.numberBufferSize > 0
       ? new BufferedString(opts.numberBufferSize)
       : new NonBufferedString();
+    
+    this.separator = opts.separator;
+    this.separatorBytes = opts.separator ? this.encoder.encode(opts.separator) : undefined;
+  }
+
+  public get isEnded(): boolean {
+    return this.state === TokenizerStates.ENDED;
   }
 
   public write(input: Iterable<number> | string): void {
@@ -104,7 +117,8 @@ export default class Tokenizer {
     } else if ((input as any).buffer || Array.isArray(input)) {
       buffer = Uint8Array.from(input);
     } else {
-      this.error(new TypeError("Unexpected type. The `write` function only accepts TypeArrays and Strings.",));
+      this.error(new TypeError("Unexpected type. The `write` function only accepts Arrays, TypedArrays and Strings."));
+      return;
     }
 
     for (var i = 0; i < buffer.length; i += 1) {
@@ -112,6 +126,16 @@ export default class Tokenizer {
       switch (this.state) {
         case TokenizerStates.START:
           this.offset += 1;
+
+          if (this.separatorBytes && n === this.separatorBytes[0]) {
+            if (this.separatorBytes.length === 1) {
+              this.state = TokenizerStates.START;
+              this.onToken(TokenType.SEPARATOR, this.separator, this.offset + this.separatorBytes.length - 1);
+              continue;
+            }
+            this.state = TokenizerStates.SEPARATOR;
+            continue;
+          }
 
           if (
             n === charset.SPACE ||
@@ -498,6 +522,17 @@ export default class Tokenizer {
             continue;
           }
           break;
+        case TokenizerStates.SEPARATOR:
+          this.separatorIndex += 1;
+          if (!this.separatorBytes || n !== this.separatorBytes[this.separatorIndex]) {
+            break;
+          }
+          if (this.separatorIndex === this.separatorBytes.length - 1) {
+            this.state = TokenizerStates.START;
+            this.onToken(TokenType.SEPARATOR, this.separator, this.offset + this.separatorIndex);
+            this.separatorIndex = 0;
+          }
+          continue;
       }
 
       this.error(new TokenizerError(
@@ -505,6 +540,7 @@ export default class Tokenizer {
           TokenizerStates[this.state]
         }`
       ));
+      return;
     }
   }
 
@@ -521,24 +557,47 @@ export default class Tokenizer {
     return Number(numberStr);
   }
 
-  public error(err: Error): never {
-    this.state = TokenizerStates.ERROR;
-    throw err;
+  public error(err: Error): void {
+    if (this.state !== TokenizerStates.ENDED) {
+      this.state = TokenizerStates.ERROR;
+    }
+
+    this.onError(err);
   }
 
   public end(): void {
-    if (this.state !== TokenizerStates.START) {
-      this.error(new TokenizerError(
-        `Tokenizer ended in the middle of a token (state: ${
-          TokenizerStates[this.state]
-        }). Either not all the data was received or the data was invalid.`
-      ));
+    switch (this.state) {
+      case TokenizerStates.NUMBER_AFTER_INITIAL_ZERO:
+      case TokenizerStates.NUMBER_AFTER_INITIAL_NON_ZERO:
+      case TokenizerStates.NUMBER_AFTER_DECIMAL:
+      case TokenizerStates.NUMBER_AFTER_E_AND_DIGIT:
+        this.emitNumber();
+        break;
+      case TokenizerStates.START:
+      case TokenizerStates.ERROR:
+        break;
+      default:
+        this.error(new TokenizerError(
+          `Tokenizer ended in the middle of a token (state: ${
+            TokenizerStates[this.state]
+          }). Either not all the data was received or the data was invalid.`
+        ));
     }
 
     this.state = TokenizerStates.ENDED;
   }
 
   public onToken(token: TokenType, value: any, offset: number): void {
-    // Override
+    // Override me
+    throw new TokenizerError('Can\'t emit tokens before the "onToken" callback has been set up.');
+  }
+
+  public onError(err: Error): void {
+    // Override me
+    throw err;
+  }
+
+  public onEnd(): void {
+    // Override me
   }
 }

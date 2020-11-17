@@ -16,7 +16,7 @@ const {
 } = TokenType;
 
 // Parser States
-enum ParserState {
+enum TokenParserState {
   VALUE,
   KEY,
   COLON,
@@ -26,7 +26,7 @@ enum ParserState {
   SEPARATOR,
 }
 // Parser Modes
-export enum ParserMode {
+export enum TokenParserMode {
   OBJECT,
   ARRAY,
 }
@@ -34,17 +34,17 @@ export enum ParserMode {
 export interface StackElement {
   key: string | number | undefined;
   value: any;
-  mode: ParserMode | undefined;
+  mode: TokenParserMode | undefined;
   emit: boolean;
 }
 
-export interface ParserOptions {
+export interface TokenParserOptions {
   paths?: string[];
   keepStack?: boolean;
   separator?: string;
 }
 
-const defaultOpts: ParserOptions = {
+const defaultOpts: TokenParserOptions = {
   paths: undefined,
   keepStack: true,
   separator: undefined,
@@ -58,17 +58,17 @@ export class TokenParserError extends Error {
   }
 }
 
-export default class Parser {
+export default class TokenParser {
   private readonly paths?: (string[] | undefined)[];
   private readonly keepStack: boolean;
   private readonly separator?: string;
-  private state: ParserState = ParserState.VALUE;
-  private mode: ParserMode | undefined = undefined;
+  private state: TokenParserState = TokenParserState.VALUE;
+  private mode: TokenParserMode | undefined = undefined;
   private key: string | number | undefined = undefined;
   private value: any = undefined;
   private stack: StackElement[] = [];
 
-  constructor(opts?: ParserOptions) {
+  constructor(opts?: TokenParserOptions) {
     opts = { ...defaultOpts, ...opts };
 
     if (opts.paths) {
@@ -118,8 +118,8 @@ export default class Parser {
       .pop() as StackElement);
 
     this.state = this.mode !== undefined
-      ? ParserState.COMMA
-      : ParserState.VALUE;
+      ? TokenParserState.COMMA
+      : TokenParserState.VALUE;
 
     this.emit(value, emit);
   }
@@ -135,7 +135,7 @@ export default class Parser {
 
     if (this.stack.length === 0) {
       if (this.separator) {
-        this.state = ParserState.SEPARATOR;
+        this.state = TokenParserState.SEPARATOR;
       } else if (this.separator === undefined) {
         this.end();
       }
@@ -144,21 +144,21 @@ export default class Parser {
   }
 
   public get isEnded(): boolean {
-    return this.state === ParserState.ENDED;
+    return this.state === TokenParserState.ENDED;
   }
 
   public write(token: TokenType, value: any): void {
-    if (this.state === ParserState.VALUE) {
+    if (this.state === TokenParserState.VALUE) {
       if (
         token === STRING || token === NUMBER || token === TRUE ||
         token === FALSE || token === NULL
       ) {
-        if (this.mode === ParserMode.OBJECT) {
+        if (this.mode === TokenParserMode.OBJECT) {
           this.value[this.key as string] = value;
-          this.state = ParserState.COMMA;
-        } else if (this.mode === ParserMode.ARRAY) {
+          this.state = TokenParserState.COMMA;
+        } else if (this.mode === TokenParserMode.ARRAY) {
           this.value.push(value);
-          this.state = ParserState.COMMA;
+          this.state = TokenParserState.COMMA;
         }
 
         this.emit(value, this.shouldEmit());
@@ -167,40 +167,40 @@ export default class Parser {
 
       if (token === LEFT_BRACE) {
         this.push();
-        if (this.mode === ParserMode.OBJECT) {
+        if (this.mode === TokenParserMode.OBJECT) {
           this.value = this.value[this.key as string] = {};
-        } else if (this.mode === ParserMode.ARRAY) {
+        } else if (this.mode === TokenParserMode.ARRAY) {
           const val = {};
           this.value.push(val);
           this.value = val;
         } else {
           this.value = {};
         }
-        this.mode = ParserMode.OBJECT;
-        this.state = ParserState.KEY;
+        this.mode = TokenParserMode.OBJECT;
+        this.state = TokenParserState.KEY;
         this.key = undefined;
         return;
       }
 
       if (token === LEFT_BRACKET) {
         this.push();
-        if (this.mode === ParserMode.OBJECT) {
+        if (this.mode === TokenParserMode.OBJECT) {
           this.value = this.value[this.key as string] = [];
-        } else if (this.mode === ParserMode.ARRAY) {
+        } else if (this.mode === TokenParserMode.ARRAY) {
           const val: any[] = [];
           this.value.push(val);
           this.value = val;
         } else {
           this.value = [];
         }
-        this.mode = ParserMode.ARRAY;
-        this.state = ParserState.VALUE;
+        this.mode = TokenParserMode.ARRAY;
+        this.state = TokenParserState.VALUE;
         this.key = 0;
         return;
       }
 
       if (
-        this.mode === ParserMode.ARRAY && token === RIGHT_BRACKET &&
+        this.mode === TokenParserMode.ARRAY && token === RIGHT_BRACKET &&
         this.value.length === 0
       ) {
         this.pop();
@@ -208,10 +208,10 @@ export default class Parser {
       }
     }
 
-    if (this.state === ParserState.KEY) {
+    if (this.state === TokenParserState.KEY) {
       if (token === STRING) {
         this.key = value;
-        this.state = ParserState.COLON;
+        this.state = TokenParserState.COLON;
         return;
       }
 
@@ -221,61 +221,61 @@ export default class Parser {
       }
     }
 
-    if (this.state === ParserState.COLON) {
+    if (this.state === TokenParserState.COLON) {
       if (token === COLON) {
-        this.state = ParserState.VALUE;
+        this.state = TokenParserState.VALUE;
         return;
       }
     }
 
-    if (this.state === ParserState.COMMA) {
+    if (this.state === TokenParserState.COMMA) {
       if (token === COMMA) {
-        if (this.mode === ParserMode.ARRAY) {
-          this.state = ParserState.VALUE;
+        if (this.mode === TokenParserMode.ARRAY) {
+          this.state = TokenParserState.VALUE;
           (this.key as number) += 1;
           return;
         }
 
         /* istanbul ignore else */
-        if (this.mode === ParserMode.OBJECT) {
-          this.state = ParserState.KEY;
+        if (this.mode === TokenParserMode.OBJECT) {
+          this.state = TokenParserState.KEY;
           return;
         }
       }
 
       if (
-        token === RIGHT_BRACE && this.mode === ParserMode.OBJECT ||
-        token === RIGHT_BRACKET && this.mode === ParserMode.ARRAY
+        token === RIGHT_BRACE && this.mode === TokenParserMode.OBJECT ||
+        token === RIGHT_BRACKET && this.mode === TokenParserMode.ARRAY
       ) {
         this.pop();
         return;
       }
     }
 
-    if (this.state === ParserState.SEPARATOR) {
+    if (this.state === TokenParserState.SEPARATOR) {
       if (token === SEPARATOR && value === this.separator) {
-        this.state = ParserState.VALUE;
+        this.state = TokenParserState.VALUE;
         return;
       }
     }
 
-    this.error(new TokenParserError(`Unexpected ${TokenType[token]} (${JSON.stringify(value)}) in state ${ParserState[this.state]}`));
+    this.error(new TokenParserError(`Unexpected ${TokenType[token]} (${JSON.stringify(value)}) in state ${TokenParserState[this.state]}`));
   }
 
   public error(err: Error): void {
-    if (this.state !== ParserState.ENDED) {
-      this.state = ParserState.ERROR;
+    if (this.state !== TokenParserState.ENDED) {
+      this.state = TokenParserState.ERROR;
     }
 
     this.onError(err);
   }
 
   public end(): void {
-    if (this.state !== ParserState.VALUE || this.stack.length > 0) {
-      this.error(new Error(`Parser ended in mid-parsing (state: ${ParserState[this.state]}). Either not all the data was received or the data was invalid.`));
+    if (this.state !== TokenParserState.VALUE || this.stack.length > 0) {
+      this.error(new Error(`Parser ended in mid-parsing (state: ${TokenParserState[this.state]}). Either not all the data was received or the data was invalid.`));
     }
 
-    this.state = ParserState.ENDED;
+    this.state = TokenParserState.ENDED;
     this.onEnd();
   }
 

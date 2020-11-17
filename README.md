@@ -97,14 +97,14 @@ tokenizer.parseNumber = (numberStr) => { ... };
 tokenizer.onToken = (token, value, offset) => { ... };
 ```
 
-### Parser
+### TokenParser
 
-A parser that processes JSON tokens as emitted by the `Tokenizer` and emits JSON values/objects.
+A token parser that processes JSON tokens as emitted by the `Tokenizer` and emits JSON values/objects.
 
 ```javascript
-import { Parser } from '@streamparser/json';
+import { TokenParser} from '@streamparser/json';
 
-const parser = new Parser(opts);
+const tokenParser = new TokenParser(opts);
 ```
 
 The available options are:
@@ -113,7 +113,7 @@ The available options are:
 {
   paths: <string[]>,
   keepStack: <boolean>, // whether to keep all the properties in the stack
-  separator: <string>, // separator between object. For example `\n` for nd-js.If left empty or set to undefined, the parser will end after parsing the first object. To parse multiple object without any delimiter just set it to the empty string `''`.
+  separator: <string>, // separator between object. For example `\n` for nd-js. If left empty or set to undefined, the token parser will end after parsing the first object. To parse multiple object without any delimiter just set it to the empty string `''`.
 }
 ```
 
@@ -122,26 +122,26 @@ The available options are:
 
 #### Properties & Methods
 
-* **write(token: TokenType, value: any)** push data into the parser.
-* **end()** closes the parser so it can not be used anymore. Throws an error if the tokenizer was in the middle of parsing.
-* **isEnded** readonly boolean property indicating whether the Parser is ended or is still accepting data.
+* **write(token: TokenType, value: any)** push data into the token parser.
+* **end()** closes the token parser so it can not be used anymore. Throws an error if the tokenizer was in the middle of parsing.
+* **isEnded** readonly boolean property indicating whether the token parser is ended or is still accepting data.
 * **onValue(value: any)** no-op method that the user should override to get the parsed value.
 * **onError(err: Error)** no-op method that the user should override to act on errors. If not set, the write method simply throws synchronously.
-* **onEnd()** no-op method that the user should override to act when the parser is ended.
+* **onEnd()** no-op method that the user should override to act when the token parser is ended.
  
 ```javascript
 // You can override the overridable methods by creating your own class extending Tokenizer
-class MyParser extends Parser {
+class MyTokenParser extends TokenParser {
   onValue(value: any) {
     // ...
   }
 }
 
-const myParser = new MyParser();
+const myTokenParser = new MyTokenParser();
 
 // or just overriding it
-const parser = new Parser();
-parser.onValue = (value) => { ... };
+const tokenParser = new TokenParser();
+tokenParser.onValue = (value) => { ... };
 ```
 
 ### JSONparser
@@ -161,9 +161,9 @@ This class is just for convenience. In reality, it simply connects the tokenizer
 
 ```javascript
 const tokenizer = new Tokenizer(opts);
-const parser = new Parser();
-tokenizer.onToken = this.parser.write.bind(this.parser);
-parser.onValue = (value) => { /* Process values */ }
+const tokenParser = new TokenParser();
+tokenizer.onToken = this.tokenParser.write.bind(this.parser);
+tokenParser.onValue = (value) => { /* Process values */ }
 ```
 
 #### Properties & Methods
@@ -172,9 +172,9 @@ parser.onValue = (value) => { /* Process values */ }
 * **end()** alias to the Tokenizer end method.
 * **isEnded** readonly boolean property indicating whether the JSONparser is ended or is still accepting data.
 * **onToken(token: TokenType, value: any, offset: number)** alias to the Tokenizer onToken method. (write only).
-* **onValue(value: any)** alias to the Parser onValue method (write only).
-* **onError(err: Error)** alias to the Tokenizer/Parser onError method  (write only).
-* **onEnd()** alias to the Tokenizer onEnd method (which will call the Parser onEnd methods) (write only).
+* **onValue(value: any)** alias to the Token Parser onValue method (write only).
+* **onError(err: Error)** alias to the Tokenizer/Token Parser onError method  (write only).
+* **onEnd()** alias to the Tokenizer onEnd method (which will call the Token Parser onEnd methods) (write only).
  
 ```javascript
 // You can override the overridable methods by creating your own class extending Tokenizer
@@ -201,8 +201,8 @@ You can use both components independently as
 
 ```javascript
 const tokenizer = new Tokenizer(opts);
-const parser = new Parser();
-this.tokenizer.onToken = this.parser.write.bind(this.parser);
+const tokenParser = new TokenParser();
+this.tokenizer.onToken = this.tokenParser.write.bind(this.tokenParser);
 ```
 
 You push data using the `write` method which takes a string or an array-like object.
@@ -312,7 +312,7 @@ JSONParser was awesome.... in 2011.
 * Works on the browser.
 * Allows selector of what to emit.
 * Well documented.
-* Better designed and more plugable/configurable by clearly separates the tokenizer and parser processes.
+* Better designed and more plugable/configurable by clearly separating the tokenizer and token parser processes.
 * Simpler and cleaner code. Uses ES6 and doesn't rely on deprecated Node.js methods.
 * 100% unit test coverage.
 * Fully compliant with the JSON spec. You will always get the same result as using `JSON.parse()`.
