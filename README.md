@@ -69,6 +69,8 @@ Strings are inmutable in Javascript so every string operation creates a new stri
 * **isEnded** readonly boolean property indicating whether the Tokenizer is ended or is still accepting data.
 * **parseNumber(numberStr)** method used internally to parse numbers. By default, it is equivalent to `Number(numberStr)` but the user can override it if he wants some other behaviour.
 * **onToken(token: TokenType, value: any, offset: number)** no-op method that the user should override to follow the tokenization process.
+* **onError(err: Error)** no-op method that the user can override to act on errors. If not set, the write method simply throws synchronously.
+* **onEnd()** no-op method that the user can override to act when the tokenizer is ended.
  
 ```javascript
 // You can override the overridable methods by creating your own class extending Tokenizer
@@ -124,6 +126,8 @@ The available options are:
 * **end()** closes the parser so it can not be used anymore. Throws an error if the tokenizer was in the middle of parsing.
 * **isEnded** readonly boolean property indicating whether the Parser is ended or is still accepting data.
 * **onValue(value: any)** no-op method that the user should override to get the parsed value.
+* **onError(err: Error)** no-op method that the user should override to act on errors. If not set, the write method simply throws synchronously.
+* **onEnd()** no-op method that the user should override to act when the parser is ended.
  
 ```javascript
 // You can override the overridable methods by creating your own class extending Tokenizer
@@ -169,6 +173,8 @@ parser.onValue = (value) => { /* Process values */ }
 * **isEnded** readonly boolean property indicating whether the JSONparser is ended or is still accepting data.
 * **onToken(token: TokenType, value: any, offset: number)** alias to the Tokenizer onToken method (write only).
 * **onValue(value: any)** alias to the Parser onValue method (write only).
+* **onError(err: Error)** alias to the Tokenizer/Parser onError method  (write only).
+* **onEnd()** alias to the Tokenizer onEnd method (which will call the Parser onEnd methods) (write only).
  
 ```javascript
 // You can override the overridable methods by creating your own class extending Tokenizer
@@ -227,12 +233,23 @@ import { JsonParser } from '@streamparser/json';
 const parser = new JsonParser({ stringBufferSize: undefined });
 parser.onValue = console.log;
 
-// Or passing the stream in several chunks 
 try {
   parser.write('"""');
 } catch (err) {
   console.log(err); // logs 
 }
+```
+
+You can also handle errors using callbacks:
+
+```javascript
+import { JsonParser } from '@streamparser/json';
+
+const parser = new JsonParser({ stringBufferSize: undefined });
+parser.onValue = console.log;
+parser.onError = console.error;
+
+parser.write('"""');
 ```
 
 ## Examples
@@ -301,11 +318,12 @@ JSONParser was awesome.... in 2011.
 * Fully compliant with the JSON spec. You will always get the same result as using `JSON.parse()`.
 
 
-### Breaking changes compared to JSONparse
+### ~~Breaking changes~~ Improvements compared to JSONparse
 
 * JSONparse errors keep big number as a string which is not compliant with the spec. With @streamparser/json you can achieve such behaviour by simply overriding the `parseNumber` method.
 * JSONparse errors on characters above 244 which is not compliant with the spec. @streamparser/json parsed them correctly.
 * JSONparse incorrectly allows trailing comas in objects or arrays which is not compliant with the spec. @streamparser/json do not.
-* JSONparse's `onError` callback has been removed. The `write` method is synchronous so wrapping it in a try-catch block will capture all possible errors.
+* JSONparse's uses the `onError` callback to handle errors. Since the `write` method is synchronous, @streamparser/json defaults to throwing on error, so wrapping the write operation in a try-catch block captures all possible errors. If the `onError` callback is set, nothing is thrown.
 * JSONparse uses buffers to parse strings to avoid memory exhaustion if your JSON include very long strings (due to V8 optimizations). This has a performance impact and it is not necessary for most use cases. @streamparser/json uses a string as internal buffer by default to improve performance and allows the user to get the exact same behaviour as in JSONparse by setting the `stringBufferSize` option to `64 * 1024`.
-* JSONparse parses all valid JSON objects that come through the stream and doesn't support ending the processing. @streamparser/json ends the processing after a single object unless the user explicitly configure a `separator`. When using a separator, the user can end the processing by calling the  `end` method which will end the processing and throw and error if the stream is in the middle of parsing something i.e. the JSON passed so far was incomplete/incorrect.
+* JSONparse parses all valid JSON objects that come through the stream and doesn't support ending the processing. @streamparser/json ends the processing after a single object unless the user explicitly configure a `separator`. When using a separator, the user can end the processing by calling the `end` method which will end the processing and throw and error if the stream is in the middle of parsing something i.e. the JSON passed so far was incomplete/incorrect. Users can use the `onEnd` callback to act when the processing ends.
+* JSONparse will fail to emit a number until is followed by a non-numeric character, i.e. it will not parse a single number which is valid JSON. @streamparser/json uses the `end` method to emit any possible number that was being parsed before completely ending the processing.

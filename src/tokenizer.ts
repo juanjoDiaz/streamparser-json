@@ -117,7 +117,8 @@ export default class Tokenizer {
     } else if ((input as any).buffer || Array.isArray(input)) {
       buffer = Uint8Array.from(input);
     } else {
-      this.error(new TypeError("Unexpected type. The `write` function only accepts TypeArrays and Strings.",));
+      this.error(new TypeError("Unexpected type. The `write` function only accepts Arrays, TypedArrays and Strings."));
+      return;
     }
 
     for (var i = 0; i < buffer.length; i += 1) {
@@ -539,6 +540,7 @@ export default class Tokenizer {
           TokenizerStates[this.state]
         }`
       ));
+      return;
     }
   }
 
@@ -555,11 +557,12 @@ export default class Tokenizer {
     return Number(numberStr);
   }
 
-  public error(err: Error): never {
+  public error(err: Error): void {
     if (this.state !== TokenizerStates.ENDED) {
       this.state = TokenizerStates.ERROR;
     }
-    throw err;
+
+    this.onError(err);
   }
 
   public end(): void {
@@ -585,6 +588,15 @@ export default class Tokenizer {
   }
 
   public onToken(token: TokenType, value: any, offset: number): void {
-    // Override
+    // Override me
+  }
+
+  public onError(err: Error): void {
+    // Override me
+    throw err;
+  }
+
+  public onEnd(): void {
+    // Override me
   }
 }

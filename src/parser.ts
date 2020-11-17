@@ -262,19 +262,21 @@ export default class Parser {
     this.error(new TokenParserError(`Unexpected ${TokenType[token]} (${JSON.stringify(value)}) in state ${ParserState[this.state]}`));
   }
 
-  public error(err: Error): never {
+  public error(err: Error): void {
     if (this.state !== ParserState.ENDED) {
       this.state = ParserState.ERROR;
     }
-    throw err;
+
+    this.onError(err);
   }
 
   public end(): void {
     if (this.state !== ParserState.VALUE || this.stack.length > 0) {
-      this.error(new TokenParserError(`Parser ended in mid-parsing (state: ${ParserState[this.state]}). Either not all the data was received or the data was invalid.`));
+      this.error(new Error(`Parser ended in mid-parsing (state: ${ParserState[this.state]}). Either not all the data was received or the data was invalid.`));
     }
 
     this.state = ParserState.ENDED;
+    this.onEnd();
   }
 
   public onValue(
@@ -283,6 +285,15 @@ export default class Parser {
     parent: any,
     stack: StackElement[],
   ): void {
+    // Override me
+  }
+
+  public onError(err: Error): void {
+    // Override me
+    throw err;
+  }
+
+  public onEnd(): void {
     // Override me
   }
 }

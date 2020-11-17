@@ -29,16 +29,20 @@ export default class JSONParser {
           try {
             // The tokenizer ended before processing the all the passed tokens
             this.tokenizer.error(err);
-          } catch(err) {
+          } catch (err) {
             this.end();
           }
-        } else {
-          // Bubbles up the Parser errrors
-          this.tokenizer.error(err);
         }
       }
 
-      throw err;
+      this.tokenizer.error(err);
+    }
+  }
+
+  public end() {
+    this.tokenizer.end();
+    if (!this.parser.isEnded) {
+      this.parser.end();
     }
   }
 
@@ -57,10 +61,11 @@ export default class JSONParser {
     this.parser.onValue = cb;
   }
 
-  public end(): void {
-    this.tokenizer.end();
-    if (!this.parser.isEnded) {
-      this.parser.end();
-    }
+  public set onError(cb: (err: Error) => void) {
+    this.tokenizer.onError = cb;
+  }
+
+  public set onEnd(cb: () => {}) {
+    this.parser.onEnd = cb;
   }
 }
