@@ -28,11 +28,11 @@ const expected = [
   [[], [-1]],
   [[0], -0.1],
   [[], [-0.1]],
-  [[0], 6.02e+23],
-  [[1], 6.02e+23],
+  [[0], 6.02e23],
+  [[1], 6.02e23],
   [[2], 6.02e-23],
   [[3], 0e23],
-  [[], [6.02e+23, 6.02e+23, 6.02e-23, 0e23]],
+  [[], [6.02e23, 6.02e23, 6.02e-23, 0e23]],
   [[0], "7161093205057351174"],
   [[], ["7161093205057351174"]],
 ];
@@ -53,7 +53,7 @@ test("arrays", (t) => {
       t.deepEqual(
         [keys, value],
         expected[i],
-        `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`,
+        `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`
       );
       i += 1;
     };
@@ -78,30 +78,26 @@ test("arrays chuncked", (t) => {
       t.deepEqual(
         [keys, value],
         expected[i],
-        `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`,
+        `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`
       );
       i += 1;
     };
 
-    str.split("").forEach(c => p.write(c));
+    str.split("").forEach((c) => p.write(c));
   });
 });
 
 test("fail on invalid values", (t) => {
-  const invalidValues = [
-    "[,",
-    "[1, eer]",
-    "[1,]",
-    "[1;",
-    "[1}",
-  ];
+  const invalidValues = ["[,", "[1, eer]", "[1,]", "[1;", "[1}"];
 
   t.plan(invalidValues.length);
 
   invalidValues.forEach((str) => {
     const p = new JSONParser();
-    p.onValue = () => {};
-    
+    p.onValue = () => {
+      /* Do nothing */
+    };
+
     try {
       p.write(str);
       t.fail(`Expected to fail on value "${str}"`);

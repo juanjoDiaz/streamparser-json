@@ -12,17 +12,17 @@ const {
   LEFT_CURLY_BRACKET,
   RIGHT_CURLY_BRACKET,
   COMMA,
-  COLON
+  COLON,
 } = charset;
 
 const quote = String.fromCharCode(QUOTATION_MARK);
 
 const oneKB = 1024;
-const oneMB = 1024 * oneKB; 
+const oneMB = 1024 * oneKB;
 const twoHundredMB = 200 * oneMB;
 const kbsIn200MBs = twoHundredMB / oneKB;
 
-test ("buffered parsing", (t) => {
+test("buffered parsing", (t) => {
   t.plan(3);
 
   t.test("can handle large strings without running out of memory", (t) => {
@@ -33,9 +33,9 @@ test ("buffered parsing", (t) => {
     const p = new JSONParser({ stringBufferSize: 64 * 1024 });
     p.onToken = (type, value) =>
       t.equal(
-        value.length,
+        (value as string).length,
         twoHundredMB,
-        "token should be size of input json",
+        "token should be size of input json"
       );
 
     p.write(quote);
@@ -77,17 +77,24 @@ test(`should keep memory stable if keepStack === false on array`, {}, (t) => {
   const chunk = new Uint8Array(oneKB).fill(LATIN_SMALL_LETTER_A);
   chunk[0] = QUOTATION_MARK;
   chunk[chunk.length - 1] = QUOTATION_MARK;
-  const commaChunk =  new Uint8Array([COMMA]);
+  const commaChunk = new Uint8Array([COMMA]);
 
   const thirtyMBs = 20 * 1024 * 1024;
   let valuesLeft = kbsIn200MBs;
 
-  const p = new JSONParser({ paths: ['$.*'], keepStack: false, stringBufferSize: oneKB });
+  const p = new JSONParser({
+    paths: ["$.*"],
+    keepStack: false,
+    stringBufferSize: oneKB,
+  });
   p.onValue = () => {
     if (valuesLeft-- % oneKB !== 0) return;
 
     const actualMemoryUsage = process.memoryUsage().heapUsed;
-    t.ok(actualMemoryUsage - intialMemoryUsage < thirtyMBs, `${actualMemoryUsage} is significantly larger than ${intialMemoryUsage}`);
+    t.ok(
+      actualMemoryUsage - intialMemoryUsage < thirtyMBs,
+      `${actualMemoryUsage} is significantly larger than ${intialMemoryUsage}`
+    );
   };
 
   const intialMemoryUsage = process.memoryUsage().heapUsed;
@@ -102,8 +109,6 @@ test(`should keep memory stable if keepStack === false on array`, {}, (t) => {
   p.write(new Uint8Array([RIGHT_SQUARE_BRACKET]));
 });
 
-
-
 test(`should keep memory stable if keepStack === false on object`, {}, (t) => {
   t.plan(201);
 
@@ -114,16 +119,24 @@ test(`should keep memory stable if keepStack === false on object`, {}, (t) => {
   chunk[3] = COLON;
   chunk[4] = QUOTATION_MARK;
   chunk[chunk.length - 1] = QUOTATION_MARK;
-  const commaChunk =  new Uint8Array([COMMA]);
+  const commaChunk = new Uint8Array([COMMA]);
 
   const thirtyMBs = 20 * 1024 * 1024;
   let valuesLeft = kbsIn200MBs;
 
-  const p = new JSONParser({ paths: ['$.*'], keepStack: false, stringBufferSize: oneKB });  p.onValue = () => {
+  const p = new JSONParser({
+    paths: ["$.*"],
+    keepStack: false,
+    stringBufferSize: oneKB,
+  });
+  p.onValue = () => {
     if (valuesLeft-- % oneKB !== 0) return;
 
     const actualMemoryUsage = process.memoryUsage().heapUsed;
-    t.ok(actualMemoryUsage - intialMemoryUsage < thirtyMBs, `${actualMemoryUsage} is significantly larger than ${intialMemoryUsage}`);
+    t.ok(
+      actualMemoryUsage - intialMemoryUsage < thirtyMBs,
+      `${actualMemoryUsage} is significantly larger than ${intialMemoryUsage}`
+    );
   };
 
   const intialMemoryUsage = process.memoryUsage().heapUsed;

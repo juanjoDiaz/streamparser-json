@@ -1,4 +1,4 @@
-const { readFileSync } = require('fs');
+import { readFileSync } from "fs";
 import tap from "tap";
 import JSONParser from "../../src/jsonparser";
 
@@ -29,11 +29,11 @@ const expected = [
   [[], { e: -1 }],
   [["f"], -0.1],
   [[], { f: -0.1 }],
-  [["a"], 6.02e+23],
-  [["b"], 6.02e+23],
+  [["a"], 6.02e23],
+  [["b"], 6.02e23],
   [["c"], 6.02e-23],
   [["d"], 0e23],
-  [[], { a: 6.02e+23, b: 6.02e+23, c: 6.02e-23, d: 0e23 }],
+  [[], { a: 6.02e23, b: 6.02e23, c: 6.02e-23, d: 0e23 }],
   [["a"], "7161093205057351174"],
   [[], { a: "7161093205057351174" }],
 ];
@@ -54,7 +54,7 @@ test("objects", (t) => {
       t.deepEqual(
         [keys, value],
         expected[i],
-        `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`,
+        `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`
       );
       i += 1;
     };
@@ -79,20 +79,21 @@ test("objects chuncked", (t) => {
       t.deepEqual(
         [keys, value],
         expected[i],
-        `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`,
+        `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`
       );
       i += 1;
     };
 
-    str.split("").forEach(c => p.write(c));
+    str.split("").forEach((c) => p.write(c));
   });
 });
 
 test("objects complex ", (t) => {
   t.plan(1);
 
-  const stringifiedJson = readFileSync(`${process.cwd()}/samplejson/basic.json`)
-    .toString();
+  const stringifiedJson = readFileSync(
+    `${process.cwd()}/samplejson/basic.json`
+  ).toString();
 
   const p = new JSONParser();
   p.onValue = (value, key, parent, stack) => {
@@ -119,7 +120,9 @@ test("fail on invalid values", (t) => {
 
   invalidValues.forEach((str) => {
     const p = new JSONParser();
-    p.onValue = () => {};
+    p.onValue = () => {
+      /* Do nothing */
+    };
 
     try {
       p.write(str);

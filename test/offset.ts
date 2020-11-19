@@ -76,7 +76,9 @@ test("offset", (t) => {
     t.equal(token, offsets[i][1]);
     i += 1;
   };
-  p.onValue = () => {};
+  p.onValue = () => {
+    /* Do nothing */
+  };
   p.onEnd = () => t.end();
 
   p.write(input);

@@ -1,5 +1,10 @@
 import Tokenizer, { TokenizerOptions } from './tokenizer.ts';
-import TokenParser, { StackElement, TokenParserOptions, TokenParserError } from './tokenparser.ts';
+import TokenParser, {
+  StackElement,
+  TokenParserOptions,
+  TokenParserError,
+} from './tokenparser.ts';
+import { JsonPrimitive, JsonKey, JsonStruct } from './utils/types.ts';
 
 interface JSONParserOpts extends TokenizerOptions, TokenParserOptions {}
 
@@ -23,7 +28,7 @@ export default class JSONParser {
       if (this.tokenParser.isEnded) {
         this.tokenizer.end();
       }
-    } catch(err) {
+    } catch (err) {
       if (err instanceof TokenParserError) {
         if (this.tokenParser.isEnded) {
           try {
@@ -39,24 +44,26 @@ export default class JSONParser {
     }
   }
 
-  public end() {
+  public end(): void {
     this.tokenizer.end();
     if (!this.tokenParser.isEnded) {
       this.tokenParser.end();
     }
   }
 
-  public set onToken(cb: (token: number, value: any, offset: number) => void) {
+  public set onToken(
+    cb: (token: number, value: JsonPrimitive, offset: number) => void
+  ) {
     this.tokenizer.onToken = cb;
   }
 
   public set onValue(
     cb: (
-      value: any,
-      key: string | number | undefined,
-      parent: any,
-      stack: StackElement[],
-    ) => void,
+      value: JsonPrimitive | JsonStruct,
+      key: JsonKey | undefined,
+      parent: JsonStruct | undefined,
+      stack: StackElement[]
+    ) => void
   ) {
     this.tokenParser.onValue = cb;
   }
@@ -65,7 +72,7 @@ export default class JSONParser {
     this.tokenizer.onError = cb;
   }
 
-  public set onEnd(cb: () => {}) {
+  public set onEnd(cb: () => void) {
     this.tokenParser.onEnd = cb;
   }
 }

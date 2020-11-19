@@ -37,8 +37,8 @@ const spaces = Array(1000).fill(" ").join("");
 benchmark(
   repeat(
     `${spaces}{${spaces}"test"${spaces}:${spaces}"asdfasdf"${spaces}}`,
-    1000,
-  ),
+    1000
+  )
 );
 
 console.log("===========");

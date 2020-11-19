@@ -6,8 +6,10 @@ const { test } = tap;
 test("should fail if writing after ending", (t) => {
   t.plan(2);
 
-  const p = new JSONParser({ separator: '' });
-  p.onValue = () => {};
+  const p = new JSONParser({ separator: "" });
+  p.onValue = () => {
+    /* Do nothing */
+  };
 
   p.write('"test"');
   p.end();
@@ -22,17 +24,15 @@ test("should fail if writing after ending", (t) => {
 });
 
 test("should auto-end after emiting one object", (t) => {
-  const values = [
-    "2 2",
-    "2.33456{}",
-    "{}{}{}",
-  ];
+  const values = ["2 2", "2.33456{}", "{}{}{}"];
 
   t.plan(values.length * 2);
 
   values.forEach((str) => {
     const p = new JSONParser();
-    p.onValue = () => {};
+    p.onValue = () => {
+      /* Do nothing */
+    };
 
     try {
       p.write(str);
@@ -58,18 +58,18 @@ test("should emit numbers if ending on a valid number", (t) => {
   const expected = values.map((str) => JSON.parse(str));
 
   t.plan(expected.length * 2);
-  
+
   let i = 0;
 
   values.forEach((str) => {
-    const p = new JSONParser({ separator: '' });
-    p.onValue = (value) => t.equal(value, expected[i++])
+    const p = new JSONParser({ separator: "" });
+    p.onValue = (value) => t.equal(value, expected[i++]);
 
     p.write(str);
     p.end();
 
     t.ok(p.isEnded);
-  })
+  });
 });
 
 test("should fail if ending in the middle of parsing", (t) => {
@@ -78,7 +78,7 @@ test("should fail if ending in the middle of parsing", (t) => {
     "2.33456e",
     "2.33456e+",
     '"asdfasd',
-    'tru',
+    "tru",
     '"fa',
     '"nul',
     "{",
@@ -92,7 +92,9 @@ test("should fail if ending in the middle of parsing", (t) => {
 
   values.forEach((str) => {
     const p = new JSONParser();
-    p.onValue = () => {};
+    p.onValue = () => {
+      /* Do nothing */
+    };
 
     p.write(str);
 

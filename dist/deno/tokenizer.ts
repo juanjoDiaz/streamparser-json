@@ -5,6 +5,7 @@ import {
   BufferedString,
 } from './utils/bufferedString.ts';
 import { TokenType } from './utils/constants.ts';
+import { JsonPrimitive } from './utils/types.ts';
 
 const {
   LEFT_BRACE,
@@ -78,7 +79,7 @@ export default class Tokenizer {
 
   private separator?: string;
   private separatorBytes?: Uint8Array;
-  private separatorIndex: number = 0;
+  private separatorIndex = 0;
   private bufferedString: StringBuilder;
   private bufferedNumber: StringBuilder;
 
@@ -93,15 +94,19 @@ export default class Tokenizer {
   constructor(opts?: TokenizerOptions) {
     opts = { ...defaultOpts, ...opts };
 
-    this.bufferedString = opts.stringBufferSize && opts.stringBufferSize > 4
-      ? new BufferedString(opts.stringBufferSize)
-      : new NonBufferedString();
-    this.bufferedNumber = opts.numberBufferSize && opts.numberBufferSize > 0
-      ? new BufferedString(opts.numberBufferSize)
-      : new NonBufferedString();
-    
+    this.bufferedString =
+      opts.stringBufferSize && opts.stringBufferSize > 4
+        ? new BufferedString(opts.stringBufferSize)
+        : new NonBufferedString();
+    this.bufferedNumber =
+      opts.numberBufferSize && opts.numberBufferSize > 0
+        ? new BufferedString(opts.numberBufferSize)
+        : new NonBufferedString();
+
     this.separator = opts.separator;
-    this.separatorBytes = opts.separator ? this.encoder.encode(opts.separator) : undefined;
+    this.separatorBytes = opts.separator
+      ? this.encoder.encode(opts.separator)
+      : undefined;
   }
 
   public get isEnded(): boolean {
@@ -114,14 +119,21 @@ export default class Tokenizer {
       buffer = input;
     } else if (typeof input === "string") {
       buffer = this.encoder.encode(input);
-    } else if ((input as any).buffer || Array.isArray(input)) {
+    } else if (
+      (typeof input === "object" && "buffer" in input) ||
+      Array.isArray(input)
+    ) {
       buffer = Uint8Array.from(input);
     } else {
-      this.error(new TypeError("Unexpected type. The `write` function only accepts Arrays, TypedArrays and Strings."));
+      this.error(
+        new TypeError(
+          "Unexpected type. The `write` function only accepts Arrays, TypedArrays and Strings."
+        )
+      );
       return;
     }
 
-    for (var i = 0; i < buffer.length; i += 1) {
+    for (let i = 0; i < buffer.length; i += 1) {
       const n = buffer[i]; // get current byte from buffer
       switch (this.state) {
         case TokenizerStates.START:
@@ -130,7 +142,11 @@ export default class Tokenizer {
           if (this.separatorBytes && n === this.separatorBytes[0]) {
             if (this.separatorBytes.length === 1) {
               this.state = TokenizerStates.START;
-              this.onToken(TokenType.SEPARATOR, this.separator, this.offset + this.separatorBytes.length - 1);
+              this.onToken(
+                TokenType.SEPARATOR,
+                this.separator as string,
+                this.offset + this.separatorBytes.length - 1
+              );
               continue;
             }
             this.state = TokenizerStates.SEPARATOR;
@@ -230,7 +246,8 @@ export default class Tokenizer {
             continue;
           }
 
-          if (n >= 128) { // Parse multi byte (>=128) chars one at a time
+          if (n >= 128) {
+            // Parse multi byte (>=128) chars one at a time
             if (n >= 194 && n <= 223) {
               this.bytes_in_sequence = 2;
             } else if (n <= 239) {
@@ -239,11 +256,12 @@ export default class Tokenizer {
               this.bytes_in_sequence = 4;
             }
 
-            if (this.bytes_in_sequence <= buffer.length - i) { // if bytes needed to complete char fall outside buffer length, we have a boundary split
+            if (this.bytes_in_sequence <= buffer.length - i) {
+              // if bytes needed to complete char fall outside buffer length, we have a boundary split
               this.bufferedString.appendBuf(
                 buffer,
                 i,
-                i + this.bytes_in_sequence,
+                i + this.bytes_in_sequence
               );
               i += this.bytes_in_sequence - 1;
               continue;
@@ -267,12 +285,12 @@ export default class Tokenizer {
           // & fill temp buffer it with start of this data chunk up to the boundary limit set in the last iteration
           this.char_split_buffer.set(
             buffer.subarray(i, i + this.bytes_remaining),
-            this.bytes_in_sequence - this.bytes_remaining,
+            this.bytes_in_sequence - this.bytes_remaining
           );
           this.bufferedString.appendBuf(
             this.char_split_buffer,
             0,
-            this.bytes_in_sequence,
+            this.bytes_in_sequence
           );
           i = this.bytes_remaining - 1;
           this.state = TokenizerStates.STRING_DEFAULT;
@@ -317,23 +335,25 @@ export default class Tokenizer {
           ) {
             const intVal = parseInt(this.unicode + String.fromCharCode(n), 16);
             if (this.highSurrogate === undefined) {
-              if (intVal >= 0xD800 && intVal <= 0xDBFF) { //<55296,56319> - highSurrogate
+              if (intVal >= 0xd800 && intVal <= 0xdbff) {
+                //<55296,56319> - highSurrogate
                 this.highSurrogate = intVal;
               } else {
                 this.bufferedString.appendBuf(
-                  this.encoder.encode(String.fromCharCode(intVal)),
+                  this.encoder.encode(String.fromCharCode(intVal))
                 );
               }
             } else {
-              if (intVal >= 0xDC00 && intVal <= 0xDFFF) { //<56320,57343> - lowSurrogate
+              if (intVal >= 0xdc00 && intVal <= 0xdfff) {
+                //<56320,57343> - lowSurrogate
                 this.bufferedString.appendBuf(
                   this.encoder.encode(
-                    String.fromCharCode(this.highSurrogate, intVal),
-                  ),
+                    String.fromCharCode(this.highSurrogate, intVal)
+                  )
                 );
               } else {
                 this.bufferedString.appendBuf(
-                  this.encoder.encode(String.fromCharCode(this.highSurrogate)),
+                  this.encoder.encode(String.fromCharCode(this.highSurrogate))
                 );
               }
               this.highSurrogate = undefined;
@@ -341,7 +361,7 @@ export default class Tokenizer {
             this.state = TokenizerStates.STRING_DEFAULT;
             continue;
           }
-          // Number
+        // Number
         case TokenizerStates.NUMBER_AFTER_INITIAL_MINUS:
           if (n === charset.DIGIT_ZERO) {
             this.bufferedNumber.appendChar(n);
@@ -434,7 +454,7 @@ export default class Tokenizer {
             this.state = TokenizerStates.NUMBER_AFTER_E_AND_SIGN;
             continue;
           }
-          // Allow cascading
+        // Allow cascading
         case TokenizerStates.NUMBER_AFTER_E_AND_SIGN:
           if (n >= charset.DIGIT_ZERO && n <= charset.DIGIT_NINE) {
             this.bufferedNumber.appendChar(n);
@@ -524,22 +544,31 @@ export default class Tokenizer {
           break;
         case TokenizerStates.SEPARATOR:
           this.separatorIndex += 1;
-          if (!this.separatorBytes || n !== this.separatorBytes[this.separatorIndex]) {
+          if (
+            !this.separatorBytes ||
+            n !== this.separatorBytes[this.separatorIndex]
+          ) {
             break;
           }
           if (this.separatorIndex === this.separatorBytes.length - 1) {
             this.state = TokenizerStates.START;
-            this.onToken(TokenType.SEPARATOR, this.separator, this.offset + this.separatorIndex);
+            this.onToken(
+              TokenType.SEPARATOR,
+              this.separator as string,
+              this.offset + this.separatorIndex
+            );
             this.separatorIndex = 0;
           }
           continue;
       }
 
-      this.error(new TokenizerError(
-        `Unexpected "${String.fromCharCode(n)}" at position "${i}" in state ${
-          TokenizerStates[this.state]
-        }`
-      ));
+      this.error(
+        new TokenizerError(
+          `Unexpected "${String.fromCharCode(n)}" at position "${i}" in state ${
+            TokenizerStates[this.state]
+          }`
+        )
+      );
       return;
     }
   }
@@ -548,7 +577,7 @@ export default class Tokenizer {
     this.onToken(
       NUMBER,
       this.parseNumber(this.bufferedNumber.toString()),
-      this.offset,
+      this.offset
     );
     this.offset += this.bufferedNumber.byteLength - 1;
   }
@@ -577,19 +606,52 @@ export default class Tokenizer {
       case TokenizerStates.ERROR:
         break;
       default:
-        this.error(new TokenizerError(
-          `Tokenizer ended in the middle of a token (state: ${
-            TokenizerStates[this.state]
-          }). Either not all the data was received or the data was invalid.`
-        ));
+        this.error(
+          new TokenizerError(
+            `Tokenizer ended in the middle of a token (state: ${
+              TokenizerStates[this.state]
+            }). Either not all the data was received or the data was invalid.`
+          )
+        );
     }
 
     this.state = TokenizerStates.ENDED;
   }
 
-  public onToken(token: TokenType, value: any, offset: number): void {
+  public onToken(token: TokenType.LEFT_BRACE, value: "{", offset: number): void;
+  public onToken(
+    token: TokenType.RIGHT_BRACE,
+    value: "}",
+    offset: number
+  ): void;
+  public onToken(
+    token: TokenType.LEFT_BRACKET,
+    value: "[",
+    offset: number
+  ): void;
+  public onToken(
+    token: TokenType.RIGHT_BRACKET,
+    value: "]",
+    offset: number
+  ): void;
+  public onToken(token: TokenType.COLON, value: ":", offset: number): void;
+  public onToken(token: TokenType.COMMA, value: ",", offset: number): void;
+  public onToken(token: TokenType.TRUE, value: true, offset: number): void;
+  public onToken(token: TokenType.FALSE, value: false, offset: number): void;
+  public onToken(token: TokenType.NULL, value: null, offset: number): void;
+  public onToken(token: TokenType.STRING, value: string, offset: number): void;
+  public onToken(token: TokenType.NUMBER, value: number, offset: number): void;
+  public onToken(
+    token: TokenType.SEPARATOR,
+    value: string,
+    offset: number
+  ): void;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public onToken(token: TokenType, value: JsonPrimitive, offset: number): void {
     // Override me
-    throw new TokenizerError('Can\'t emit tokens before the "onToken" callback has been set up.');
+    throw new TokenizerError(
+      'Can\'t emit tokens before the "onToken" callback has been set up.'
+    );
   }
 
   public onError(err: Error): void {

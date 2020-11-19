@@ -3,10 +3,7 @@ import JSONParser from "../../src/jsonparser";
 
 const { test } = tap;
 
-const values = [
-  "true",
-  "false",
-];
+const values = ["true", "false"];
 const expected = values.map((str) => JSON.parse(str));
 
 test("boolean", (t) => {
@@ -20,7 +17,7 @@ test("boolean", (t) => {
       t.equal(
         value,
         expected[i],
-        `Error on expectation ${i} (${value} !== ${expected[i]})`,
+        `Error on expectation ${i} (${value} !== ${expected[i]})`
       );
       i += 1;
     };
@@ -40,12 +37,12 @@ test("boolean chuncked", (t) => {
       t.equal(
         value,
         expected[i],
-        `Error on expectation ${i} (${value} !== ${expected[i]})`,
+        `Error on expectation ${i} (${value} !== ${expected[i]})`
       );
       i += 1;
     };
 
-    str.split("").forEach(c => p.write(c));
+    str.split("").forEach((c) => p.write(c));
   });
 });
 
@@ -64,7 +61,9 @@ test("fail on invalid values", (t) => {
 
   invalidValues.forEach((str) => {
     const p = new JSONParser();
-    p.onValue = () => {};
+    p.onValue = () => {
+      /* Do nothing */
+    };
 
     try {
       p.write(str);

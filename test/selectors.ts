@@ -4,18 +4,38 @@ import JSONParser from "../src/jsonparser";
 const { test } = tap;
 
 const testData = [
-  { value: "[0,1,-1]", paths: ["$"], expected: [[0,1,-1]] },
-  { value: "[0,1,-1]", paths: ["$.*"], expected: [0,1,-1] },
-  { value: "[0,1,-1]", paths: [undefined], expected: [0,1,-1,[0,1,-1]] },
-  { value: "[0,1,-1]", paths: ["$*"], expected: [0,1,-1,[0,1,-1]] },
-  { value: "[0,1,[-1, 2]]", paths: ["$", "$.*"], expected: [0,1,[-1, 2],[0,1,[-1, 2]]] },
+  { value: "[0,1,-1]", paths: ["$"], expected: [[0, 1, -1]] },
+  { value: "[0,1,-1]", paths: ["$.*"], expected: [0, 1, -1] },
+  { value: "[0,1,-1]", paths: [undefined], expected: [0, 1, -1, [0, 1, -1]] },
+  { value: "[0,1,-1]", paths: ["$*"], expected: [0, 1, -1, [0, 1, -1]] },
+  {
+    value: "[0,1,[-1, 2]]",
+    paths: ["$", "$.*"],
+    expected: [0, 1, [-1, 2], [0, 1, [-1, 2]]],
+  },
   { value: "[0,1,-1]", paths: ["$.1"], expected: [1] },
-  { value: '{ "a": { "b": 1, "c": 2 } }', paths: ["$.a.*"], expected: [1,2] },
+  { value: '{ "a": { "b": 1, "c": 2 } }', paths: ["$.a.*"], expected: [1, 2] },
   { value: '{ "a": { "b": 1, "c": 2 } }', paths: ["$.a.c"], expected: [2] },
-  { value: '{ "a": { "b": [1,2], "c": [3, 4] } }', paths: ["$.a.*.*"], expected: [1,2,3,4] },
-  { value: '{ "a": { "b": [1,2], "c": [3, 4] } }', paths: ["$.a.*.1"], expected: [2,4] },
-  { value: '{ "a": { "b": [1,2], "c": [3, 4] } }', paths: ["$.a.c.*"], expected: [3,4] },
-  { value: '{ "a": { "b": [1,2], "c": [3, 4] } }', paths: ["$.a.c.1"], expected: [4] },
+  {
+    value: '{ "a": { "b": [1,2], "c": [3, 4] } }',
+    paths: ["$.a.*.*"],
+    expected: [1, 2, 3, 4],
+  },
+  {
+    value: '{ "a": { "b": [1,2], "c": [3, 4] } }',
+    paths: ["$.a.*.1"],
+    expected: [2, 4],
+  },
+  {
+    value: '{ "a": { "b": [1,2], "c": [3, 4] } }',
+    paths: ["$.a.c.*"],
+    expected: [3, 4],
+  },
+  {
+    value: '{ "a": { "b": [1,2], "c": [3, 4] } }',
+    paths: ["$.a.c.1"],
+    expected: [4],
+  },
 ];
 
 testData.forEach(({ value, paths, expected }) => {
@@ -29,7 +49,7 @@ testData.forEach(({ value, paths, expected }) => {
       t.deepEqual(
         value,
         expected[i],
-        `Error on expectation ${i} (${value} !== ${expected[i]})`,
+        `Error on expectation ${i} (${value} !== ${expected[i]})`
       );
       i += 1;
     };
@@ -38,11 +58,19 @@ testData.forEach(({ value, paths, expected }) => {
   });
 });
 
-
 const invalidTestData = [
-  { paths: ["*"], expectedError: 'Invalid selector "*". Should start with "$".' },
-  { paths: [".*"], expectedError: 'Invalid selector ".*". Should start with "$".' },
-  { paths: ["$..*"], expectedError: 'Invalid selector "$..*". ".." syntax not supported.' },
+  {
+    paths: ["*"],
+    expectedError: 'Invalid selector "*". Should start with "$".',
+  },
+  {
+    paths: [".*"],
+    expectedError: 'Invalid selector ".*". Should start with "$".',
+  },
+  {
+    paths: ["$..*"],
+    expectedError: 'Invalid selector "$..*". ".." syntax not supported.',
+  },
 ];
 
 invalidTestData.forEach(({ paths, expectedError }) => {
@@ -51,7 +79,7 @@ invalidTestData.forEach(({ paths, expectedError }) => {
 
     try {
       new JSONParser({ paths });
-      t.fail('Error expected on invalid selector');
+      t.fail("Error expected on invalid selector");
     } catch (err) {
       t.equal(err.message, expectedError);
     }

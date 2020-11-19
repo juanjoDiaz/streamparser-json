@@ -75,9 +75,12 @@ test("write throw on invalid type", (t) => {
   t.plan(1);
 
   const p = new JSONParser();
-  p.onValue = () => {};
+  p.onValue = () => {
+    /* Do nothing */
+  };
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     p.write(745674 as any);
     t.fail("Expected to fail");
   } catch (e) {

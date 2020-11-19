@@ -65,7 +65,7 @@ for (const numberBufferSize of [0, 64 * 1024]) {
         t.equal(
           value,
           expected[i],
-          `Error on expectation ${i} (${value} !== ${expected[i]})`,
+          `Error on expectation ${i} (${value} !== ${expected[i]})`
         );
         i += 1;
       };
@@ -85,34 +85,27 @@ for (const numberBufferSize of [0, 64 * 1024]) {
         t.equal(
           value,
           expected[i],
-          `Error on expectation ${i} (${value} !== ${expected[i]})`,
+          `Error on expectation ${i} (${value} !== ${expected[i]})`
         );
         i += 1;
       };
 
-      str.split("").forEach(c => p.write(c));
+      str.split("").forEach((c) => p.write(c));
       p.end();
     });
   });
 }
 
 test("fail on invalid values", (t) => {
-  const values = [
-    "-a",
-    "-e",
-    "1a",
-    "1.a",
-    "1.e",
-    "1.-",
-    "1.0ea",
-    "1.0e1.2",
-  ];
+  const values = ["-a", "-e", "1a", "1.a", "1.e", "1.-", "1.0ea", "1.0e1.2"];
 
   t.plan(values.length);
 
   values.forEach((str) => {
     const p = new JSONParser();
-    p.onValue = () => {};
+    p.onValue = () => {
+      /* Do nothing */
+    };
 
     try {
       p.write(str);

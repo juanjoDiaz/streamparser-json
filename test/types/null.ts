@@ -3,9 +3,7 @@ import JSONParser from "../../src/jsonparser";
 
 const { test } = tap;
 
-const values = [
-  "null",
-];
+const values = ["null"];
 const expected = values.map((str) => JSON.parse(str));
 
 test("null", (t) => {
@@ -19,7 +17,7 @@ test("null", (t) => {
       t.equal(
         value,
         expected[i],
-        `Error on expectation ${i} (${value} !== ${expected[i]})`,
+        `Error on expectation ${i} (${value} !== ${expected[i]})`
       );
       i += 1;
     };
@@ -39,27 +37,25 @@ test("null chuncked", (t) => {
       t.equal(
         value,
         expected[i],
-        `Error on expectation ${i} (${value} !== ${expected[i]})`,
+        `Error on expectation ${i} (${value} !== ${expected[i]})`
       );
       i += 1;
     };
 
-    str.split("").forEach(c => p.write(c));
+    str.split("").forEach((c) => p.write(c));
   });
 });
 
 test("fail on invalid values", (t) => {
-  const values = [
-    "nUll",
-    "nuLl",
-    "nulL",
-  ];
+  const values = ["nUll", "nuLl", "nulL"];
 
   t.plan(values.length);
 
   values.forEach((str) => {
     const p = new JSONParser();
-    p.onValue = () => {};
+    p.onValue = () => {
+      /* Do nothing */
+    };
 
     try {
       p.write(str);
