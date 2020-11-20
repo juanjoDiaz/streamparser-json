@@ -560,6 +560,16 @@ export default class Tokenizer {
             this.separatorIndex = 0;
           }
           continue;
+        case TokenizerStates.ENDED:
+          if (
+            n === charset.SPACE ||
+            n === charset.NEWLINE ||
+            n === charset.CARRIAGE_RETURN ||
+            n === charset.TAB
+          ) {
+            // whitespace
+            continue;
+          }
       }
 
       this.error(
@@ -600,10 +610,14 @@ export default class Tokenizer {
       case TokenizerStates.NUMBER_AFTER_INITIAL_NON_ZERO:
       case TokenizerStates.NUMBER_AFTER_DECIMAL:
       case TokenizerStates.NUMBER_AFTER_E_AND_DIGIT:
+        this.state = TokenizerStates.ENDED;
         this.emitNumber();
+        this.onEnd();
         break;
       case TokenizerStates.START:
       case TokenizerStates.ERROR:
+        this.state = TokenizerStates.ENDED;
+        this.onEnd();
         break;
       default:
         this.error(
@@ -614,8 +628,6 @@ export default class Tokenizer {
           )
         );
     }
-
-    this.state = TokenizerStates.ENDED;
   }
 
   public onToken(token: TokenType.LEFT_BRACE, value: "{", offset: number): void;

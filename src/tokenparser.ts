@@ -373,10 +373,10 @@ export default class TokenParser {
           }). Either not all the data was received or the data was invalid.`
         )
       );
+    } else {
+      this.state = TokenParserState.ENDED;
+      this.onEnd();
     }
-
-    this.state = TokenParserState.ENDED;
-    this.onEnd();
   }
 
   public onValue(

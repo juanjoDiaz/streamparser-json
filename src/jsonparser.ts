@@ -1,9 +1,5 @@
 import Tokenizer, { TokenizerOptions } from "./tokenizer";
-import TokenParser, {
-  StackElement,
-  TokenParserOptions,
-  TokenParserError,
-} from "./tokenparser";
+import TokenParser, { StackElement, TokenParserOptions } from "./tokenparser";
 import { JsonPrimitive, JsonKey, JsonStruct } from "./utils/types";
 
 interface JSONParserOpts extends TokenizerOptions, TokenParserOptions {}
@@ -15,7 +11,16 @@ export default class JSONParser {
   constructor(opts: JSONParserOpts = {}) {
     this.tokenizer = new Tokenizer(opts);
     this.tokenParser = new TokenParser(opts);
+
     this.tokenizer.onToken = this.tokenParser.write.bind(this.tokenParser);
+    this.tokenizer.onEnd = () => {
+      if (!this.tokenParser.isEnded) this.tokenParser.end();
+    };
+
+    this.tokenParser.onError = this.tokenizer.error.bind(this.tokenizer);
+    this.tokenParser.onEnd = () => {
+      if (!this.tokenizer.isEnded) this.tokenizer.end();
+    };
   }
 
   public get isEnded(): boolean {
@@ -23,32 +28,11 @@ export default class JSONParser {
   }
 
   public write(input: Iterable<number> | string): void {
-    try {
-      this.tokenizer.write(input);
-      if (this.tokenParser.isEnded) {
-        this.tokenizer.end();
-      }
-    } catch (err) {
-      if (err instanceof TokenParserError) {
-        if (this.tokenParser.isEnded) {
-          try {
-            // The tokenizer ended before processing the all the passed tokens
-            this.tokenizer.error(err);
-          } catch (err) {
-            this.end();
-          }
-        }
-      }
-
-      this.tokenizer.error(err);
-    }
+    this.tokenizer.write(input);
   }
 
   public end(): void {
     this.tokenizer.end();
-    if (!this.tokenParser.isEnded) {
-      this.tokenParser.end();
-    }
   }
 
   public set onToken(
@@ -73,6 +57,9 @@ export default class JSONParser {
   }
 
   public set onEnd(cb: () => void) {
-    this.tokenParser.onEnd = cb;
+    this.tokenParser.onEnd = () => {
+      if (!this.tokenizer.isEnded) this.tokenizer.end();
+      cb.call(this.tokenParser);
+    };
   }
 }

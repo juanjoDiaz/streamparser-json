@@ -1,6 +1,8 @@
 import tap from "tap";
 import JSONParser from "../src/jsonparser";
 import Tokenizer from "../src/tokenizer";
+import TokenParser from "../src/tokenparser";
+import { TokenType } from "../src/utils/constants";
 
 const { test } = tap;
 
@@ -11,6 +13,20 @@ test("should error on missing onToken callback", (t) => {
 
   try {
     p.write('"test"');
+    t.fail("Expected to fail");
+  } catch (e) {
+    t.pass();
+  }
+});
+
+test("should throw if missing onError callback", (t) => {
+  t.plan(1);
+
+  const p = new TokenParser();
+  p.end();
+
+  try {
+    p.write(TokenType.TRUE, true);
     t.fail("Expected to fail");
   } catch (e) {
     t.pass();
@@ -55,7 +71,7 @@ test("should handle errors using the onError callback if set", (t) => {
     /* Do nothing */
   };
   p.onError = (err) =>
-    t.equal(err.message, 'Unexpected "e" at position "3" in state TRUE1');
+    t.equal(err.message, 'Unexpected "t" at position "2" in state ENDED');
 
   p.write('""test""');
 });
