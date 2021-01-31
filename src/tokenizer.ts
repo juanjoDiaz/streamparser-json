@@ -616,6 +616,7 @@ export default class Tokenizer {
         break;
       case TokenizerStates.START:
       case TokenizerStates.ERROR:
+      case TokenizerStates.SEPARATOR:
         this.state = TokenizerStates.ENDED;
         this.onEnd();
         break;

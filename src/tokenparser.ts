@@ -329,7 +329,11 @@ export default class TokenParser {
   }
 
   public end(): void {
-    if (this.state !== TokenParserState.VALUE || this.stack.length > 0) {
+    if (
+      (this.state !== TokenParserState.VALUE &&
+        this.state !== TokenParserState.SEPARATOR) ||
+      this.stack.length > 0
+    ) {
       this.error(
         new Error(
           `Parser ended in mid-parsing (state: ${

@@ -106,3 +106,22 @@ test("should fail if ending in the middle of parsing", (t) => {
     }
   });
 });
+
+test("should not fail if ending waiting for a separator", (t) => {
+  t.plan(1);
+
+  const separator = "\n";
+
+  const p = new JSONParser({ separator });
+  p.onValue = () => {
+    /* Do nothing */
+  };
+
+  p.write("1");
+  p.write(separator);
+  p.write("2");
+
+  p.end();
+
+  t.ok(p.isEnded);
+});

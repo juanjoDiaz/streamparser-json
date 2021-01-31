@@ -38,42 +38,6 @@ export enum TokenParserMode {
   ARRAY,
 }
 
-// interface RootStackElement {
-//   key: undefined;
-//   value: any;
-//   mode: undefined;
-//   emit: boolean;
-// }
-// interface ObjectStackElement {
-//   key: string;
-//   value: { [key: string]: any};
-//   mode: TokenParserMode.OBJECT;
-//   emit: boolean;
-// }
-// interface ArryStackElement {
-//   key: number;
-//   value: any[];
-//   mode: TokenParserMode.ARRAY;
-//   emit: boolean;
-// }
-
-// export type StackElement = RootStackElement | ObjectStackElement | ArryStackElement;
-
-// class Stack {
-//   private stack: StackElement[] = [];
-
-//   public push(key: undefined, value: any, mode: undefined, emit: boolean): void
-//   public push(key: string, value: { [key: string]: any}, mode: TokenParserMode.OBJECT, emit: boolean): void
-//   public push(key: number, value: any[], mode: TokenParserMode.ARRAY, emit: boolean): void
-//   public push(key: undefined | number | string, value: undefined | any[] | { [key: string]: any }, mode: TokenParserMode | undefined, emit: boolean): void {
-//     this.stack.push({ key, value, mode, emit });
-//   }
-
-//   public pop(): StackElement | undefined {
-//     return this.stack.pop();
-//   }
-// }
-
 export interface StackElement {
   key: JsonKey;
   value: JsonStruct;
@@ -365,7 +329,11 @@ export default class TokenParser {
   }
 
   public end(): void {
-    if (this.state !== TokenParserState.VALUE || this.stack.length > 0) {
+    if (
+      (this.state !== TokenParserState.VALUE &&
+        this.state !== TokenParserState.SEPARATOR) ||
+      this.stack.length > 0
+    ) {
       this.error(
         new Error(
           `Parser ended in mid-parsing (state: ${
@@ -373,10 +341,10 @@ export default class TokenParser {
           }). Either not all the data was received or the data was invalid.`
         )
       );
+    } else {
+      this.state = TokenParserState.ENDED;
+      this.onEnd();
     }
-
-    this.state = TokenParserState.ENDED;
-    this.onEnd();
   }
 
   public onValue(
