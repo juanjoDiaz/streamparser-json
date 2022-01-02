@@ -152,16 +152,16 @@ export default class TokenParser {
       this.stack.every((item) => !item.emit)
     ) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete ((this.value as JsonStruct) as any)[this.key as string | number];
+      delete (this.value as JsonStruct as any)[this.key as string | number];
     }
 
     if (emit) {
       this.onValue(
         value,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this.key as JsonKey) as any,
+        this.key as JsonKey as any,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this.value as JsonStruct | undefined) as any,
+        this.value as JsonStruct | undefined as any,
         this.stack
       );
     }

@@ -13,15 +13,15 @@
   },
   "bugs": "https://github.com/juanjoDiaz/streamparser-json/issues",
   "devDependencies": {
-    "@types/node": "^14.14.6",
-    "@typescript-eslint/eslint-plugin": "^4.8.1",
-    "@typescript-eslint/parser": "^4.8.1",
-    "eslint": "^7.13.0",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-prettier": "^3.1.4",
+    "@types/node": "^17.0.4",
+    "@typescript-eslint/eslint-plugin": "^5.8.0",
+    "@typescript-eslint/parser": "^5.8.0",
+    "eslint": "^8.5.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.1.2",
     "rollup": "^2.33.1",
-    "rollup-plugin-typescript2": "^0.27.3",
+    "rollup-plugin-typescript2": "^0.31.1",
     "tap": "^14.10.8",
     "typescript": "^4.0.5"
   },
@@ -34,7 +34,7 @@
     "build:mjs": "tsc --module esnext --outDir ./dist/mjs && node build.mjs.js ./dist/mjs",
     "build": "npm run build:umd && npm run build:cjs && npm run build:mjs && npm run build:deno",
     "prepare": "npm run build",
-    "test": "TS_NODE_SKIP_PROJECT=true tap --timeout=60 test"
+    "test": "TS_NODE_SKIP_PROJECT=true tap --ts --timeout=60 test"
   },
   "license": "MIT",
   "tags": [
