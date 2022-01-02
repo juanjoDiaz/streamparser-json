@@ -37,7 +37,7 @@ testData.forEach(({ value, paths, expected }) => {
         t.pass();
         return;
       }
-      t.equals(Object.keys(parent).length, 0);
+      t.equal(Object.keys(parent).length, 0);
     };
 
     p.write(value);

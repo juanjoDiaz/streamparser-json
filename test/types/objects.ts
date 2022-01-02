@@ -51,7 +51,7 @@ test("objects", (t) => {
         .map((item) => item.key)
         .concat(this.key !== undefined ? this.key : []);
 
-      t.deepEqual(
+      t.same(
         [keys, value],
         expected[i],
         `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`
@@ -76,7 +76,7 @@ test("objects chuncked", (t) => {
         .map((item) => item.key)
         .concat(this.key !== undefined ? this.key : []);
 
-      t.deepEqual(
+      t.same(
         [keys, value],
         expected[i],
         `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`
@@ -98,7 +98,7 @@ test("objects complex ", (t) => {
   const p = new JSONParser();
   p.onValue = (value, key, parent, stack) => {
     if (stack.length === 0) {
-      t.deepEqual(JSON.parse(stringifiedJson), value);
+      t.same(JSON.parse(stringifiedJson), value);
     }
   };
 

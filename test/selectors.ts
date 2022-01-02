@@ -46,7 +46,7 @@ testData.forEach(({ value, paths, expected }) => {
 
     const p = new JSONParser({ paths });
     p.onValue = (value) => {
-      t.deepEqual(
+      t.same(
         value,
         expected[i],
         `Error on expectation ${i} (${value} !== ${expected[i]})`

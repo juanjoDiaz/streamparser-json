@@ -50,7 +50,7 @@ test("arrays", (t) => {
         .map((item) => item.key)
         .concat(key !== undefined ? key : []);
 
-      t.deepEqual(
+      t.same(
         [keys, value],
         expected[i],
         `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`
@@ -75,7 +75,7 @@ test("arrays chuncked", (t) => {
         .map((item) => item.key)
         .concat(key !== undefined ? key : []);
 
-      t.deepEqual(
+      t.same(
         [keys, value],
         expected[i],
         `Error on expectation ${i} (${[keys, value]} !== ${expected[i]})`

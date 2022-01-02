@@ -26,7 +26,7 @@ test("separator: empty string", (t) => {
 
   const p = new JSONParser({ separator: "" });
   p.onValue = (value) => {
-    t.deepEqual(
+    t.same(
       value,
       expected[i],
       `Error on expectation ${i} (${value} !== ${expected[i]})`
@@ -47,7 +47,7 @@ test("separator: ND-JSON", (t) => {
 
   const p = new JSONParser({ separator });
   p.onValue = (value) => {
-    t.deepEqual(
+    t.same(
       value,
       expected[i],
       `Error on expectation ${i} (${value} !== ${expected[i]})`
@@ -72,7 +72,7 @@ separators.forEach((separator) => {
 
     const p = new JSONParser({ separator });
     p.onValue = (value) => {
-      t.deepEqual(
+      t.same(
         value,
         expected[i],
         `Error on expectation ${i} (${value} !== ${expected[i]})`
