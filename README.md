@@ -48,8 +48,8 @@ The available options are:
 
 ```javascript
 {
-  stringBufferSize: <bufferSize>, // set to 0 to don't buffer. Min valid value is 4.
-  numberBufferSize: <bufferSize>, // set to 0 to don't buffer
+  stringBufferSize: <number>, // set to 0 to don't buffer. Min valid value is 4.
+  numberBufferSize: <number>, // set to 0 to don't buffer.
   separator: <string>, // separator between object. For example `\n` for nd-js.
 }
 ```
