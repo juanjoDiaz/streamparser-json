@@ -3,10 +3,16 @@ import JSONParser from "../src/jsonparser";
 
 const { test } = tap;
 
-const testData = [
+type TestData = {
+  value: string;
+  paths?: string[];
+  expected: any[];
+};
+
+const testData: TestData[] = [
   { value: "[0,1,-1]", paths: ["$"], expected: [[0, 1, -1]] },
   { value: "[0,1,-1]", paths: ["$.*"], expected: [0, 1, -1] },
-  { value: "[0,1,-1]", paths: [undefined], expected: [0, 1, -1, [0, 1, -1]] },
+  { value: "[0,1,-1]", expected: [0, 1, -1, [0, 1, -1]] },
   { value: "[0,1,-1]", paths: ["$*"], expected: [0, 1, -1, [0, 1, -1]] },
   {
     value: "[0,1,[-1, 2]]",
@@ -80,7 +86,7 @@ invalidTestData.forEach(({ paths, expectedError }) => {
     try {
       new JSONParser({ paths });
       t.fail("Error expected on invalid selector");
-    } catch (err) {
+    } catch (err: any) {
       t.equal(err.message, expectedError);
     }
   });

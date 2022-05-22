@@ -87,3 +87,36 @@ test("should handle processing end using the onEnd callback if set", (t) => {
 
   p.write('"test"');
 });
+
+test("should use default onEnd callback if none set up", (t) => {
+  t.plan(1);
+
+  const p = new Tokenizer();
+  p.onToken = () => {
+    /* Do nothing */
+  };
+
+  p.write("1");
+  p.end();
+
+  t.ok(p.isEnded);
+});
+
+test("should not fail if ending while the underlying tokenizer is already ended", (t) => {
+  t.plan(1);
+
+  const separator = "\n";
+
+  const p = new JSONParser({ separator });
+  p.onValue = () => {
+    /* Do nothing */
+  };
+  p.onEnd = () => {
+    /* Do nothing */
+  };
+
+  p.write("{}");
+  p.end();
+
+  t.ok(p.isEnded);
+});

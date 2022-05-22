@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "ESNext",
+    "module": "commonjs",
     "lib": ["es2020", "dom"],
     "declaration": true,
     "outDir": "dist",
     "strict": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "src/**/*"

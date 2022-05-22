@@ -1,9 +1,16 @@
 import tap from "tap";
 import JSONParser from "../src/jsonparser";
+import TokenParser from "../src/tokenparser";
+import { TokenType } from "../src/utils/constants";
 
 const { test } = tap;
 
-const testData = [
+type TestData = {
+  value: string;
+  expected: any[];
+};
+
+const testData: TestData[] = [
   { value: "true", expected: [true] },
   { value: "false", expected: [false] },
   { value: "null", expected: [null] },
@@ -100,7 +107,43 @@ test(`separator: fail on invalid value`, {}, (t) => {
   try {
     p.write("abe");
     t.fail("Error expected on invalid selector");
-  } catch (err) {
+  } catch (err: any) {
     t.equal(err.message, 'Unexpected "e" at position "2" in state SEPARATOR');
+  }
+});
+
+test(`separator: fail on invalid token type`, {}, (t) => {
+  t.plan(1);
+
+  const p = new TokenParser({ separator: "\n" });
+  p.onValue = () => {
+    /* Do nothing */
+  };
+
+  p.write(TokenType.TRUE, true);
+
+  try {
+    p.write(TokenType.TRUE, true);
+    t.fail("Error expected on invalid selector");
+  } catch (err: any) {
+    t.equal(err.message, "Unexpected TRUE (true) in state SEPARATOR");
+  }
+});
+
+test("fail on invalid value passed to TokenParser", (t) => {
+  t.plan(1);
+
+  const p = new TokenParser({ separator: "\n" });
+  p.onValue = () => {
+    /* Do nothing */
+  };
+
+  p.write(TokenType.TRUE, true);
+
+  try {
+    p.write(TokenType.SEPARATOR, "\r\n");
+    t.fail("Expected to fail");
+  } catch (err: any) {
+    t.equal(err.message, 'Unexpected SEPARATOR ("\\r\\n") in state SEPARATOR');
   }
 });

@@ -14,6 +14,8 @@ export default [
         tsconfigOverride: {
           compilerOptions: {
             target: "es5",
+            module: "ESNext",
+            allowSyntheticDefaultImports: false,
           },
         },
       }),

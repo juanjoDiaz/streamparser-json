@@ -45,11 +45,11 @@ test("objects", (t) => {
 
   values.forEach((str) => {
     const p = new JSONParser();
-    p.onValue = function (value) {
-      const keys = this.stack
+    p.onValue = function (value, key, _, stack) {
+      const keys = stack
         .slice(1)
         .map((item) => item.key)
-        .concat(this.key !== undefined ? this.key : []);
+        .concat(key !== undefined ? key : []);
 
       t.same(
         [keys, value],
@@ -70,11 +70,11 @@ test("objects chuncked", (t) => {
 
   values.forEach((str) => {
     const p = new JSONParser();
-    p.onValue = function (value) {
-      const keys = this.stack
+    p.onValue = function (value, key, _, stack) {
+      const keys = stack
         .slice(1)
         .map((item) => item.key)
-        .concat(this.key !== undefined ? this.key : []);
+        .concat(key !== undefined ? key : []);
 
       t.same(
         [keys, value],
