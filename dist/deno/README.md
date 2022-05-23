@@ -1,5 +1,10 @@
 # @streamparser/json
 
+[![npm version][npm-version-badge]][npm-badge-url]
+[![npm monthly downloads][npm-downloads-badge]][npm-badge-url]
+[![Build Status][build-status-badge]][build-status-url]
+[![Coverage Status][coverage-status-badge]][coverage-status-url]
+
 Fast dependency-free library to parse a JSON stream using utf-8 encoding in Node.js, Deno or any modern browser. Fully compliant with the JSON spec and `JSON.parse(...)`.
 
 *tldr;*
@@ -327,3 +332,15 @@ JSONParser was awesome.... in 2011.
 * JSONparse uses buffers to parse strings to avoid memory exhaustion if your JSON include very long strings (due to V8 optimizations). This has a performance impact and it is not necessary for most use cases. @streamparser/json uses a string as internal buffer by default to improve performance and allows the user to get the exact same behaviour as in JSONparse by setting the `stringBufferSize` option to `64 * 1024`.
 * JSONparse parses all valid JSON objects that come through the stream and doesn't support ending the processing. @streamparser/json ends the processing after a single object unless the user explicitly configure a `separator`. When using a separator, the user can end the processing by calling the `end` method which will end the processing and throw and error if the stream is in the middle of parsing something i.e. the JSON passed so far was incomplete/incorrect. Users can use the `onEnd` callback to act when the processing ends.
 * JSONparse will fail to emit a number until is followed by a non-numeric character, i.e. it will not parse a single number which is valid JSON. @streamparser/json uses the `end` method to emit any possible number that was being parsed before completely ending the processing.
+
+## License
+
+See [LICENSE.md].
+
+[npm-version-badge]: https://badge.fury.io/js/@streamparser%2Fjson.svg
+[npm-badge-url]: https://www.npmjs.com/package/@streamparser/json
+[npm-downloads-badge]: https://img.shields.io/npm/dm/@streamparser%2Fjson.svg
+[build-status-badge]: https://github.com/juanjoDiaz/streamparser-json/actions/workflows/on-push.yaml/badge.svg
+[build-status-url]: https://github.com/juanjoDiaz/streamparser-json/actions/workflows/on-push.yaml
+[coverage-status-badge]: https://coveralls.io/repos/github/juanjoDiaz/streamparser-json/badge.svg?branch=master
+[coverage-status-url]: https://coveralls.io/github/juanjoDiaz/streamparser-json?branch=master
