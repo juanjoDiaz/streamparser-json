@@ -28,15 +28,16 @@
     "typescript": "^4.6.4"
   },
   "scripts": {
-    "lint": "eslint '{src,test,performance,samplejson}/**/*.{js,ts,json}'",
-    "format": "eslint '{src,test,performance,samplejson}/**/*.{js,ts,json}' --fix",
+    "lint": "eslint src test performance samplejson --ext .js,.ts,.json",
+    "format": "npm run lint -- --fix",
     "build:deno": "node build.deno.js ./src ./dist/deno",
     "build:umd": "rollup -c",
     "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
     "build:mjs": "tsc --module esnext --outDir ./dist/mjs && node build.mjs.js ./dist/mjs",
     "build": "npm run build:umd && npm run build:cjs && npm run build:mjs && npm run build:deno",
     "prepare": "npm run build",
-    "test": "tap --ts --timeout=60 test"
+    "test": "tap --ts --timeout=90 test",
+    "test-with-coverage": "tap --ts --coverage-report=text --coverage-report=lcov --timeout=120 test"
   },
   "license": "MIT",
   "tags": [

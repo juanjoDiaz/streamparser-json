@@ -3,12 +3,13 @@ name: Node.js CI
 on: [push, pull_request]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 12.x]
+        os: [ubuntu-latest, windows-latest] # macos-latest is too slow
+        node-version: [18.x, 16.x, 14.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -16,18 +17,40 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Cache Node.js modules
+    - name: Cache Node.js modules on Linux
       uses: actions/cache@v2
+      if: ${{ runner.OS != 'Windows' }}
       with:
-        # npm cache files are stored in `~/.npm` on Linux/macOS
         path: ~/.npm 
         key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.OS }}-node-
           ${{ runner.OS }}-
+    - name: Cache Node.js modules on Windows
+      uses: actions/cache@v2
+      if: ${{ runner.OS == 'Windows' }}
+      with:
+        path: ~\AppData\Roaming\npm-cache
+        key: ${{ runner.os }}-node-${{ hashFiles('**\package-lock.json') }}
+        restore-keys: |
+          ${{ runner.OS }}-node-
+          ${{ runner.OS }}-
     - run: npm ci
     - run: npm run lint
-    - run: npm test
-    - run: npm run build
-      env:
-        CI: true
+    - name: Unit tests
+      run: npm run test-with-coverage
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        flag-name: run-${{ matrix.node-version }}
+        parallel: true
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true
