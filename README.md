@@ -342,5 +342,5 @@ See [LICENSE.md].
 [npm-downloads-badge]: https://img.shields.io/npm/dm/@streamparser%2Fjson.svg
 [build-status-badge]: https://github.com/juanjoDiaz/streamparser-json/actions/workflows/on-push.yaml/badge.svg
 [build-status-url]: https://github.com/juanjoDiaz/streamparser-json/actions/workflows/on-push.yaml
-[coverage-status-badge]: https://coveralls.io/repos/github/juanjoDiaz/streamparser-json/badge.svg?branch=master
-[coverage-status-url]: https://coveralls.io/github/juanjoDiaz/streamparser-json?branch=master
+[coverage-status-badge]: https://coveralls.io/repos/github/juanjoDiaz/streamparser-json/badge.svg?branch=main
+[coverage-status-url]: https://coveralls.io/github/juanjoDiaz/streamparser-json?branch=main
