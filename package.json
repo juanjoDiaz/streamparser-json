@@ -1,7 +1,7 @@
 {
   "name": "@streamparser/json",
   "description": "Streaming JSON parser in Javascript for Node.js, Deno and the browser",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "main": "./dist/cjs/index.js",
   "module": "./dist/mjs/index.js",
   "browser": "./dist/umd/index.js",
