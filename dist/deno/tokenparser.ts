@@ -193,131 +193,134 @@ export default class TokenParser {
   public write(token: TokenType.NUMBER, value: number): void;
   public write(token: TokenType.SEPARATOR, value: string): void;
   public write(token: TokenType, value: JsonPrimitive): void {
-    if (this.state === TokenParserState.VALUE) {
-      if (
-        token === STRING ||
-        token === NUMBER ||
-        token === TRUE ||
-        token === FALSE ||
-        token === NULL
-      ) {
-        if (this.mode === TokenParserMode.OBJECT) {
-          (this.value as JsonObject)[this.key as string] = value;
-          this.state = TokenParserState.COMMA;
-        } else if (this.mode === TokenParserMode.ARRAY) {
-          (this.value as JsonArray).push(value);
-          this.state = TokenParserState.COMMA;
-        }
+    try {
+      if (this.state === TokenParserState.VALUE) {
+        if (
+          token === STRING ||
+          token === NUMBER ||
+          token === TRUE ||
+          token === FALSE ||
+          token === NULL
+        ) {
+          if (this.mode === TokenParserMode.OBJECT) {
+            (this.value as JsonObject)[this.key as string] = value;
+            this.state = TokenParserState.COMMA;
+          } else if (this.mode === TokenParserMode.ARRAY) {
+            (this.value as JsonArray).push(value);
+            this.state = TokenParserState.COMMA;
+          }
 
-        this.emit(value, this.shouldEmit());
-        return;
-      }
-
-      if (token === LEFT_BRACE) {
-        this.push();
-        if (this.mode === TokenParserMode.OBJECT) {
-          this.value = (this.value as JsonObject)[this.key as string] = {};
-        } else if (this.mode === TokenParserMode.ARRAY) {
-          const val = {};
-          (this.value as JsonArray).push(val);
-          this.value = val;
-        } else {
-          this.value = {};
-        }
-        this.mode = TokenParserMode.OBJECT;
-        this.state = TokenParserState.KEY;
-        this.key = undefined;
-        return;
-      }
-
-      if (token === LEFT_BRACKET) {
-        this.push();
-        if (this.mode === TokenParserMode.OBJECT) {
-          this.value = (this.value as JsonObject)[this.key as string] = [];
-        } else if (this.mode === TokenParserMode.ARRAY) {
-          const val: JsonArray = [];
-          (this.value as JsonArray).push(val);
-          this.value = val;
-        } else {
-          this.value = [];
-        }
-        this.mode = TokenParserMode.ARRAY;
-        this.state = TokenParserState.VALUE;
-        this.key = 0;
-        return;
-      }
-
-      if (
-        this.mode === TokenParserMode.ARRAY &&
-        token === RIGHT_BRACKET &&
-        (this.value as JsonArray).length === 0
-      ) {
-        this.pop();
-        return;
-      }
-    }
-
-    if (this.state === TokenParserState.KEY) {
-      if (token === STRING) {
-        this.key = value as string;
-        this.state = TokenParserState.COLON;
-        return;
-      }
-
-      if (
-        token === RIGHT_BRACE &&
-        Object.keys(this.value as JsonObject).length === 0
-      ) {
-        this.pop();
-        return;
-      }
-    }
-
-    if (this.state === TokenParserState.COLON) {
-      if (token === COLON) {
-        this.state = TokenParserState.VALUE;
-        return;
-      }
-    }
-
-    if (this.state === TokenParserState.COMMA) {
-      if (token === COMMA) {
-        if (this.mode === TokenParserMode.ARRAY) {
-          this.state = TokenParserState.VALUE;
-          (this.key as number) += 1;
+          this.emit(value, this.shouldEmit());
           return;
         }
 
-        /* istanbul ignore else */
-        if (this.mode === TokenParserMode.OBJECT) {
+        if (token === LEFT_BRACE) {
+          this.push();
+          if (this.mode === TokenParserMode.OBJECT) {
+            this.value = (this.value as JsonObject)[this.key as string] = {};
+          } else if (this.mode === TokenParserMode.ARRAY) {
+            const val = {};
+            (this.value as JsonArray).push(val);
+            this.value = val;
+          } else {
+            this.value = {};
+          }
+          this.mode = TokenParserMode.OBJECT;
           this.state = TokenParserState.KEY;
+          this.key = undefined;
+          return;
+        }
+
+        if (token === LEFT_BRACKET) {
+          this.push();
+          if (this.mode === TokenParserMode.OBJECT) {
+            this.value = (this.value as JsonObject)[this.key as string] = [];
+          } else if (this.mode === TokenParserMode.ARRAY) {
+            const val: JsonArray = [];
+            (this.value as JsonArray).push(val);
+            this.value = val;
+          } else {
+            this.value = [];
+          }
+          this.mode = TokenParserMode.ARRAY;
+          this.state = TokenParserState.VALUE;
+          this.key = 0;
+          return;
+        }
+
+        if (
+          this.mode === TokenParserMode.ARRAY &&
+          token === RIGHT_BRACKET &&
+          (this.value as JsonArray).length === 0
+        ) {
+          this.pop();
           return;
         }
       }
 
-      if (
-        (token === RIGHT_BRACE && this.mode === TokenParserMode.OBJECT) ||
-        (token === RIGHT_BRACKET && this.mode === TokenParserMode.ARRAY)
-      ) {
-        this.pop();
-        return;
-      }
-    }
+      if (this.state === TokenParserState.KEY) {
+        if (token === STRING) {
+          this.key = value as string;
+          this.state = TokenParserState.COLON;
+          return;
+        }
 
-    if (this.state === TokenParserState.SEPARATOR) {
-      if (token === SEPARATOR && value === this.separator) {
-        this.state = TokenParserState.VALUE;
-        return;
+        if (
+          token === RIGHT_BRACE &&
+          Object.keys(this.value as JsonObject).length === 0
+        ) {
+          this.pop();
+          return;
+        }
       }
-    }
 
-    this.error(
-      new TokenParserError(
+      if (this.state === TokenParserState.COLON) {
+        if (token === COLON) {
+          this.state = TokenParserState.VALUE;
+          return;
+        }
+      }
+
+      if (this.state === TokenParserState.COMMA) {
+        if (token === COMMA) {
+          if (this.mode === TokenParserMode.ARRAY) {
+            this.state = TokenParserState.VALUE;
+            (this.key as number) += 1;
+            return;
+          }
+
+          /* istanbul ignore else */
+          if (this.mode === TokenParserMode.OBJECT) {
+            this.state = TokenParserState.KEY;
+            return;
+          }
+        }
+
+        if (
+          (token === RIGHT_BRACE && this.mode === TokenParserMode.OBJECT) ||
+          (token === RIGHT_BRACKET && this.mode === TokenParserMode.ARRAY)
+        ) {
+          this.pop();
+          return;
+        }
+      }
+
+      if (this.state === TokenParserState.SEPARATOR) {
+        if (token === SEPARATOR && value === this.separator) {
+          this.state = TokenParserState.VALUE;
+          return;
+        }
+      }
+
+      throw new TokenParserError(
         `Unexpected ${TokenType[token]} (${JSON.stringify(value)}) in state ${
           TokenParserState[this.state]
         }`
-      )
-    );
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      this.error(err);
+    }
   }
 
   public error(err: Error): void {

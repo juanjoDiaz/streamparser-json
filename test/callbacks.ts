@@ -63,7 +63,7 @@ test("should handle invalid input using the onError callback if set", (t) => {
   p.write(745674 as any);
 });
 
-test("should handle errors using the onError callback if set", (t) => {
+test("should handle parsing errors using the onError callback if set", (t) => {
   t.plan(1);
 
   const p = new JSONParser();
@@ -74,6 +74,32 @@ test("should handle errors using the onError callback if set", (t) => {
     t.equal(err.message, 'Unexpected "t" at position "2" in state ENDED');
 
   p.write('""test""');
+});
+
+test("should handle errors on callbacks using the onError callback if set", (t) => {
+  t.plan(1);
+
+  const p = new JSONParser();
+  p.onValue = () => {
+    throw new Error("Unexpected error in onValue callback");
+  };
+  p.onError = (err) =>
+    t.equal(err.message, "Unexpected error in onValue callback");
+
+  p.write('"test"');
+});
+
+test("should handle errors on callbacks using the onError callback if set (tokenizer)", (t) => {
+  t.plan(1);
+
+  const p = new Tokenizer();
+  p.onToken = () => {
+    throw new Error("Unexpected error in onValue callback");
+  };
+  p.onError = (err) =>
+    t.equal(err.message, "Unexpected error in onValue callback");
+
+  p.write('"test"');
 });
 
 test("should handle processing end using the onEnd callback if set", (t) => {
