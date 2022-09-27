@@ -10,9 +10,9 @@ Fast dependency-free library to parse a JSON stream using utf-8 encoding in Node
 *tldr;*
 
 ```javascript
-import { JSONparser } from '@streamparser/json';
+import { JSONParser } from '@streamparser/json';
 
-const parser = new JSONparser();
+const parser = new JSONParser();
 parser.onValue = (value) => { /* process data */}
 
 // Or passing the stream in several chunks 
@@ -149,7 +149,7 @@ const tokenParser = new TokenParser();
 tokenParser.onValue = (value) => { ... };
 ```
 
-### JSONparser
+### JSONParser
 
 A drop-in replacement of `JSONparse` (with few ~~breaking changes~~ improvements. See below.).
 
@@ -175,7 +175,7 @@ tokenParser.onValue = (value) => { /* Process values */ }
 
 * **write(token: TokenType, value: any)** alias to the Tokenizer write method.
 * **end()** alias to the Tokenizer end method.
-* **isEnded** readonly boolean property indicating whether the JSONparser is ended or is still accepting data.
+* **isEnded** readonly boolean property indicating whether the JSONParser is ended or is still accepting data.
 * **onToken(token: TokenType, value: any, offset: number)** alias to the Tokenizer onToken method. (write only).
 * **onValue(value: any)** alias to the Token Parser onValue method (write only).
 * **onError(err: Error)** alias to the Tokenizer/Token Parser onError method  (write only).
