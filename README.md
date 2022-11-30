@@ -167,7 +167,7 @@ This class is just for convenience. In reality, it simply connects the tokenizer
 ```javascript
 const tokenizer = new Tokenizer(opts);
 const tokenParser = new TokenParser();
-tokenizer.onToken = this.tokenParser.write.bind(this.parser);
+tokenizer.onToken = tokenParser.write.bind(tokenParser);
 tokenParser.onValue = (value) => { /* Process values */ }
 ```
 
@@ -207,7 +207,7 @@ You can use both components independently as
 ```javascript
 const tokenizer = new Tokenizer(opts);
 const tokenParser = new TokenParser();
-this.tokenizer.onToken = this.tokenParser.write.bind(this.tokenParser);
+tokenizer.onToken = tokenParser.write.bind(tokenParser);
 ```
 
 You push data using the `write` method which takes a string or an array-like object.
