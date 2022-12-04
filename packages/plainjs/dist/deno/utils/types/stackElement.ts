@@ -1,4 +1,4 @@
-import { JsonKey, JsonStruct } from './jsonTypes.js.ts';
+import { JsonKey, JsonStruct } from "./jsonTypes.ts";
 
 export enum TokenParserMode {
   OBJECT = 0,

@@ -10,10 +10,10 @@ Fast dependency-free library to parse a JSON stream using utf-8 encoding in Node
 *tldr;*
 
 ```javascript
-import { JSONParser } from '@streamparser/json';
+import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.10/index.ts";/
 
 const parser = new JSONParser();
-parser.onValue = (value) => { /* process data */}
+parser.onValue = ({ value }) => { /* process data */ };
 
 // Or passing the stream in several chunks 
 try {
@@ -26,6 +26,13 @@ try {
   console.log(err); // handler errors 
 }
 ```
+
+## streamparser/json ecosystem
+
+There are multiple flavours of @streamparser:
+
+* The **[@streamparser/json](https://www.npmjs.com/package/@streamparser/json)** package allows to parse any JSON string or stream using pure Javascript.
+* The **[@streamparser/json-whatwg](https://www.npmjs.com/package/@streamparser/json-whatwg)** wraps `@streamparser/json` into WHATWG `@streamparser/json-whatwg`.
 
 ## Dependencies / Polyfilling
 
@@ -44,7 +51,7 @@ If you are targeting browsers or systems in which these might be missing, you ne
 A JSON compliant tokenizer that parses a utf-8 stream into JSON tokens
 
 ```javascript
-import Tokenizer from 'https://deno.land/x/streamparser_json@v0.0.3/tokenizer.ts';/
+import { Tokenizer } from "https://deno.land/x/streamparser_json@v0.0.10/index.ts";/
 
 const tokenizer = new Tokenizer(opts);
 ```
@@ -155,7 +162,7 @@ A drop-in replacement of `JSONparse` (with few ~~breaking changes~~ improvements
 
 
 ```javascript
-import { JSONParser } from '@streamparser/json';
+import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.10/index.ts";/
 
 const parser = new JSONParser();
 ```
@@ -167,7 +174,7 @@ This class is just for convenience. In reality, it simply connects the tokenizer
 ```javascript
 const tokenizer = new Tokenizer(opts);
 const tokenParser = new TokenParser();
-tokenizer.onToken = tokenParser.write.bind(this.tokenParser);
+tokenizer.onToken = tokenParser.write.bind(tokenParser);
 tokenParser.onValue = (value) => { /* Process values */ }
 ```
 
@@ -207,7 +214,7 @@ You can use both components independently as
 ```javascript
 const tokenizer = new Tokenizer(opts);
 const tokenParser = new TokenParser();
-this.tokenizer.onToken = tokenParser.write.bind(tokenParser);
+tokenizer.onToken = tokenParser.write.bind(tokenParser);
 ```
 
 You push data using the `write` method which takes a string or an array-like object.
@@ -215,7 +222,7 @@ You push data using the `write` method which takes a string or an array-like obj
 You can subscribe to the resulting data using the 
 
 ```javascript
-import { JSONParser } from '@streamparser/json';
+import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.10/index.ts";/
 
 const parser = new JSONParser({ stringBufferSize: undefined, paths: ['$'] });
 parser.onValue = console.log;
@@ -233,7 +240,7 @@ parser.write('"');// logs "Hello world!"
 Write is always a synchronous operation so any error during the parsing of the stream will be thrown during the write operation. After an error, the parser can't continue parsing.
 
 ```javascript
-import { JSONParser } from '@streamparser/json';
+import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.10/index.ts";/
 
 const parser = new JSONParser({ stringBufferSize: undefined });
 parser.onValue = console.log;
@@ -248,7 +255,7 @@ try {
 You can also handle errors using callbacks:
 
 ```javascript
-import { JSONParser } from '@streamparser/json';
+import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.10/index.ts";/
 
 const parser = new JSONParser({ stringBufferSize: undefined });
 parser.onValue = console.log;
@@ -266,11 +273,11 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 ```js
   import { JSONParser} from '@streamparser/json';
 
-  const jsonparser = new JSONParser();
-  jsonparser.onValue = (value, key, parent, stack) => {
-	if (stack > 0) return; // ignore inner values
+  const parser = new JSONParser();
+  parser.onValue = (value, key, parent, stack) => {
+    if (stack > 0) return; // ignore inner values
     // TODO process element
-  }
+  };
 
   const response = await fetch('http://example.com/');
   const reader = response.body.getReader();
@@ -280,23 +287,18 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
     jsonparser.write(value);
   }
 ```
-
 
 ### Stream-parsing a fetch request returning a JSON array
 
 Imagine an endpoint that send a large amount of JSON objects one after the other (`[{"id":1},{"id":2},{"id":3},...]`).
 
 ```js
-  import { JSONParser } from '@streamparser/json';
+  import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.10/index.ts";/
 
   const jsonparser = new JSONParser({ stringBufferSize: undefined, paths: ['$.*'] });
-  jsonparser.onValue = (value, key, parent, stack) => {
-    if (stack.length === 0) /* We are done. Exit. */; 
-    // By default, the parser keeps all the child elements in memory until the root parent is emitted.
-    // Let's delete the objects after processing them in order to optimize memory.
-    delete parent[key];
-    // TODO process `value` which will be each of the values in the array.
-  }
+  jsonparser.onValue = ({ value, key, parent, stack }) => {
+    // TODO process element
+  };
 
   const response = await fetch('http://example.com/');
   const reader = response.body.getReader();
@@ -307,31 +309,32 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
   }
 ```
 
-## Why building this if we have JSONparse
+## Migration guide
 
-JSONParser was awesome.... in 2011.
+### Upgrading from 0.10 to 0.11
 
-@streamparser/json strengths include:
+The arguments of callbacks have been objectified.
 
-* As performant as the original an even faster in some cases.
-* Works on the browser.
-* Allows selector of what to emit.
-* Well documented.
-* Better designed and more plugable/configurable by clearly separating the tokenizer and token parser processes.
-* Simpler and cleaner code. Uses ES6 and doesn't rely on deprecated Node.js methods.
-* 100% unit test coverage.
-* Fully compliant with the JSON spec. You will always get the same result as using `JSON.parse()`.
+What used to be
 
+```js
+jsonparser.onToken = ({ token, value }) => {
+  // TODO process token
+};
+jsonparser.onValue = ({ value, key, parent, stack }) => {
+  // TODO process element
+};
+```
+now is:
 
-### ~~Breaking changes~~ Improvements compared to JSONparse
-
-* JSONparse errors keep big number as a string which is not compliant with the spec. With @streamparser/json you can achieve such behaviour by simply overriding the `parseNumber` method.
-* JSONparse errors on characters above 244 which is not compliant with the spec. @streamparser/json parsed them correctly.
-* JSONparse incorrectly allows trailing comas in objects or arrays which is not compliant with the spec. @streamparser/json do not.
-* JSONparse's uses the `onError` callback to handle errors. Since the `write` method is synchronous, @streamparser/json defaults to throwing on error, so wrapping the write operation in a try-catch block captures all possible errors. If the `onError` callback is set, nothing is thrown.
-* JSONparse uses buffers to parse strings to avoid memory exhaustion if your JSON include very long strings (due to V8 optimizations). This has a performance impact and it is not necessary for most use cases. @streamparser/json uses a string as internal buffer by default to improve performance and allows the user to get the exact same behaviour as in JSONparse by setting the `stringBufferSize` option to `64 * 1024`.
-* JSONparse parses all valid JSON objects that come through the stream and doesn't support ending the processing. @streamparser/json ends the processing after a single object unless the user explicitly configure a `separator`. When using a separator, the user can end the processing by calling the `end` method which will end the processing and throw and error if the stream is in the middle of parsing something i.e. the JSON passed so far was incomplete/incorrect. Users can use the `onEnd` callback to act when the processing ends.
-* JSONparse will fail to emit a number until is followed by a non-numeric character, i.e. it will not parse a single number which is valid JSON. @streamparser/json uses the `end` method to emit any possible number that was being parsed before completely ending the processing.
+```js
+jsonparser.onToken = (token, value) => {
+  // TODO process token
+};
+jsonparser.onValue = (value, key, parent, stack) => {
+  // TODO process element
+};
+```
 
 ## License
 

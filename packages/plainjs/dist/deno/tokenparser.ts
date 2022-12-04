@@ -1,14 +1,14 @@
-import TokenType from './utils/types/tokenType.js.ts';
+import TokenType from "./utils/types/tokenType.ts";
 import {
   JsonPrimitive,
   JsonKey,
   JsonObject,
   JsonArray,
   JsonStruct,
-} from './utils/types/jsonTypes.js.ts';
-import { StackElement, TokenParserMode } from './utils/types/stackElement.js.ts';
-import { ParsedTokenInfo } from './utils/types/parsedTokenInfo.js.ts';
-import { ParsedElementInfo } from './utils/types/parsedElementInfo.js.ts';
+} from "./utils/types/jsonTypes.ts";
+import { StackElement, TokenParserMode } from "./utils/types/stackElement.ts";
+import { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.ts";
+import { ParsedElementInfo } from "./utils/types/parsedElementInfo.ts";
 
 const {
   LEFT_BRACE,
@@ -86,7 +86,7 @@ export default class TokenParser {
       });
     }
 
-    this.keepStack = opts.keepStack as boolean;
+    this.keepStack = opts.keepStack || false;
     this.separator = opts.separator;
   }
 

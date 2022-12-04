@@ -1,11 +1,11 @@
-import { charset, escapedSequences } from './utils/utf-8.js.ts';
+import { charset, escapedSequences } from "./utils/utf-8.ts";
 import {
   StringBuilder,
   NonBufferedString,
   BufferedString,
-} from './utils/bufferedString.js.ts';
-import TokenType from './utils/types/tokenType.js.ts';
-import { ParsedTokenInfo } from './utils/types/parsedTokenInfo.js.ts';
+} from "./utils/bufferedString.ts";
+import TokenType from "./utils/types/tokenType.ts";
+import { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.ts";
 
 const {
   LEFT_BRACE,

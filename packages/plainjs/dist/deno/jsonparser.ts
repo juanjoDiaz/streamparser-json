@@ -1,7 +1,7 @@
-import Tokenizer, { TokenizerOptions } from './tokenizer.js.ts';
-import TokenParser, { TokenParserOptions } from './tokenparser.js.ts';
-import { ParsedElementInfo } from './utils/types/parsedElementInfo.js.ts';
-import { ParsedTokenInfo } from './utils/types/parsedTokenInfo.js.ts';
+import Tokenizer, { TokenizerOptions } from "./tokenizer.ts";
+import TokenParser, { TokenParserOptions } from "./tokenparser.ts";
+import { ParsedElementInfo } from "./utils/types/parsedElementInfo.ts";
+import { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.ts";
 
 export interface JSONParserOptions
   extends TokenizerOptions,

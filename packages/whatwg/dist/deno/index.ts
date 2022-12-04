@@ -1,6 +1,6 @@
-export { default as JSONParser } from './jsonparser.js.ts';
-export { default as Tokenizer } from './tokenizer.js.ts';
-export { default as TokenParser } from './tokenparser.js.ts';
+export { default as JSONParser } from "./jsonparser.ts";
+export { default as Tokenizer } from "./tokenizer.ts";
+export { default as TokenParser } from "./tokenparser.ts";
 
 export {
   utf8,
@@ -10,4 +10,4 @@ export {
   TokenParserMode,
   StackElement,
   TokenType,
-} from "@streamparser/json";
+} from "https://deno.land/x/streamparser_json@v0.0.10/index.ts";

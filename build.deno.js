@@ -15,16 +15,12 @@ function copyReadme(src, dest) {
     readFileSync("./README.md")
       .toString()
       .replace(
-        /import \{ JSONparser \} from '@streamparser\/json';/gm,
-        "import JSONparser from 'https://deno.land/x/streamparser_json@v0.0.3/jsonparser.ts';/"
+        /import \{ (.*) \} from '@streamparser\/json';/gm,
+        'import { $1 } from "https://deno.land/x/streamparser_json@v0.0.10/index.ts";/'
       )
       .replace(
-        /import { Tokenizer } from '@streamparser\/json';/gm,
-        "import Tokenizer from 'https://deno.land/x/streamparser_json@v0.0.3/tokenizer.ts';/"
-      )
-      .replace(
-        /import { TokenParser } from '@streamparser\/json';/gm,
-        "import TokenParser from 'https://deno.land/x/streamparser_json@v0.0.3/tokenparser.ts';/"
+        /import { (.*) } from '@streamparser\/json\/(.*).js';/gm,
+        'import { $1 } from "https://deno.land/x/streamparser_json@v0.0.10/$2.ts)";/'
       )
   );
 }
@@ -45,12 +41,19 @@ function processDir(src, dest) {
       destPath,
       readFileSync(currentPath)
         .toString()
-        .replace(/from "(\.[.\\/-\w]+)"/gm, "from '$1.ts'")
+        .replace(/from "(\.[.\\/-\w]+).js"/gm, 'from "$1.ts"')
+        .replace(
+          /from "@streamparser\/json"/gm,
+          'from "https://deno.land/x/streamparser_json@v0.0.10/index.ts"'
+        )
+        .replace(
+          /from "@streamparser\/json\/(.*).js"/gm,
+          'from "https://deno.land/x/streamparser_json@v0.0.10/$1.ts"'
+        )
     );
   });
 }
 
-const src = process.argv[2]; // './src'
-const dest = process.argv[3]; // './dist'
+const [, , src, dest] = process.argv; // './src', './dist'
 processDir(path.join(src, "src"), dest);
 copyReadme(src, dest);
