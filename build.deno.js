@@ -16,11 +16,11 @@ function copyReadme(src, dest) {
       .toString()
       .replace(
         /import \{ (.*) \} from '@streamparser\/json';/gm,
-        'import { $1 } from "https://deno.land/x/streamparser_json@v0.0.10/index.ts";/'
+        'import { $1 } from "https://deno.land/x/streamparser_json@v0.0.11/index.ts";/'
       )
       .replace(
         /import { (.*) } from '@streamparser\/json\/(.*).js';/gm,
-        'import { $1 } from "https://deno.land/x/streamparser_json@v0.0.10/$2.ts)";/'
+        'import { $1 } from "https://deno.land/x/streamparser_json@v0.0.11/$2.ts)";/'
       )
   );
 }
@@ -44,11 +44,11 @@ function processDir(src, dest) {
         .replace(/from "(\.[.\\/-\w]+).js"/gm, 'from "$1.ts"')
         .replace(
           /from "@streamparser\/json"/gm,
-          'from "https://deno.land/x/streamparser_json@v0.0.10/index.ts"'
+          'from "https://deno.land/x/streamparser_json@v0.0.11/index.ts"'
         )
         .replace(
           /from "@streamparser\/json\/(.*).js"/gm,
-          'from "https://deno.land/x/streamparser_json@v0.0.10/$1.ts"'
+          'from "https://deno.land/x/streamparser_json@v0.0.11/$1.ts"'
         )
     );
   });
