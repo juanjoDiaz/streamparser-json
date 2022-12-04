@@ -5,6 +5,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        package:
+          - '@streamparser/json'
+          - '@streamparser/json-whatwg'
+
     steps:
     - uses: actions/checkout@v2
     # Setup .npmrc file to publish to npm
@@ -14,6 +21,6 @@ jobs:
         # Needs to be explicitly specified for auth to work
         registry-url: 'https://registry.npmjs.org'
     - run: npm ci
-    - run: npm publish --access public
+    - run: npm publish --access public -w ${{ matrix.package }}
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

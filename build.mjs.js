@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-const path = require("path");
-const {
+import path from "path";
+import {
   readdirSync,
   lstatSync,
   readFileSync,
   writeFileSync,
   unlinkSync,
-} = require("fs");
+} from "fs";
 
 function processDir(src) {
   readdirSync(src)
@@ -22,10 +22,9 @@ function processDir(src) {
 
       writeFileSync(
         currentPath.replace(/\.js$/, ".mjs"),
-        readFileSync(currentPath).toString().replace(
-          /from "(\.[.\\/-\w]+)"/gm,
-          "from '$1.mjs'",
-        ),
+        readFileSync(currentPath)
+          .toString()
+          .replace(/from "(\.[.\\/-\w]+)"/gm, "from '$1.mjs'")
       );
       unlinkSync(currentPath);
     });

@@ -80,8 +80,6 @@ typings/
 
 # Nuxt.js build / generate output
 .nuxt
-dist/*
-!dist/deno
 
 # Gatsby files
 .cache/
@@ -103,3 +101,10 @@ dist/*
 
 # TernJS port file
 .tern-port
+
+# !dist
+# dist/*
+# !dist/deno
+
+packages/*/dist/*
+!packages/*/dist/deno

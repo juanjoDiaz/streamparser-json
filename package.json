@@ -1,47 +1,48 @@
 {
-  "name": "@streamparser/json",
+  "name": "streamparser-json",
   "description": "Streaming JSON parser in Javascript for Node.js, Deno and the browser",
   "version": "0.0.10",
-  "main": "./dist/cjs/index.js",
-  "module": "./dist/mjs/index.mjs",
-  "browser": "./dist/umd/index.js",
-  "types": "./dist/mjs/index.d.ts",
+  "type": "module",
   "author": "Juanjo Diaz <juanjo.diazmo@gmail.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/juanjoDiaz/streamparser-json.git"
   },
+  "homepage": "https://github.com/juanjoDiaz/streamparser-json#readme",
   "bugs": "https://github.com/juanjoDiaz/streamparser-json/issues",
   "devDependencies": {
+    "@types/jest": "^29.2.3",
     "@types/node": "^18.7.8",
-    "@types/tap": "^15.0.7",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "jest": "^29.3.1",
     "prettier": "^2.6.2",
-    "rollup": "^2.74.1",
-    "rollup-plugin-typescript2": "^0.34.0",
-    "tap": "^16.2.0",
-    "ts-node": "^10.7.0",
+    "ts-jest": "^29.0.3",
     "typescript": "^4.6.4"
   },
   "scripts": {
-    "lint": "eslint src test performance samplejson --ext .js,.ts,.json",
-    "format": "npm run lint -- --fix",
-    "build:deno": "node build.deno.js ./src ./dist/deno",
-    "build:umd": "rollup -c",
-    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
-    "build:mjs": "tsc --module esnext --outDir ./dist/mjs && node build.mjs.js ./dist/mjs",
-    "build": "npm run build:umd && npm run build:cjs && npm run build:mjs && npm run build:deno",
+    "lint": "npm run lint -ws && eslint build.* performance samplejson --ext .js,.ts,.json",
+    "format": "npm run lint -ws -- --fix && eslint build.* performance samplejson --ext .js,.ts,.json --fix",
+    "build:deno": "npm run build:deno -ws",
+    "build": "npm run build -ws",
     "prepublishOnly": "npm run build",
-    "test": "tap --ts --timeout=90 test",
-    "test-with-coverage": "tap --ts --coverage-report=text --coverage-report=lcov --timeout=120 test"
+    "pretest": "npm run build",
+    "test": "jest test",
+    "test-with-coverage": "npm test -- --coverage"
   },
   "license": "MIT",
   "tags": [
     "json",
     "stream"
-  ]
+  ],
+  "workspaces": [
+    "packages/plainjs",
+    "packages/whatwg"
+  ],
+  "dependencies": {
+    "@streamparser/json": "^0.0.10"
+  }
 }

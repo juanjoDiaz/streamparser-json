@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest] # macos-latest is too slow
-        node-version: [18.x, 16.x, 14.x]
+        node-version: [18.x, 16.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
         restore-keys: |
           ${{ runner.OS }}-node-
           ${{ runner.OS }}-
-    - run: npm ci
+    - run: npm ci --workspaces --include-workspace-root
     - run: npm run lint
     - name: Unit tests
       run: npm run test-with-coverage
