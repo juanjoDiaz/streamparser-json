@@ -1,4 +1,4 @@
-import { runJSONParserTest } from "./testRunner.js";
+import { runJSONParserTest } from "./utils/testRunner.js";
 import JSONParser from "../src/jsonparser.js";
 import { charset } from "../src/utils/utf-8.js";
 const {

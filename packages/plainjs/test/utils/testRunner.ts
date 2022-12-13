@@ -1,8 +1,8 @@
-import JSONParser from "../src/jsonparser.js";
-import Tokenizer from "../src/tokenizer.js";
-import TokenParser from "../src/tokenparser.js";
-import { ParsedTokenInfo } from "../src/utils/types/parsedTokenInfo.js";
-import { ParsedElementInfo } from "../src/utils/types/parsedElementInfo.js";
+import JSONParser from "../../src/jsonparser.js";
+import Tokenizer from "../../src/tokenizer.js";
+import TokenParser from "../../src/tokenparser.js";
+import { ParsedTokenInfo } from "../../src/utils/types/parsedTokenInfo.js";
+import { ParsedElementInfo } from "../../src/utils/types/parsedElementInfo.js";
 
 export type TestData = {
   value: string | Iterable<number>;
@@ -60,7 +60,3 @@ export function runTokenParserTest(
   }
   tokenParser.end();
 }
-
-test("", () => {
-  /* Do nothing */
-});

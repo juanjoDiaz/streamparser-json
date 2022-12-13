@@ -4,9 +4,9 @@ const jestConfig: JestConfigWithTsJest = {
   preset: 'ts-jest/presets/default-esm', // or other ESM presets
   moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' },
   testEnvironment: 'node',
-  testMatch: ['<rootDir>/**/test/**/*.ts'],
+  testMatch: ['<rootDir>/**/test/*.ts', '<rootDir>/**/test/types/*.ts'],
   collectCoverageFrom: ['src/**'],
-  setupFilesAfterEnv: ['<rootDir>/test/setup.ts']
+  setupFilesAfterEnv: ['<rootDir>/test/utils/setup.ts']
 }
 
 export default jestConfig;

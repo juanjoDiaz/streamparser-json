@@ -14,7 +14,7 @@ class TokenParserTransformer
     super(opts);
     this.onValue = (parsedElementInfo) =>
       this.controller.enqueue(cloneParsedElementInfo(parsedElementInfo));
-    this.onError = (err: any) => this.controller.error(err);
+    this.onError = (err: Error) => this.controller.error(err);
     this.onEnd = () => this.controller.terminate();
   }
 

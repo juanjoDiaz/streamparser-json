@@ -1,4 +1,4 @@
-import { runTokenizerTest } from "./testRunner.js";
+import { runTokenizerTest } from "./utils/testRunner.js";
 import { Tokenizer } from "../src/index.js";
 import TokenType from "../src/utils/types/tokenType.js";
 

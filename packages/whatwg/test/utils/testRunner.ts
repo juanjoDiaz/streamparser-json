@@ -1,6 +1,6 @@
-import JSONParser from "../src/jsonparser.js";
-import Tokenizer from "../src/tokenizer.js";
-import TokenParser from "../src/tokenparser.js";
+import JSONParser from "../../src/jsonparser.js";
+import Tokenizer from "../../src/tokenizer.js";
+import TokenParser from "../../src/tokenparser.js";
 import { ParsedTokenInfo } from "@streamparser/json/utils/types/parsedTokenInfo.js";
 import { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
 
@@ -77,7 +77,3 @@ export async function runTokenParserTest(
     onValue(value);
   }
 }
-
-test("", () => {
-  /* Do nothing */
-});

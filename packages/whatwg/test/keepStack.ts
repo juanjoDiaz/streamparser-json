@@ -1,5 +1,5 @@
 import JSONParser from "../src/jsonparser.js";
-import { runJSONParserTest } from "./testRunner.js";
+import { runJSONParserTest } from "./utils/testRunner.js";
 
 describe("keepStack", () => {
   const testData = [

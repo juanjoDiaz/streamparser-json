@@ -2,7 +2,7 @@ import {
   runJSONParserTest,
   runTokenParserTest,
   TestData,
-} from "./testRunner.js";
+} from "./utils/testRunner.js";
 import JSONParser from "../src/jsonparser.js";
 import TokenParser from "../src/tokenparser.js";
 import TokenType from "../src/utils/types/tokenType.js";

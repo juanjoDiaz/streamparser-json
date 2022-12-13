@@ -2,7 +2,7 @@
 test("", () => {
   /* Do nothing */
 });
-// import { runJSONParserTest } from "./testRunner.js";
+// import { runJSONParserTest } from "./utils/testRunner.js";
 // import JSONParser from "../src/jsonparser.js";
 // import { charset } from "@streamparser/json/utils/utf-8.js";
 // const {

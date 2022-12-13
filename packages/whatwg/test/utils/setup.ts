@@ -9,7 +9,3 @@ if (!global.TransformStream) {
   // @ts-expect-error Overriding ReadableStream for Node 16
   global.ReadableStream = NodeReadableStream;
 }
-
-test("", () => {
-  /* Do nothing */
-});
