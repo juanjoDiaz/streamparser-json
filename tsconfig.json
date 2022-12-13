@@ -11,6 +11,7 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "sourceMap": true,
+    "preserveConstEnums": true,
   },
   "include": [
     "src/**/*.ts"

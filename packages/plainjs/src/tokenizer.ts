@@ -7,22 +7,8 @@ import {
 import TokenType from "./utils/types/tokenType.js";
 import { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.js";
 
-const {
-  LEFT_BRACE,
-  RIGHT_BRACE,
-  LEFT_BRACKET,
-  RIGHT_BRACKET,
-  COLON,
-  COMMA,
-  TRUE,
-  FALSE,
-  NULL,
-  STRING,
-  NUMBER,
-} = TokenType;
-
 // Tokenizer States
-enum TokenizerStates {
+const enum TokenizerStates {
   START,
   ENDED,
   ERROR,
@@ -52,6 +38,40 @@ enum TokenizerStates {
   NUMBER_AFTER_E_AND_SIGN,
   NUMBER_AFTER_E_AND_DIGIT,
   SEPARATOR,
+}
+
+function TokenizerStateToString(tokenizerState: TokenizerStates): string {
+  return [
+    "START",
+    "ENDED",
+    "ERROR",
+    "TRUE1",
+    "TRUE2",
+    "TRUE3",
+    "FALSE1",
+    "FALSE2",
+    "FALSE3",
+    "FALSE4",
+    "NULL1",
+    "NULL2",
+    "NULL3",
+    "STRING_DEFAULT",
+    "STRING_AFTER_BACKSLASH",
+    "STRING_UNICODE_DIGIT_1",
+    "STRING_UNICODE_DIGIT_2",
+    "STRING_UNICODE_DIGIT_3",
+    "STRING_UNICODE_DIGIT_4",
+    "STRING_INCOMPLETE_CHAR",
+    "NUMBER_AFTER_INITIAL_MINUS",
+    "NUMBER_AFTER_INITIAL_ZERO",
+    "NUMBER_AFTER_INITIAL_NON_ZERO",
+    "NUMBER_AFTER_FULL_STOP",
+    "NUMBER_AFTER_DECIMAL",
+    "NUMBER_AFTER_E",
+    "NUMBER_AFTER_E_AND_SIGN",
+    "NUMBER_AFTER_E_AND_DIGIT",
+    "SEPARATOR",
+  ][tokenizerState];
 }
 
 export interface TokenizerOptions {
@@ -163,7 +183,7 @@ export default class Tokenizer {
 
             if (n === charset.LEFT_CURLY_BRACKET) {
               this.onToken({
-                token: LEFT_BRACE,
+                token: TokenType.LEFT_BRACE,
                 value: "{",
                 offset: this.offset,
               });
@@ -171,7 +191,7 @@ export default class Tokenizer {
             }
             if (n === charset.RIGHT_CURLY_BRACKET) {
               this.onToken({
-                token: RIGHT_BRACE,
+                token: TokenType.RIGHT_BRACE,
                 value: "}",
                 offset: this.offset,
               });
@@ -179,7 +199,7 @@ export default class Tokenizer {
             }
             if (n === charset.LEFT_SQUARE_BRACKET) {
               this.onToken({
-                token: LEFT_BRACKET,
+                token: TokenType.LEFT_BRACKET,
                 value: "[",
                 offset: this.offset,
               });
@@ -187,18 +207,26 @@ export default class Tokenizer {
             }
             if (n === charset.RIGHT_SQUARE_BRACKET) {
               this.onToken({
-                token: RIGHT_BRACKET,
+                token: TokenType.RIGHT_BRACKET,
                 value: "]",
                 offset: this.offset,
               });
               continue;
             }
             if (n === charset.COLON) {
-              this.onToken({ token: COLON, value: ":", offset: this.offset });
+              this.onToken({
+                token: TokenType.COLON,
+                value: ":",
+                offset: this.offset,
+              });
               continue;
             }
             if (n === charset.COMMA) {
-              this.onToken({ token: COMMA, value: ",", offset: this.offset });
+              this.onToken({
+                token: TokenType.COMMA,
+                value: ",",
+                offset: this.offset,
+              });
               continue;
             }
 
@@ -251,7 +279,7 @@ export default class Tokenizer {
               const string = this.bufferedString.toString();
               this.state = TokenizerStates.START;
               this.onToken({
-                token: STRING,
+                token: TokenType.STRING,
                 value: string,
                 offset: this.offset,
               });
@@ -510,7 +538,11 @@ export default class Tokenizer {
           case TokenizerStates.TRUE3:
             if (n === charset.LATIN_SMALL_LETTER_E) {
               this.state = TokenizerStates.START;
-              this.onToken({ token: TRUE, value: true, offset: this.offset });
+              this.onToken({
+                token: TokenType.TRUE,
+                value: true,
+                offset: this.offset,
+              });
               this.offset += 3;
               continue;
             }
@@ -537,7 +569,11 @@ export default class Tokenizer {
           case TokenizerStates.FALSE4:
             if (n === charset.LATIN_SMALL_LETTER_E) {
               this.state = TokenizerStates.START;
-              this.onToken({ token: FALSE, value: false, offset: this.offset });
+              this.onToken({
+                token: TokenType.FALSE,
+                value: false,
+                offset: this.offset,
+              });
               this.offset += 4;
               continue;
             }
@@ -558,7 +594,11 @@ export default class Tokenizer {
           case TokenizerStates.NULL3:
             if (n === charset.LATIN_SMALL_LETTER_L) {
               this.state = TokenizerStates.START;
-              this.onToken({ token: NULL, value: null, offset: this.offset });
+              this.onToken({
+                token: TokenType.NULL,
+                value: null,
+                offset: this.offset,
+              });
               this.offset += 3;
               continue;
             }
@@ -594,9 +634,9 @@ export default class Tokenizer {
         }
 
         throw new TokenizerError(
-          `Unexpected "${String.fromCharCode(n)}" at position "${i}" in state ${
-            TokenizerStates[this.state]
-          }`
+          `Unexpected "${String.fromCharCode(
+            n
+          )}" at position "${i}" in state ${TokenizerStateToString(this.state)}`
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -607,7 +647,7 @@ export default class Tokenizer {
 
   private emitNumber(): void {
     this.onToken({
-      token: NUMBER,
+      token: TokenType.NUMBER,
       value: this.parseNumber(this.bufferedNumber.toString()),
       offset: this.offset,
     });
@@ -645,9 +685,9 @@ export default class Tokenizer {
       default:
         this.error(
           new TokenizerError(
-            `Tokenizer ended in the middle of a token (state: ${
-              TokenizerStates[this.state]
-            }). Either not all the data was received or the data was invalid.`
+            `Tokenizer ended in the middle of a token (state: ${TokenizerStateToString(
+              this.state
+            )}). Either not all the data was received or the data was invalid.`
           )
         );
     }

@@ -1,4 +1,4 @@
-import TokenType from "./utils/types/tokenType.js";
+import TokenType, { TokenTypeToString } from "./utils/types/tokenType.js";
 import {
   JsonPrimitive,
   JsonKey,
@@ -10,23 +10,8 @@ import { StackElement, TokenParserMode } from "./utils/types/stackElement.js";
 import { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.js";
 import { ParsedElementInfo } from "./utils/types/parsedElementInfo.js";
 
-const {
-  LEFT_BRACE,
-  RIGHT_BRACE,
-  LEFT_BRACKET,
-  RIGHT_BRACKET,
-  COLON,
-  COMMA,
-  TRUE,
-  FALSE,
-  NULL,
-  STRING,
-  NUMBER,
-  SEPARATOR,
-} = TokenType;
-
 // Parser States
-enum TokenParserState {
+const enum TokenParserState {
   VALUE,
   KEY,
   COLON,
@@ -34,6 +19,12 @@ enum TokenParserState {
   ENDED,
   ERROR,
   SEPARATOR,
+}
+
+function TokenParserStateToString(state: TokenParserState): string {
+  return ["VALUE", "KEY", "COLON", "COMMA", "ENDED", "ERROR", "SEPARATOR"][
+    state
+  ];
 }
 
 export interface TokenParserOptions {
@@ -173,11 +164,11 @@ export default class TokenParser {
     try {
       if (this.state === TokenParserState.VALUE) {
         if (
-          token === STRING ||
-          token === NUMBER ||
-          token === TRUE ||
-          token === FALSE ||
-          token === NULL
+          token === TokenType.STRING ||
+          token === TokenType.NUMBER ||
+          token === TokenType.TRUE ||
+          token === TokenType.FALSE ||
+          token === TokenType.NULL
         ) {
           if (this.mode === TokenParserMode.OBJECT) {
             (this.value as JsonObject)[this.key as string] = value;
@@ -191,7 +182,7 @@ export default class TokenParser {
           return;
         }
 
-        if (token === LEFT_BRACE) {
+        if (token === TokenType.LEFT_BRACE) {
           this.push();
           if (this.mode === TokenParserMode.OBJECT) {
             this.value = (this.value as JsonObject)[this.key as string] = {};
@@ -208,7 +199,7 @@ export default class TokenParser {
           return;
         }
 
-        if (token === LEFT_BRACKET) {
+        if (token === TokenType.LEFT_BRACKET) {
           this.push();
           if (this.mode === TokenParserMode.OBJECT) {
             this.value = (this.value as JsonObject)[this.key as string] = [];
@@ -227,7 +218,7 @@ export default class TokenParser {
 
         if (
           this.mode === TokenParserMode.ARRAY &&
-          token === RIGHT_BRACKET &&
+          token === TokenType.RIGHT_BRACKET &&
           (this.value as JsonArray).length === 0
         ) {
           this.pop();
@@ -236,14 +227,14 @@ export default class TokenParser {
       }
 
       if (this.state === TokenParserState.KEY) {
-        if (token === STRING) {
+        if (token === TokenType.STRING) {
           this.key = value as string;
           this.state = TokenParserState.COLON;
           return;
         }
 
         if (
-          token === RIGHT_BRACE &&
+          token === TokenType.RIGHT_BRACE &&
           Object.keys(this.value as JsonObject).length === 0
         ) {
           this.pop();
@@ -252,14 +243,14 @@ export default class TokenParser {
       }
 
       if (this.state === TokenParserState.COLON) {
-        if (token === COLON) {
+        if (token === TokenType.COLON) {
           this.state = TokenParserState.VALUE;
           return;
         }
       }
 
       if (this.state === TokenParserState.COMMA) {
-        if (token === COMMA) {
+        if (token === TokenType.COMMA) {
           if (this.mode === TokenParserMode.ARRAY) {
             this.state = TokenParserState.VALUE;
             (this.key as number) += 1;
@@ -274,8 +265,10 @@ export default class TokenParser {
         }
 
         if (
-          (token === RIGHT_BRACE && this.mode === TokenParserMode.OBJECT) ||
-          (token === RIGHT_BRACKET && this.mode === TokenParserMode.ARRAY)
+          (token === TokenType.RIGHT_BRACE &&
+            this.mode === TokenParserMode.OBJECT) ||
+          (token === TokenType.RIGHT_BRACKET &&
+            this.mode === TokenParserMode.ARRAY)
         ) {
           this.pop();
           return;
@@ -283,16 +276,16 @@ export default class TokenParser {
       }
 
       if (this.state === TokenParserState.SEPARATOR) {
-        if (token === SEPARATOR && value === this.separator) {
+        if (token === TokenType.SEPARATOR && value === this.separator) {
           this.state = TokenParserState.VALUE;
           return;
         }
       }
 
       throw new TokenParserError(
-        `Unexpected ${TokenType[token]} (${JSON.stringify(value)}) in state ${
-          TokenParserState[this.state]
-        }`
+        `Unexpected ${TokenTypeToString(token)} (${JSON.stringify(
+          value
+        )}) in state ${TokenParserStateToString(this.state)}`
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -316,9 +309,9 @@ export default class TokenParser {
     ) {
       this.error(
         new Error(
-          `Parser ended in mid-parsing (state: ${
-            TokenParserState[this.state]
-          }). Either not all the data was received or the data was invalid.`
+          `Parser ended in mid-parsing (state: ${TokenParserStateToString(
+            this.state
+          )}). Either not all the data was received or the data was invalid.`
         )
       );
     } else {

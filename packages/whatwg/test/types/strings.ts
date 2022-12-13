@@ -2,9 +2,7 @@ import { runJSONParserTest } from "../utils/testRunner.js";
 import JSONParser from "../../src/jsonparser.js";
 import { charset } from "@streamparser/json/utils/utf-8.js";
 
-const { QUOTATION_MARK } = charset;
-
-const quote = String.fromCharCode(QUOTATION_MARK);
+const quote = String.fromCharCode(charset.QUOTATION_MARK);
 
 describe("string", () => {
   const values = [

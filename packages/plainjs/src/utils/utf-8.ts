@@ -1,4 +1,4 @@
-export enum charset {
+export const enum charset {
   BACKSPACE = 0x8, // "\b"
   FORM_FEED = 0xc, // "\f"
   NEWLINE = 0xa, // "\n"

@@ -1,8 +1,8 @@
 import { JsonKey, JsonStruct } from "./jsonTypes.js";
 
-export enum TokenParserMode {
-  OBJECT = 0,
-  ARRAY = 1,
+export const enum TokenParserMode {
+  OBJECT,
+  ARRAY,
 }
 
 export interface StackElement {
