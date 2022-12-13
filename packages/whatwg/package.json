@@ -34,13 +34,13 @@
   "scripts": {
     "lint": "eslint src test --ext .js,.ts,.json",
     "format": "npm run lint -- --fix",
-    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs",
+    "build:cjs": "tsc --module commonjs --outDir ./dist/cjs && node ../../build-cjs.js whatwg",
     "build:mjs": "tsc --module esnext --outDir ./dist/mjs",
     "build:deno": "node ../../build.deno.js . ./dist/deno",
     "build": "npm run build:mjs && npm run build:cjs && npm run build:deno",
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
-    "test": "jest test",
+    "test": "node test/CommonJS.cjs && jest test",
     "test-with-coverage": "npm test -- --coverage"
   },
   "license": "MIT",
