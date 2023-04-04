@@ -1,4 +1,9 @@
 {
+  "ts-node": {
+    "moduleTypes": {
+      "jest.config.ts": "cjs"
+    }
+  },
   "compilerOptions": {
     "incremental": true,
     "target": "es6",
