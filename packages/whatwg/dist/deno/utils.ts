@@ -1,4 +1,4 @@
-import { ParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.11/utils/types/parsedElementInfo.ts";
+import { ParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.12/utils/types/parsedElementInfo.ts";
 
 export function cloneParsedElementInfo(
   parsedElementInfo: ParsedElementInfo
