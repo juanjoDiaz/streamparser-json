@@ -9,7 +9,8 @@
   "typesVersions": {
     "*": {
       "*": [
-        "./src/*"
+        "./src/*",
+        "./src/index.ts"
       ]
     }
   },
