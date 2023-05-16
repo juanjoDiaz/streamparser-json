@@ -12,13 +12,13 @@ jobs:
         node-version: [18.x, 16.x]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
     - name: Cache Node.js modules on Linux
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       if: ${{ runner.OS != 'Windows' }}
       with:
         path: ~/.npm 
@@ -27,7 +27,7 @@ jobs:
           ${{ runner.OS }}-node-
           ${{ runner.OS }}-
     - name: Cache Node.js modules on Windows
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       if: ${{ runner.OS == 'Windows' }}
       with:
         path: ~\AppData\Roaming\npm-cache
@@ -35,12 +35,12 @@ jobs:
         restore-keys: |
           ${{ runner.OS }}-node-
           ${{ runner.OS }}-
-    - run: npm ci --workspaces --include-workspace-root
+    - run: npm ci
     - run: npm run lint
     - name: Unit tests
       run: npm run test-with-coverage
     - name: Coveralls Parallel
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.github_token }}
         flag-name: run-${{ matrix.node-version }}
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
-      uses: coverallsapp/github-action@master
+      uses: coverallsapp/github-action@v2
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
