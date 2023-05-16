@@ -1,4 +1,4 @@
-import { runJSONParserTest, TestData } from "./utils/testRunner.js";
+import { runJSONParserTest, type TestData } from "./utils/testRunner.js";
 import JSONParser from "../src/jsonparser.js";
 
 describe("selectors", () => {

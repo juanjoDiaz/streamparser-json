@@ -5,9 +5,9 @@ export { default as TokenParser } from "./tokenparser.js";
 export {
   utf8,
   JsonTypes,
-  ParsedTokenInfo,
-  ParsedElementInfo,
+  type ParsedTokenInfo,
+  type ParsedElementInfo,
   TokenParserMode,
-  StackElement,
+  type StackElement,
   TokenType,
 } from "@streamparser/json";

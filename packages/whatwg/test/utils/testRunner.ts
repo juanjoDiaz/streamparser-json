@@ -1,8 +1,8 @@
 import JSONParser from "../../src/jsonparser.js";
 import Tokenizer from "../../src/tokenizer.js";
 import TokenParser from "../../src/tokenparser.js";
-import { ParsedTokenInfo } from "@streamparser/json/utils/types/parsedTokenInfo.js";
-import { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
+import type { ParsedTokenInfo } from "@streamparser/json/utils/types/parsedTokenInfo.js";
+import type { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
 
 export type TestData = {
   value: string | Iterable<number>;

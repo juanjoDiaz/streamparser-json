@@ -1,5 +1,5 @@
-import { StackElement } from "./stackElement.ts";
-import {
+import type { StackElement } from "./stackElement.ts";
+import type {
   JsonPrimitive,
   JsonKey,
   JsonObject,

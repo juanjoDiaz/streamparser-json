@@ -1,11 +1,11 @@
 import { charset, escapedSequences } from "./utils/utf-8.ts";
 import {
-  StringBuilder,
+  type StringBuilder,
   NonBufferedString,
   BufferedString,
 } from "./utils/bufferedString.ts";
 import TokenType from "./utils/types/tokenType.ts";
-import { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.ts";
+import type { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.ts";
 
 // Tokenizer States
 const enum TokenizerStates {
@@ -410,6 +410,7 @@ export default class Tokenizer {
               this.state = TokenizerStates.STRING_DEFAULT;
               continue;
             }
+            break;
           // Number
           case TokenizerStates.NUMBER_AFTER_INITIAL_MINUS:
             if (n === charset.DIGIT_ZERO) {
@@ -497,6 +498,7 @@ export default class Tokenizer {
             this.state = TokenizerStates.START;
             this.emitNumber();
             continue;
+          // @ts-ignore fall through case
           case TokenizerStates.NUMBER_AFTER_E:
             if (n === charset.PLUS_SIGN || n === charset.HYPHEN_MINUS) {
               this.bufferedNumber.appendChar(n);

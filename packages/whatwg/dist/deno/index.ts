@@ -5,9 +5,9 @@ export { default as TokenParser } from "./tokenparser.ts";
 export {
   utf8,
   JsonTypes,
-  ParsedTokenInfo,
-  ParsedElementInfo,
+  type ParsedTokenInfo,
+  type ParsedElementInfo,
   TokenParserMode,
-  StackElement,
+  type StackElement,
   TokenType,
 } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";

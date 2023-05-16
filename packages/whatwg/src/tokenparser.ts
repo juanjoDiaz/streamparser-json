@@ -1,13 +1,13 @@
-import { TokenParser, TokenParserOptions } from "@streamparser/json";
-import { ParsedTokenInfo } from "@streamparser/json/utils/types/parsedTokenInfo.js";
-import { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
+import { TokenParser, type TokenParserOptions } from "@streamparser/json";
+import type { ParsedTokenInfo } from "@streamparser/json/utils/types/parsedTokenInfo.js";
+import type { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
 import { cloneParsedElementInfo } from "./utils.js";
 
 class TokenParserTransformer
   extends TokenParser
   implements Transformer<ParsedTokenInfo, ParsedElementInfo>
 {
-  // @ts-expect-error Controller always defined during start
+  // @ts-ignore Controller always defined during start
   private controller: TransformStreamDefaultController<ParsedElementInfo>;
 
   constructor(opts: TokenParserOptions) {

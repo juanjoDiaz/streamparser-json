@@ -1,5 +1,5 @@
-import { StackElement } from "./stackElement.js";
-import {
+import type { StackElement } from "./stackElement.js";
+import type {
   JsonPrimitive,
   JsonKey,
   JsonObject,

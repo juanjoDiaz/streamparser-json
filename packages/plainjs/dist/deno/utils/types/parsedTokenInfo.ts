@@ -1,5 +1,5 @@
 import TokenType from "./tokenType.ts";
-import { JsonPrimitive } from "./jsonTypes.ts";
+import type { JsonPrimitive } from "./jsonTypes.ts";
 
 export interface ParsedTokenInfo {
   token: TokenType;

@@ -1,11 +1,13 @@
-import Tokenizer, { TokenizerOptions } from "@streamparser/json/tokenizer.js";
-import { ParsedTokenInfo } from "@streamparser/json/utils/types/parsedTokenInfo.js";
+import Tokenizer, {
+  type TokenizerOptions,
+} from "@streamparser/json/tokenizer.js";
+import type { ParsedTokenInfo } from "@streamparser/json/utils/types/parsedTokenInfo.js";
 
 class TokenizerTransformer
   extends Tokenizer
   implements Transformer<Iterable<number> | string, ParsedTokenInfo>
 {
-  // @ts-expect-error Controller always defined during start
+  // @ts-ignore Controller always defined during start
   private controller: TransformStreamDefaultController<ParsedTokenInfo>;
 
   constructor(opts?: TokenizerOptions) {

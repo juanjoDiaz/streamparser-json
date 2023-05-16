@@ -1,4 +1,4 @@
-const enum TokenType {
+enum TokenType {
   LEFT_BRACE,
   RIGHT_BRACE,
   LEFT_BRACKET,

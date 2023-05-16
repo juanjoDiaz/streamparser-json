@@ -1,4 +1,4 @@
-import { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
+import type { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
 
 export function cloneParsedElementInfo(
   parsedElementInfo: ParsedElementInfo

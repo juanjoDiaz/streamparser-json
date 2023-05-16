@@ -1,12 +1,12 @@
-import { JSONParser, JSONParserOptions } from "@streamparser/json";
-import { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
+import { JSONParser, type JSONParserOptions } from "@streamparser/json";
+import type { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
 import { cloneParsedElementInfo } from "./utils.js";
 
 class JSONParserTransformer
   extends JSONParser
   implements Transformer<Iterable<number> | string, ParsedElementInfo>
 {
-  // @ts-expect-error Controller always defined during start
+  // @ts-ignore Controller always defined during start
   private controller: TransformStreamDefaultController<ParsedElementInfo>;
 
   constructor(opts?: JSONParserOptions) {

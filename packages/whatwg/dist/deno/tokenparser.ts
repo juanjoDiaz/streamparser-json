@@ -1,13 +1,13 @@
-import { TokenParser, TokenParserOptions } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";
-import { ParsedTokenInfo } from "https://deno.land/x/streamparser_json@v0.0.13/utils/types/parsedTokenInfo.ts";
-import { ParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.13/utils/types/parsedElementInfo.ts";
+import { TokenParser, type TokenParserOptions } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";
+import type { ParsedTokenInfo } from "https://deno.land/x/streamparser_json@v0.0.13/utils/types/parsedTokenInfo.ts";
+import type { ParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.13/utils/types/parsedElementInfo.ts";
 import { cloneParsedElementInfo } from "./utils.ts";
 
 class TokenParserTransformer
   extends TokenParser
   implements Transformer<ParsedTokenInfo, ParsedElementInfo>
 {
-  // @ts-expect-error Controller always defined during start
+  // @ts-ignore Controller always defined during start
   private controller: TransformStreamDefaultController<ParsedElementInfo>;
 
   constructor(opts: TokenParserOptions) {

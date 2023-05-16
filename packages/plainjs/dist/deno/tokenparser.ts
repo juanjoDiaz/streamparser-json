@@ -1,14 +1,17 @@
-import TokenType, { TokenTypeToString } from "./utils/types/tokenType.ts";
-import {
+import TokenType from "./utils/types/tokenType.ts";
+import type {
   JsonPrimitive,
   JsonKey,
   JsonObject,
   JsonArray,
   JsonStruct,
 } from "./utils/types/jsonTypes.ts";
-import { StackElement, TokenParserMode } from "./utils/types/stackElement.ts";
-import { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.ts";
-import { ParsedElementInfo } from "./utils/types/parsedElementInfo.ts";
+import {
+  type StackElement,
+  TokenParserMode,
+} from "./utils/types/stackElement.ts";
+import type { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.ts";
+import type { ParsedElementInfo } from "./utils/types/parsedElementInfo.ts";
 
 // Parser States
 const enum TokenParserState {
@@ -283,7 +286,7 @@ export default class TokenParser {
       }
 
       throw new TokenParserError(
-        `Unexpected ${TokenTypeToString(token)} (${JSON.stringify(
+        `Unexpected ${TokenType[token]} (${JSON.stringify(
           value
         )}) in state ${TokenParserStateToString(this.state)}`
       );
