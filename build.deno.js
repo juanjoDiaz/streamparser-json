@@ -9,6 +9,10 @@ import {
   writeFileSync,
 } from "fs";
 
+import pkgInfo from "./package.json" assert { type: "json" };
+
+const denoXURL = `https://deno.land/x/streamparser_json@v${pkgInfo.version}`;
+
 function copyReadme(src, dest) {
   writeFileSync(
     path.join(dest, "README.md"),
@@ -16,11 +20,11 @@ function copyReadme(src, dest) {
       .toString()
       .replace(
         /import \{ (.*) \} from '@streamparser\/json';/gm,
-        'import { $1 } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";/'
+        `import { $1 } from "${denoXURL}/index.ts";/`
       )
       .replace(
         /import { (.*) } from '@streamparser\/json\/(.*).js';/gm,
-        'import { $1 } from "https://deno.land/x/streamparser_json@v0.0.13/$2.ts)";/'
+        `import { $1 } from "${denoXURL}/$2.ts)";/`
       )
   );
 }
@@ -42,13 +46,10 @@ function processDir(src, dest) {
       readFileSync(currentPath)
         .toString()
         .replace(/from "(\.[.\\/-\w]+).js"/gm, 'from "$1.ts"')
-        .replace(
-          /from "@streamparser\/json"/gm,
-          'from "https://deno.land/x/streamparser_json@v0.0.13/index.ts"'
-        )
+        .replace(/from "@streamparser\/json"/gm, `from "${denoXURL}/index.ts"`)
         .replace(
           /from "@streamparser\/json\/(.*).js"/gm,
-          'from "https://deno.land/x/streamparser_json@v0.0.13/$1.ts"'
+          `from "${denoXURL}/$1.ts"`
         )
     );
   });

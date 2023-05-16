@@ -10,7 +10,7 @@ Fast dependency-free library to parse a JSON stream using utf-8 encoding in Node
 *tldr;*
 
 ```javascript
-import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";/
+import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.14/index.ts";/
 
 const parser = new JSONParser();
 parser.onValue = ({ value }) => { /* process data */ };
@@ -51,7 +51,7 @@ If you are targeting browsers or systems in which these might be missing, you ne
 A JSON compliant tokenizer that parses a utf-8 stream into JSON tokens
 
 ```javascript
-import { Tokenizer } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";/
+import { Tokenizer } from "https://deno.land/x/streamparser_json@v0.0.14/index.ts";/
 
 const tokenizer = new Tokenizer(opts);
 ```
@@ -162,7 +162,7 @@ A drop-in replacement of `JSONparse` (with few ~~breaking changes~~ improvements
 
 
 ```javascript
-import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";/
+import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.14/index.ts";/
 
 const parser = new JSONParser();
 ```
@@ -222,7 +222,7 @@ You push data using the `write` method which takes a string or an array-like obj
 You can subscribe to the resulting data using the 
 
 ```javascript
-import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";/
+import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.14/index.ts";/
 
 const parser = new JSONParser({ stringBufferSize: undefined, paths: ['$'] });
 parser.onValue = console.log;
@@ -240,7 +240,7 @@ parser.write('"');// logs "Hello world!"
 Write is always a synchronous operation so any error during the parsing of the stream will be thrown during the write operation. After an error, the parser can't continue parsing.
 
 ```javascript
-import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";/
+import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.14/index.ts";/
 
 const parser = new JSONParser({ stringBufferSize: undefined });
 parser.onValue = console.log;
@@ -255,7 +255,7 @@ try {
 You can also handle errors using callbacks:
 
 ```javascript
-import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";/
+import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.14/index.ts";/
 
 const parser = new JSONParser({ stringBufferSize: undefined });
 parser.onValue = console.log;
@@ -293,7 +293,7 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 Imagine an endpoint that send a large amount of JSON objects one after the other (`[{"id":1},{"id":2},{"id":3},...]`).
 
 ```js
-  import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.13/index.ts";/
+  import { JSONParser } from "https://deno.land/x/streamparser_json@v0.0.14/index.ts";/
 
   const jsonparser = new JSONParser({ stringBufferSize: undefined, paths: ['$.*'] });
   jsonparser.onValue = ({ value, key, parent, stack }) => {

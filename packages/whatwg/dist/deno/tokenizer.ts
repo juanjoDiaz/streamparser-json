@@ -1,7 +1,7 @@
 import Tokenizer, {
   type TokenizerOptions,
-} from "https://deno.land/x/streamparser_json@v0.0.13/tokenizer.ts";
-import type { ParsedTokenInfo } from "https://deno.land/x/streamparser_json@v0.0.13/utils/types/parsedTokenInfo.ts";
+} from "https://deno.land/x/streamparser_json@v0.0.14/tokenizer.ts";
+import type { ParsedTokenInfo } from "https://deno.land/x/streamparser_json@v0.0.14/utils/types/parsedTokenInfo.ts";
 
 class TokenizerTransformer
   extends Tokenizer
