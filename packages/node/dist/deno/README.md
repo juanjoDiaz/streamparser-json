@@ -1,4 +1,4 @@
-# @streamparser/json-whatwg
+# @streamparser/json
 
 [![npm version][npm-version-badge]][npm-badge-url]
 [![npm monthly downloads][npm-downloads-badge]][npm-badge-url]
@@ -41,8 +41,7 @@ while (true) {
 There are multiple flavours of @streamparser:
 
 * The **[@streamparser/json](https://www.npmjs.com/package/@streamparser/json)** package allows to parse any JSON string or stream using pure Javascript.
-* The **[@streamparser/json-whatwg](https://www.npmjs.com/package/@streamparser/json-whatwg)** wraps `@streamparser/json` into a WHATWG TransformStream.
-* The **[@streamparser/json-node](https://www.npmjs.com/package/@streamparser/json-node)** wraps `@streamparser/json` into a node Transform stream.
+* The **[@streamparser/json-whatwg](https://www.npmjs.com/package/@streamparser/json-whatwg)** wraps `@streamparser/json` into WHATWG `@streamparser/json-whatwg`.
 
 ## Dependencies / Polyfilling
 
@@ -197,7 +196,7 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
   const parser = new JSONParser();
 
   const response = await fetch('http://example.com/');
-  const reader = response.body.pipeThrough(parser).getReader();
+  const reader = response.body.pipeThrough(parse)getReader();
   while(true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -216,7 +215,7 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 
   const response = await fetch('http://example.com/');
 
-  const reader = response.body.pipeThrough(parser).getReader();
+  const reader = response.body.pipeThrough(parse)getReader();
   while(true) {
     const { done, value: parsedElementInfo } = await reader.read();
     if (done) break;
@@ -230,9 +229,9 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 
 See [LICENSE.md].
 
-[npm-version-badge]: https://badge.fury.io/js/@streamparser%2Fjson-whatwg.svg
-[npm-badge-url]: https://www.npmjs.com/package/@streamparser/json-whatwg
-[npm-downloads-badge]: https://img.shields.io/npm/dm/@streamparser%2Fjson-whatwg.svg
+[npm-version-badge]: https://badge.fury.io/js/@streamparser%2Fjson.svg
+[npm-badge-url]: https://www.npmjs.com/package/@streamparser/json
+[npm-downloads-badge]: https://img.shields.io/npm/dm/@streamparser%2Fjson.svg
 [build-status-badge]: https://github.com/juanjoDiaz/streamparser-json/actions/workflows/on-push.yaml/badge.svg
 [build-status-url]: https://github.com/juanjoDiaz/streamparser-json/actions/workflows/on-push.yaml
 [coverage-status-badge]: https://coveralls.io/repos/github/juanjoDiaz/streamparser-json/badge.svg?branch=main

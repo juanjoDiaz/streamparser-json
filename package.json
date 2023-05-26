@@ -41,6 +41,7 @@
   ],
   "workspaces": [
     "packages/plainjs",
+    "packages/node",
     "packages/whatwg"
   ]
 }
