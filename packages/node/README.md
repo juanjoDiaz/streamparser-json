@@ -23,7 +23,7 @@ parser.on("error", err => { /* ... */ });
 parser.on("end", () => { /* ... */ });
 ```
 
-## streamparser/json ecosystem
+## @streamparser/json ecosystem
 
 There are multiple flavours of @streamparser:
 
@@ -152,7 +152,7 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 
   const response = await fetch('http://example.com/');
 
-  const reader = response.body.pipeThrough(parse)getReader();
+  const reader = response.body.pipe(parse)getReader();
 
   reader.on('data', ({ value, key, parent, stack }) => /* process element */)
 ```

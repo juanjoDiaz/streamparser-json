@@ -27,7 +27,7 @@ try {
 }
 ```
 
-## streamparser/json ecosystem
+## @streamparser/json ecosystem
 
 There are multiple flavours of @streamparser:
 

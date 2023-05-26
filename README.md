@@ -7,7 +7,7 @@
 
 Fast dependency-free library to parse a JSON stream using utf-8 encoding in Node.js, Deno or any modern browser. Fully compliant with the JSON spec and `JSON.parse(...)`.
 
-## streamparser/json ecosystem
+## @streamparser/json ecosystem
 
 There are multiple flavours of @streamparser:
 
