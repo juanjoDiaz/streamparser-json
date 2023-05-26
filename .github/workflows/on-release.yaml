@@ -10,6 +10,7 @@ jobs:
       matrix:
         package:
           - '@streamparser/json'
+          - '@streamparser/json-node'
           - '@streamparser/json-whatwg'
 
     steps:
