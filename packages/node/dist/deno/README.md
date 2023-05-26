@@ -1,4 +1,4 @@
-# @streamparser/json
+# @streamparser/json-node
 
 [![npm version][npm-version-badge]][npm-badge-url]
 [![npm monthly downloads][npm-downloads-badge]][npm-badge-url]
@@ -10,63 +10,40 @@ Fast dependency-free library to parse a JSON stream using utf-8 encoding in Node
 *tldr;*
 
 ```javascript
-import { JSONParser } from '@streamparser/json-what';
-
-const inputStream = new ReadableStream({
-  async start(controller) {
-    controller.enqueue('{ "test": ["a"] }');
-    controller.close();
-  },
-});
+import { JSONParser } from '@streamparser/json-node';
 
 const parser = new JSONParser();
-const reader = inputStream.pipeThrough(jsonparser).pipeTo(destinationStream)
 
-// Or manually getting the values
+inputStream.pipe(jsonparser).pipe(destinationStream);
 
-const reader = inputStream.pipeThrough(jsonparser).getReader();
-while (true) {
-  const { done, value } = await reader.read();
-  if (done) break;
-  processValue(value);
-  // There will be 3 value:
-  // "a"
-  // ["a"]
-  // { test: ["a"] }
-}
+// Or using events to get the values
+
+parser.on("data", (value) => { /* ... */ });
+parser.on("error", err => { /* ... */ });
+parser.on("end", () => { /* ... */ });
 ```
 
-## streamparser/json ecosystem
+## @streamparser/json ecosystem
 
 There are multiple flavours of @streamparser:
 
 * The **[@streamparser/json](https://www.npmjs.com/package/@streamparser/json)** package allows to parse any JSON string or stream using pure Javascript.
-* The **[@streamparser/json-whatwg](https://www.npmjs.com/package/@streamparser/json-whatwg)** wraps `@streamparser/json` into WHATWG `@streamparser/json-whatwg`.
-
-## Dependencies / Polyfilling
-
-@streamparser/json requires a few ES6 classes:
-
-* [Uint8Array](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array)
-* [TextEncoder](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder)
-* [TextDecoder](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder)
-* [TransformStream](https://developer.mozilla.org/en-US/docs/Web/API/TransformStream)
-
-If you are targeting browsers or systems in which these might be missing, you need to polyfil them.
+* The **[@streamparser/json-whatwg](https://www.npmjs.com/package/@streamparser/json-whatwg)** wraps `@streamparser/json` into a WHATWG TransformStream.
+* The **[@streamparser/json-node](https://www.npmjs.com/package/@streamparser/json-node)** wraps `@streamparser/json` into a node Transform stream.
 
 ## Components
 
 ### Tokenizer
 
-A JSON compliant tokenizer that parses a utf-8 stream into JSON tokens
+A JSON compliant tokenizer that parses a utf-8 stream into JSON tokens that are emitted as objects.
 
 ```javascript
-import { Tokenizer } from '@streamparser/json-whatwg';
+import { Tokenizer } from '@streamparser/json-node';
 
-const tokenizer = new Tokenizer(opts, writableStrategy, readableStrategy);
+const tokenizer = new Tokenizer(opts, transformOpts);
 ```
 
-Writable and readable strategy are standard WhatWG Stream settings (see [MDN](https://developer.mozilla.org/en-US/docs/Web/API/TransformStream/TransformStream)).
+Transform options take the standard node Transform stream settings (see [Node docs](https://nodejs.org/api/stream.html#class-streamtransform)).
 
 The available options are:
 
@@ -91,12 +68,12 @@ Strings are inmutable in Javascript so every string operation creates a new stri
 A token parser that processes JSON tokens as emitted by the `Tokenizer` and emits JSON values/objects.
 
 ```javascript
-import { TokenParser} from '@streamparser/json-whatwg';
+import { TokenParser} from '@streamparser/json-node';
 
 const tokenParser = new TokenParser(opts, writableStrategy, readableStrategy);
 ```
 
-Writable and readable strategy are standard WhatWG Stream settings (see [MDN](https://developer.mozilla.org/en-US/docs/Web/API/TransformStream/TransformStream)).
+Transform options take the standard node Transform stream settings (see [Node docs](https://nodejs.org/api/stream.html#class-streamtransform)).
 
 The available options are:
 
@@ -116,7 +93,7 @@ The available options are:
 The full blown JSON parser. It basically chains a `Tokenizer` and a `TokenParser`.
 
 ```javascript
-import { JSONParser } from '@streamparser/json-whatwg';
+import { JSONParser } from '@streamparser/json-node';
 
 const parser = new JSONParser();
 ```
@@ -135,53 +112,17 @@ const jsonParser = tokenizer.pipeTrough(tokenParser);
 You can subscribe to the resulting data using the 
 
 ```javascript
-import { JSONParser } from '@streamparser/json-whatwg';
-
-const inputStream = new ReadableStream({
-  async start(controller) {
-    controller.enqueue(parser.write('"Hello world!"'));  // will log "Hello world!"
-    // Or passing the stream in several chunks
-    parser.write('"');
-    parser.write('Hello');
-    parser.write(' ');
-    parser.write('world!');
-    parser.write('"');// will log "Hello world!"
-    controller.close();
-  },
-});
+import { JSONParser } from '@streamparser/json-node';
 
 const parser = new JSONParser({ stringBufferSize: undefined, paths: ['$'] });
-const reader = inputStream.pipeThrough(jsonparser).getReader();
-while (true) {
-  const { done, value } = await reader.read();
-  if (done) break;
-  console.log(value);
-}
-```
 
-Write is always a synchronous operation so any error during the parsing of the stream will be thrown during the write operation. After an error, the parser can't continue parsing.
+inputStream.pipe(jsonparser).pipe(destinationStream);
 
-```javascript
-import { JSONParser } from '@streamparser/json-whatwg';
+// Or using events to get the values
 
-const inputStream = new ReadableStream({
-  async start(controller) {
-    controller.enqueue(parser.write('"""'));  // will log "Hello world!"
-    controller.close();
-  },
-});
-const parser = new JSONParser({ stringBufferSize: undefined });
-
-try {
-  const reader = inputStream.pipeThrough(parser).getReader();
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    console.log(value);
-  }
-} catch (err) {
-  console.log(err); // logs 
-}
+parser.on("data", (value) => { /* ... */ });
+parser.on("error", err => { /* ... */ });
+parser.on("end", () => { /* ... */ });
 ```
 
 ## Examples
@@ -191,17 +132,13 @@ try {
 Imagine an endpoint that send a large amount of JSON objects one after the other (`{"id":1}{"id":2}{"id":3}...`).
 
 ```js
-  import { JSONParser} from '@streamparser/json-whatwg';
+  import { JSONParser} from '@streamparser/json-node';
 
   const parser = new JSONParser();
 
   const response = await fetch('http://example.com/');
-  const reader = response.body.pipeThrough(parse)getReader();
-  while(true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    // TODO process element
-  }
+  const reader = response.body.pipe(parser);
+  reader.on('data', value => /* process element */)
 ```
 
 ### Stream-parsing a fetch request returning a JSON array
@@ -209,29 +146,24 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 Imagine an endpoint that send a large amount of JSON objects one after the other (`[{"id":1},{"id":2},{"id":3},...]`).
 
 ```js
-  import { JSONParser } from '@streamparser/json-whatwg';
+  import { JSONParser } from '@streamparser/json-node';
 
   const parser = new JSONParser({ stringBufferSize: undefined, paths: ['$.*'], keepStack: false });
 
   const response = await fetch('http://example.com/');
 
-  const reader = response.body.pipeThrough(parse)getReader();
-  while(true) {
-    const { done, value: parsedElementInfo } = await reader.read();
-    if (done) break;
+  const reader = response.body.pipe(parse)getReader();
 
-    const { value, key, parent, stack } = parsedElementInfo;
-    // TODO process element
-  }
+  reader.on('data', ({ value, key, parent, stack }) => /* process element */)
 ```
 
 ## License
 
 See [LICENSE.md].
 
-[npm-version-badge]: https://badge.fury.io/js/@streamparser%2Fjson.svg
-[npm-badge-url]: https://www.npmjs.com/package/@streamparser/json
-[npm-downloads-badge]: https://img.shields.io/npm/dm/@streamparser%2Fjson.svg
+[npm-version-badge]: https://badge.fury.io/js/@streamparser%2Fjson-node.svg
+[npm-badge-url]: https://www.npmjs.com/package/@streamparser/json-node
+[npm-downloads-badge]: https://img.shields.io/npm/dm/@streamparser%2Fjson-node.svg
 [build-status-badge]: https://github.com/juanjoDiaz/streamparser-json/actions/workflows/on-push.yaml/badge.svg
 [build-status-url]: https://github.com/juanjoDiaz/streamparser-json/actions/workflows/on-push.yaml
 [coverage-status-badge]: https://coveralls.io/repos/github/juanjoDiaz/streamparser-json/badge.svg?branch=main
