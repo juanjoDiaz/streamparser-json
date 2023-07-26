@@ -39,7 +39,10 @@ export default class JSONParser {
   }
 
   public set onToken(cb: (parsedTokenInfo: ParsedTokenInfo) => void) {
-    this.tokenizer.onToken = cb;
+    this.tokenizer.onToken = (parsedToken) => {
+      cb(parsedToken);
+      this.tokenParser.write(parsedToken);
+    };
   }
 
   public set onValue(cb: (parsedElementInfo: ParsedElementInfo) => void) {
