@@ -8,26 +8,26 @@ export interface StringBuilder {
 
 export class NonBufferedString implements StringBuilder {
   private decoder = new TextDecoder("utf-8");
-  private string = "";
+  private strings: Array<string> = [];
   public byteLength = 0;
 
   public appendChar(char: number): void {
-    this.string += String.fromCharCode(char);
+    this.strings.push(String.fromCharCode(char));
     this.byteLength += 1;
   }
 
   public appendBuf(buf: Uint8Array, start = 0, end: number = buf.length): void {
-    this.string += this.decoder.decode(buf.subarray(start, end));
+      this.strings.push(this.decoder.decode(buf.subarray(start, end)));
     this.byteLength += end - start;
   }
 
   public reset(): void {
-    this.string = "";
+    this.strings = [];
     this.byteLength = 0;
   }
 
   public toString(): string {
-    return this.string;
+    return this.strings.join('');
   }
 }
 
