@@ -1,7 +1,7 @@
 {
   "name": "streamparser-json",
   "description": "Streaming JSON parser in Javascript for Node.js, Deno and the browser",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "type": "module",
   "author": "Juanjo Diaz <juanjo.diazmo@gmail.com>",
   "repository": {
