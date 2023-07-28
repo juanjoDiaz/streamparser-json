@@ -33,7 +33,7 @@ describe("inputs", () => {
       await runJSONParserTest(
         new JSONParser(),
         [quote, value, quote],
-        ({ value }) => expect(value).toEqual(expected)
+        ({ value }) => expect(value).toEqual(expected),
       );
     });
   });
@@ -43,7 +43,7 @@ describe("inputs", () => {
       await runJSONParserTest(
         new JSONParser(),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        [745674 as any]
+        [745674 as any],
       );
       fail("Expected to fail!");
     } catch (e) {

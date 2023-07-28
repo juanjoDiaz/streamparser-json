@@ -35,7 +35,7 @@ export async function runJSONParserTest(
   data: InputData<ParseableData>,
   onValue: (parsedElementInfo: ParsedElementInfo) => void = () => {
     /* Do nothing */
-  }
+  },
 ) {
   const input = dataStream(data);
   const reader = input.pipeThrough(jsonparser).getReader();
@@ -51,7 +51,7 @@ export async function runTokenizerTest(
   data: InputData<ParseableData>,
   onToken: (parsedElementInfo: ParsedTokenInfo) => void = () => {
     /* Do nothing */
-  }
+  },
 ) {
   const input = dataStream(data);
   const reader = input.pipeThrough(tokenizer).getReader();
@@ -67,7 +67,7 @@ export async function runTokenParserTest(
   data: InputData<Omit<ParsedTokenInfo, "offset">>,
   onValue: (parsedElementInfo: ParsedElementInfo) => void = () => {
     /* Do nothing */
-  }
+  },
 ) {
   const input = dataStream(data);
   const reader = input.pipeThrough(tokenParser).getReader();

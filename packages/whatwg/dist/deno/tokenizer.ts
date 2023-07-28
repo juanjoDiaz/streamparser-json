@@ -38,7 +38,7 @@ export default class TokenizerTransformStream extends TransformStream<
   constructor(
     opts?: TokenizerOptions,
     writableStrategy?: QueuingStrategy,
-    readableStrategy?: QueuingStrategy
+    readableStrategy?: QueuingStrategy,
   ) {
     const transformer = new TokenizerTransformer(opts);
     super(transformer, writableStrategy, readableStrategy);

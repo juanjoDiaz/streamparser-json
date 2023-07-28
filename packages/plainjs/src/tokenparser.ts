@@ -69,12 +69,12 @@ export default class TokenParser {
 
         if (!path.startsWith("$"))
           throw new TokenParserError(
-            `Invalid selector "${path}". Should start with "$".`
+            `Invalid selector "${path}". Should start with "$".`,
           );
         const pathParts = path.split(".").slice(1);
         if (pathParts.includes(""))
           throw new TokenParserError(
-            `Invalid selector "${path}". ".." syntax not supported.`
+            `Invalid selector "${path}". ".." syntax not supported.`,
           );
         return pathParts;
       });
@@ -287,8 +287,8 @@ export default class TokenParser {
 
       throw new TokenParserError(
         `Unexpected ${TokenType[token]} (${JSON.stringify(
-          value
-        )}) in state ${TokenParserStateToString(this.state)}`
+          value,
+        )}) in state ${TokenParserStateToString(this.state)}`,
       );
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -313,9 +313,9 @@ export default class TokenParser {
       this.error(
         new Error(
           `Parser ended in mid-parsing (state: ${TokenParserStateToString(
-            this.state
-          )}). Either not all the data was received or the data was invalid.`
-        )
+            this.state,
+          )}). Either not all the data was received or the data was invalid.`,
+        ),
       );
     } else {
       this.state = TokenParserState.ENDED;
@@ -327,7 +327,7 @@ export default class TokenParser {
   public onValue(parsedElementInfo: ParsedElementInfo): void {
     // Override me
     throw new TokenParserError(
-      'Can\'t emit data before the "onValue" callback has been set up.'
+      'Can\'t emit data before the "onValue" callback has been set up.',
     );
   }
 

@@ -147,7 +147,7 @@ export default class Tokenizer {
         buffer = Uint8Array.from(input);
       } else {
         throw new TypeError(
-          "Unexpected type. The `write` function only accepts Arrays, TypedArrays and Strings."
+          "Unexpected type. The `write` function only accepts Arrays, TypedArrays and Strings.",
         );
       }
 
@@ -307,7 +307,7 @@ export default class Tokenizer {
                 this.bufferedString.appendBuf(
                   buffer,
                   i,
-                  i + this.bytes_in_sequence
+                  i + this.bytes_in_sequence,
                 );
                 i += this.bytes_in_sequence - 1;
                 continue;
@@ -331,12 +331,12 @@ export default class Tokenizer {
             // & fill temp buffer it with start of this data chunk up to the boundary limit set in the last iteration
             this.char_split_buffer.set(
               buffer.subarray(i, i + this.bytes_remaining),
-              this.bytes_in_sequence - this.bytes_remaining
+              this.bytes_in_sequence - this.bytes_remaining,
             );
             this.bufferedString.appendBuf(
               this.char_split_buffer,
               0,
-              this.bytes_in_sequence
+              this.bytes_in_sequence,
             );
             i = this.bytes_remaining - 1;
             this.state = TokenizerStates.STRING_DEFAULT;
@@ -381,7 +381,7 @@ export default class Tokenizer {
             ) {
               const intVal = parseInt(
                 this.unicode + String.fromCharCode(n),
-                16
+                16,
               );
               if (this.highSurrogate === undefined) {
                 if (intVal >= 0xd800 && intVal <= 0xdbff) {
@@ -389,7 +389,7 @@ export default class Tokenizer {
                   this.highSurrogate = intVal;
                 } else {
                   this.bufferedString.appendBuf(
-                    this.encoder.encode(String.fromCharCode(intVal))
+                    this.encoder.encode(String.fromCharCode(intVal)),
                   );
                 }
               } else {
@@ -397,12 +397,14 @@ export default class Tokenizer {
                   //<56320,57343> - lowSurrogate
                   this.bufferedString.appendBuf(
                     this.encoder.encode(
-                      String.fromCharCode(this.highSurrogate, intVal)
-                    )
+                      String.fromCharCode(this.highSurrogate, intVal),
+                    ),
                   );
                 } else {
                   this.bufferedString.appendBuf(
-                    this.encoder.encode(String.fromCharCode(this.highSurrogate))
+                    this.encoder.encode(
+                      String.fromCharCode(this.highSurrogate),
+                    ),
                   );
                 }
                 this.highSurrogate = undefined;
@@ -637,8 +639,10 @@ export default class Tokenizer {
 
         throw new TokenizerError(
           `Unexpected "${String.fromCharCode(
-            n
-          )}" at position "${i}" in state ${TokenizerStateToString(this.state)}`
+            n,
+          )}" at position "${i}" in state ${TokenizerStateToString(
+            this.state,
+          )}`,
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -688,9 +692,9 @@ export default class Tokenizer {
         this.error(
           new TokenizerError(
             `Tokenizer ended in the middle of a token (state: ${TokenizerStateToString(
-              this.state
-            )}). Either not all the data was received or the data was invalid.`
-          )
+              this.state,
+            )}). Either not all the data was received or the data was invalid.`,
+          ),
         );
     }
   }
@@ -699,7 +703,7 @@ export default class Tokenizer {
   public onToken(parsedToken: ParsedTokenInfo): void {
     // Override me
     throw new TokenizerError(
-      'Can\'t emit tokens before the "onToken" callback has been set up.'
+      'Can\'t emit tokens before the "onToken" callback has been set up.',
     );
   }
 

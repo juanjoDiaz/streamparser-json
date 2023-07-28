@@ -72,7 +72,7 @@ describe("objects", () => {
 
           expect([keys, value]).toEqual(expected[i]);
           i += 1;
-        }
+        },
       );
     });
 
@@ -90,14 +90,14 @@ describe("objects", () => {
 
           expect([keys, value]).toEqual(expected[i]);
           i += 1;
-        }
+        },
       );
     });
   });
 
   test("complex object", async () => {
     const stringifiedJson = readFileSync(
-      `${__dirname}/../../../../samplejson/basic.json`
+      `${__dirname}/../../../../samplejson/basic.json`,
     ).toString();
 
     await runJSONParserTest(
@@ -107,7 +107,7 @@ describe("objects", () => {
         if (stack.length === 0) {
           expect(value).toEqual(JSON.parse(stringifiedJson));
         }
-      }
+      },
     );
   });
 

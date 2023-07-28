@@ -15,7 +15,7 @@ export default class TokenizerTransform extends Transform {
     transformOpts: Omit<
       TransformOptions,
       "readableObjectMode" | "writableObjectMode"
-    > = {}
+    > = {},
   ) {
     super({
       ...transformOpts,
@@ -43,7 +43,7 @@ export default class TokenizerTransform extends Transform {
   override _transform(
     chunk: any,
     encoding: BufferEncoding,
-    done: TransformCallback
+    done: TransformCallback,
   ) {
     try {
       this.tokenizer.write(chunk);

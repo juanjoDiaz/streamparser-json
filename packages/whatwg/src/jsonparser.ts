@@ -37,7 +37,7 @@ export default class JSONParserTransformStream extends TransformStream<
   constructor(
     opts?: JSONParserOptions,
     writableStrategy?: QueuingStrategy,
-    readableStrategy?: QueuingStrategy
+    readableStrategy?: QueuingStrategy,
   ) {
     const transformer = new JSONParserTransformer(opts);
     super(transformer, writableStrategy, readableStrategy);

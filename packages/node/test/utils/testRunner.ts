@@ -25,7 +25,7 @@ export async function runJSONParserTest(
   data: InputData<ParseableData>,
   onValue: (parsedElementInfo: ParsedElementInfo) => void = () => {
     /* Do nothing */
-  }
+  },
 ) {
   return new Promise((resolve, reject) => {
     const input = new Readable();
@@ -48,7 +48,7 @@ export async function runTokenizerTest(
   data: InputData<ParseableData>,
   onToken: (parsedElementInfo: ParsedTokenInfo) => void = () => {
     /* Do nothing */
-  }
+  },
 ) {
   return new Promise((resolve, reject) => {
     const input = new Readable({ objectMode: true });
@@ -71,7 +71,7 @@ export async function runTokenParserTest(
   data: InputData<Omit<ParsedTokenInfo, "offset">>,
   onValue: (parsedElementInfo: ParsedElementInfo) => void = () => {
     /* Do nothing */
-  }
+  },
 ) {
   return new Promise((resolve, reject) => {
     const input = new Readable({ objectMode: true });

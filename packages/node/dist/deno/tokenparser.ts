@@ -13,7 +13,7 @@ export default class TokenParserTransform extends Transform {
     transformOpts: Omit<
       TransformOptions,
       "readableObjectMode" | "writableObjectMode"
-    > = {}
+    > = {},
   ) {
     super({
       ...transformOpts,
@@ -41,7 +41,7 @@ export default class TokenParserTransform extends Transform {
   override _transform(
     chunk: any,
     encoding: BufferEncoding,
-    done: TransformCallback
+    done: TransformCallback,
   ) {
     try {
       this.tokenParser.write(chunk);

@@ -34,7 +34,7 @@ describe("keepStack", () => {
         ({ parent }) => {
           if (parent === undefined) return;
           expect(Object.keys(parent).length).toEqual(0);
-        }
+        },
       );
     });
   });

@@ -1,7 +1,7 @@
 import type { ParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.15/utils/types/parsedElementInfo.ts";
 
 export function cloneParsedElementInfo(
-  parsedElementInfo: ParsedElementInfo
+  parsedElementInfo: ParsedElementInfo,
 ): ParsedElementInfo {
   const { value, key, parent, stack } = parsedElementInfo;
   return { value, key, parent: clone(parent), stack: clone(stack) };

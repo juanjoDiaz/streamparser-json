@@ -58,7 +58,7 @@ describe("callback", () => {
     };
     p.onError = (err) =>
       expect(err.message).toEqual(
-        "Unexpected type. The `write` function only accepts Arrays, TypedArrays and Strings."
+        "Unexpected type. The `write` function only accepts Arrays, TypedArrays and Strings.",
       );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,7 +72,7 @@ describe("callback", () => {
     };
     p.onError = (err) =>
       expect(err.message).toEqual(
-        'Unexpected "t" at position "2" in state ENDED'
+        'Unexpected "t" at position "2" in state ENDED',
       );
 
     p.write('""test""');

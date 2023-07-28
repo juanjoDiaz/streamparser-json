@@ -16,7 +16,7 @@ describe("performance", () => {
         new JSONParser({ stringBufferSize: 64 * 1024 }),
         function* () {
           const chunk = new Uint8Array(oneKB).fill(
-            charset.LATIN_SMALL_LETTER_A
+            charset.LATIN_SMALL_LETTER_A,
           );
           yield quote;
           for (let index = 0; index < kbsIn200MBs; index++) {
@@ -24,7 +24,7 @@ describe("performance", () => {
           }
           yield quote;
         },
-        ({ value }) => expect((value as string).length).toEqual(twoHundredMB)
+        ({ value }) => expect((value as string).length).toEqual(twoHundredMB),
       );
     });
 
@@ -39,7 +39,7 @@ describe("performance", () => {
             yield chunk;
           }
         },
-        ({ value }) => expect(value).toEqual(1.1111111111111112)
+        ({ value }) => expect(value).toEqual(1.1111111111111112),
       );
       jsonParser.end();
     });
@@ -76,7 +76,7 @@ describe("performance", () => {
 
         const actualMemoryUsage = process.memoryUsage().heapUsed;
         expect(actualMemoryUsage - intialMemoryUsage < thirtyMBs).toBeTruthy();
-      }
+      },
     );
   });
 
@@ -115,7 +115,7 @@ describe("performance", () => {
 
         const actualMemoryUsage = process.memoryUsage().heapUsed;
         expect(actualMemoryUsage - intialMemoryUsage < thirtyMBs).toBeTruthy();
-      }
+      },
     );
   });
 });

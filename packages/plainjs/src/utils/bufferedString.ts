@@ -58,7 +58,7 @@ export class BufferedString implements StringBuilder {
 
   private flushStringBuffer(): void {
     this.string += this.decoder.decode(
-      this.buffer.subarray(0, this.bufferOffset)
+      this.buffer.subarray(0, this.bufferOffset),
     );
     this.bufferOffset = 0;
   }

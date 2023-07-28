@@ -59,6 +59,6 @@ test("offset", async () => {
       expect(offset).toEqual(offsets[i][0]);
       expect(token).toEqual(offsets[i][1]);
       i += 1;
-    }
+    },
   );
 });

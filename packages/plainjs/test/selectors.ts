@@ -51,7 +51,7 @@ describe("selectors", () => {
         ({ value }) => {
           expect(value).toEqual(expected[i]);
           i += 1;
-        }
+        },
       );
     });
   });

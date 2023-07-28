@@ -13,7 +13,7 @@ export default class JSONParserTransform extends Transform {
     transformOpts: Omit<
       TransformOptions,
       "readableObjectMode" | "writableObjectMode"
-    > = {}
+    > = {},
   ) {
     super({
       ...transformOpts,
@@ -41,7 +41,7 @@ export default class JSONParserTransform extends Transform {
   override _transform(
     chunk: any,
     encoding: BufferEncoding,
-    done: TransformCallback
+    done: TransformCallback,
   ) {
     try {
       this.jsonParser.write(chunk);

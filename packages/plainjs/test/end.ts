@@ -45,7 +45,7 @@ describe("end", () => {
       const p = new JSONParser({ separator: "" });
 
       await runJSONParserTest(p, [numberValue], ({ value }) =>
-        expect(value).toEqual(JSON.parse(numberValue))
+        expect(value).toEqual(JSON.parse(numberValue)),
       );
       p.end();
 

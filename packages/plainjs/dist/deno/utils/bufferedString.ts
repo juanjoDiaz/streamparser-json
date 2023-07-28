@@ -17,7 +17,7 @@ export class NonBufferedString implements StringBuilder {
   }
 
   public appendBuf(buf: Uint8Array, start = 0, end: number = buf.length): void {
-      this.strings.push(this.decoder.decode(buf.subarray(start, end)));
+    this.strings.push(this.decoder.decode(buf.subarray(start, end)));
     this.byteLength += end - start;
   }
 
@@ -27,7 +27,7 @@ export class NonBufferedString implements StringBuilder {
   }
 
   public toString(): string {
-    return this.strings.join('');
+    return this.strings.join("");
   }
 }
 
@@ -58,7 +58,7 @@ export class BufferedString implements StringBuilder {
 
   private flushStringBuffer(): void {
     this.string += this.decoder.decode(
-      this.buffer.subarray(0, this.bufferOffset)
+      this.buffer.subarray(0, this.bufferOffset),
     );
     this.bufferOffset = 0;
   }

@@ -38,7 +38,7 @@ export default class TokenParserTransformStream extends TransformStream<
   constructor(
     opts: TokenParserOptions,
     writableStrategy?: QueuingStrategy,
-    readableStrategy?: QueuingStrategy
+    readableStrategy?: QueuingStrategy,
   ) {
     const transformer = new TokenParserTransformer(opts);
     super(transformer, writableStrategy, readableStrategy);

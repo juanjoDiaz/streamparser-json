@@ -35,7 +35,7 @@ describe("separator", () => {
         ({ value }) => {
           expect(value).toEqual(expected[i]);
           i += 1;
-        }
+        },
       );
     });
   });
@@ -45,7 +45,7 @@ describe("separator", () => {
       await runJSONParserTest(new JSONParser({ separator: "abc" }), ["abe"]);
     } catch (err: any) {
       expect(err.message).toEqual(
-        'Unexpected "e" at position "2" in state SEPARATOR'
+        'Unexpected "e" at position "2" in state SEPARATOR',
       );
     }
   });
@@ -71,7 +71,7 @@ describe("separator", () => {
       fail("Error expected on invalid selector");
     } catch (err: any) {
       expect(err.message).toEqual(
-        'Unexpected SEPARATOR ("\\r\\n") in state SEPARATOR'
+        'Unexpected SEPARATOR ("\\r\\n") in state SEPARATOR',
       );
     }
   });

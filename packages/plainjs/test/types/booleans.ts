@@ -17,7 +17,7 @@ describe("boolean", () => {
         (stringValue as string).split(""),
         ({ value }) => {
           expect(value).toEqual(JSON.parse(stringValue));
-        }
+        },
       );
     });
   });

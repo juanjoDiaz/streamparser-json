@@ -23,7 +23,7 @@ describe("string", () => {
         await runJSONParserTest(
           new JSONParser({ stringBufferSize }),
           [quote, stringValue, quote],
-          ({ value }) => expect(value).toEqual(JSON.parse(`"${stringValue}"`))
+          ({ value }) => expect(value).toEqual(JSON.parse(`"${stringValue}"`)),
         );
       });
 
@@ -31,7 +31,7 @@ describe("string", () => {
         await runJSONParserTest(
           new JSONParser({ stringBufferSize }),
           [quote, ...(stringValue as string).split(""), quote],
-          ({ value }) => expect(value).toEqual(JSON.parse(`"${stringValue}"`))
+          ({ value }) => expect(value).toEqual(JSON.parse(`"${stringValue}"`)),
         );
       });
     });
@@ -41,7 +41,7 @@ describe("string", () => {
         await runJSONParserTest(
           new JSONParser({ stringBufferSize }),
           [quote, new Uint8Array([0xd0, 0xb4]), quote],
-          ({ value }) => expect(value).toEqual("д")
+          ({ value }) => expect(value).toEqual("д"),
         );
       });
 
@@ -49,7 +49,7 @@ describe("string", () => {
         await runJSONParserTest(
           new JSONParser({ stringBufferSize }),
           [quote, new Uint8Array([0xe6, 0x88, 0x91]), quote],
-          ({ value }) => expect(value).toEqual("我")
+          ({ value }) => expect(value).toEqual("我"),
         );
       });
 
@@ -57,7 +57,7 @@ describe("string", () => {
         await runJSONParserTest(
           new JSONParser({ stringBufferSize }),
           [quote, new Uint8Array([0xf0, 0xa0, 0x9c, 0x8e]), quote],
-          ({ value }) => expect(value).toEqual("𠜎")
+          ({ value }) => expect(value).toEqual("𠜎"),
         );
       });
 
@@ -66,7 +66,7 @@ describe("string", () => {
           await runJSONParserTest(
             new JSONParser({ stringBufferSize }),
             [quote, new Uint8Array([0xd0]), new Uint8Array([0xb4]), quote],
-            ({ value }) => expect(value).toEqual("д")
+            ({ value }) => expect(value).toEqual("д"),
           );
         });
 
@@ -79,7 +79,7 @@ describe("string", () => {
               new Uint8Array([0x91]),
               quote,
             ],
-            ({ value }) => expect(value).toEqual("我")
+            ({ value }) => expect(value).toEqual("我"),
           );
         });
 
@@ -92,7 +92,7 @@ describe("string", () => {
               new Uint8Array([0x9c, 0x8e]),
               quote,
             ],
-            ({ value }) => expect(value).toEqual("𠜎")
+            ({ value }) => expect(value).toEqual("𠜎"),
           );
         });
 
@@ -117,7 +117,7 @@ describe("string", () => {
             await runJSONParserTest(
               new JSONParser({ stringBufferSize }),
               [quote, firstBuffer, secondBuffer, quote],
-              ({ value }) => expect(value).toEqual("Aж文𠜱B")
+              ({ value }) => expect(value).toEqual("Aж文𠜱B"),
             );
           }
         });
@@ -128,7 +128,7 @@ describe("string", () => {
           await runJSONParserTest(
             new JSONParser({ stringBufferSize }),
             [quote, "\\uD83D\\uDE0B", quote],
-            ({ value }) => expect(value).toEqual("😋")
+            ({ value }) => expect(value).toEqual("😋"),
           );
         });
 
@@ -136,7 +136,7 @@ describe("string", () => {
           await runJSONParserTest(
             new JSONParser({ stringBufferSize }),
             [quote, "\\uD83D", "\\uDE0B", quote],
-            ({ value }) => expect(value).toEqual("😋")
+            ({ value }) => expect(value).toEqual("😋"),
           );
         });
 
@@ -144,7 +144,7 @@ describe("string", () => {
           await runJSONParserTest(
             new JSONParser({ stringBufferSize }),
             [quote, "\\uD83D\\uEFFF", quote],
-            ({ value }) => expect(value).toEqual("�")
+            ({ value }) => expect(value).toEqual("�"),
           );
         });
       });
@@ -155,7 +155,7 @@ describe("string", () => {
     await runJSONParserTest(
       new JSONParser({ stringBufferSize: 1 }),
       [quote, "aaaa", "𠜎", quote],
-      ({ value }) => expect(value).toEqual("aaaa𠜎")
+      ({ value }) => expect(value).toEqual("aaaa𠜎"),
     );
   });
 

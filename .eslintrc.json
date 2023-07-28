@@ -12,6 +12,7 @@
   "rules": {
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
     // e.g. "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-explicit-any": ["warn"],
     "@typescript-eslint/ban-ts-comment": ["error", { "ts-ignore": "allow-with-description" } ],
     "prettier/prettier": ["error", { "endOfLine": "auto" }]
   }

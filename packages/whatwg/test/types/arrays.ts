@@ -71,7 +71,7 @@ describe("arrays", () => {
 
           expect([keys, value]).toEqual(expected[i]);
           i += 1;
-        }
+        },
       );
     });
 
@@ -89,7 +89,7 @@ describe("arrays", () => {
 
           expect([keys, value]).toEqual(expected[i]);
           i += 1;
-        }
+        },
       );
     });
   });

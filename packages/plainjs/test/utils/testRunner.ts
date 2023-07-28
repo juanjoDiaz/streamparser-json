@@ -24,7 +24,7 @@ export function runJSONParserTest(
   data: InputData<ParseableData>,
   onValue: (parsedElementInfo: ParsedElementInfo) => void = () => {
     /* Do nothing */
-  }
+  },
 ) {
   jsonparser.onValue = onValue;
   for (const value of iterableData(data)) {
@@ -38,7 +38,7 @@ export function runTokenizerTest(
   data: InputData<ParseableData>,
   onToken: (parsedElementInfo: ParsedTokenInfo) => void = () => {
     /* Do nothing */
-  }
+  },
 ) {
   tokenizer.onToken = onToken;
   for (const value of iterableData(data)) {
@@ -52,7 +52,7 @@ export function runTokenParserTest(
   data: InputData<Omit<ParsedTokenInfo, "offset">>,
   onValue: (parsedElementInfo: ParsedElementInfo) => void = () => {
     /* Do nothing */
-  }
+  },
 ) {
   tokenParser.onValue = onValue;
   for (const value of iterableData(data)) {

@@ -25,7 +25,7 @@ describe("inputs", () => {
       await runJSONParserTest(
         new JSONParser(),
         [quote, value, quote],
-        ({ value }) => expect(value).toEqual(expected)
+        ({ value }) => expect(value).toEqual(expected),
       );
     });
   });

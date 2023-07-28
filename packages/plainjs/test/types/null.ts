@@ -17,7 +17,7 @@ describe("null", () => {
         (stringValue as string).split(""),
         ({ value }) => {
           expect(value).toEqual(JSON.parse(stringValue));
-        }
+        },
       );
     });
   });
