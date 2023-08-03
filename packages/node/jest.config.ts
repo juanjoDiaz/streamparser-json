@@ -1,4 +1,4 @@
-import { JestConfigWithTsJest } from 'ts-jest';
+import type { JestConfigWithTsJest } from 'ts-jest';
 
 const jestConfig: JestConfigWithTsJest = {
   extensionsToTreatAsEsm: ['.ts'],
@@ -15,4 +15,4 @@ const jestConfig: JestConfigWithTsJest = {
   setupFilesAfterEnv: ['<rootDir>/test/utils/setup.ts']
 }
 
-export default jestConfig;
+export = jestConfig;
