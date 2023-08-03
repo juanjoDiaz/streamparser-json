@@ -1,9 +1,4 @@
 {
-  "ts-node": {
-    "moduleTypes": {
-      "jest.config.ts": "cjs"
-    }
-  },
   "compilerOptions": {
     /* Language and Environment */
     "target": "es6",
