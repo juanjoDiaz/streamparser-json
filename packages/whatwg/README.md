@@ -10,7 +10,7 @@ Fast dependency-free library to parse a JSON stream using utf-8 encoding in Node
 *tldr;*
 
 ```javascript
-import { JSONParser } from '@streamparser/json-what';
+import { JSONParser } from '@streamparser/json-whatwg';
 
 const inputStream = new ReadableStream({
   async start(controller) {
