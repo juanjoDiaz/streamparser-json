@@ -10,4 +10,4 @@ export {
   TokenParserMode,
   type StackElement,
   TokenType,
-} from "https://deno.land/x/streamparser_json@v0.0.15/index.ts";
+} from "https://deno.land/x/streamparser_json@v0.0.17/index.ts";
