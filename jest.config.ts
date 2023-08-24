@@ -1,4 +1,4 @@
-import { JestConfigWithTsJest } from 'ts-jest';
+import type { JestConfigWithTsJest } from 'ts-jest';
 
 const jestConfig: JestConfigWithTsJest = {
   preset: 'ts-jest/presets/default-esm', // or other ESM presets
@@ -9,4 +9,4 @@ const jestConfig: JestConfigWithTsJest = {
   projects: ['<rootDir>/packages/plainjs', '<rootDir>/packages/node', '<rootDir>/packages/whatwg'],
 };
 
-export default jestConfig;
+export = jestConfig;
