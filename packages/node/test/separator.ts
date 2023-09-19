@@ -26,7 +26,7 @@ describe("separator", () => {
 
   const separators = ["", "\n", "\t\n", "abc", "SEPARATOR"];
   separators.forEach((separator) => {
-    test(`separator: ${separator}`, async () => {
+    test(`separator: "${separator}"`, async () => {
       let i = 0;
 
       await runJSONParserTest(
