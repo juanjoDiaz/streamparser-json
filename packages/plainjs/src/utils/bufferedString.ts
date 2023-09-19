@@ -8,7 +8,7 @@ export interface StringBuilder {
 
 export class NonBufferedString implements StringBuilder {
   private decoder = new TextDecoder("utf-8");
-  private strings: Array<string> = [];
+  private strings: string[] = [];
   public byteLength = 0;
 
   public appendChar(char: number): void {
