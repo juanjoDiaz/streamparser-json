@@ -1,6 +1,7 @@
 import { performance } from "perf_hooks";
 import { readFileSync } from "fs";
-import JSONParser from "../dist/mjs/jsonparse.mjs";
+import { JSONParser as LatestsJSONParser } from "@streamparser/json";
+import { JSONParser as CurrentJSONParser } from "../packages/plainjs/dist/mjs/index.js";
 
 function repeat(str, number) {
   return Array(number).fill(str).join("");
@@ -53,10 +54,16 @@ console.log("===========");
 benchmark(`${Array(100000).fill("9").join("")}`);
 
 function benchmark(jsonStr) {
-  const jsonparser = new JSONParser();
+  const latestJsonparser = new LatestsJSONParser({ separator: '' });
+  latestJsonparser.onValue = () => {};
+  const currentJsonparser = new CurrentJSONParser({ separator: '' });
+  currentJsonparser.onValue = () => {};
 
-  const start = performance.now();
-  jsonparser.write(jsonStr);
-  const end = performance.now();
-  console.log(`Time: ${end - start} ms.`);
+  let start = performance.now();
+  latestJsonparser.write(jsonStr);
+  const latestTime = performance.now() - start;
+  start = performance.now();
+  currentJsonparser.write(jsonStr);
+  const currentTime = performance.now() - start;
+  console.log(`Latests Time: ${latestTime} ms. Current Time: ${currentTime} ms. Diff: ${latestTime / currentTime}`);
 }
