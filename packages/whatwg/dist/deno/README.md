@@ -76,6 +76,7 @@ The available options are:
   stringBufferSize: <number>, // set to 0 to don't buffer. Min valid value is 4.
   numberBufferSize: <number>, // set to 0 to don't buffer.
   separator: <string>, // separator between object. For example `\n` for nd-js.
+  emitPartialTokens: <boolean> // whether to emit tokens mid-parsing.
 }
 ```
 
@@ -106,6 +107,7 @@ The available options are:
   paths: <string[]>,
   keepStack: <boolean>, // whether to keep all the properties in the stack
   separator: <string>, // separator between object. For example `\n` for nd-js. If left empty or set to undefined, the token parser will end after parsing the first object. To parse multiple object without any delimiter just set it to the empty string `''`.
+  emitPartialValues: <boolean>, // whether to emit values mid-parsing.
 }
 ```
 
@@ -131,7 +133,6 @@ const tokenizer = new Tokenizer(opts);
 const tokenParser = new TokenParser();
 const jsonParser = tokenizer.pipeTrough(tokenParser);
 ```
-
 
 You can subscribe to the resulting data using the 
 
@@ -223,6 +224,31 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 
     const { value, key, parent, stack } = parsedElementInfo;
     // TODO process element
+  }
+```
+
+### Stream-parsing a fetch request returning a very long string getting previews of the string
+
+Imagine an endpoint that send a large amount of JSON objects one after the other (`"Once upon a midnight <...>"`).
+
+```js
+  import { JSONParser } from '@streamparser/json-whatwg';
+
+  const parser = new JSONParser({ stringBufferSize: undefined, paths: ['$.*'], keepStack: false });
+
+  const response = await fetch('http://example.com/');
+
+  const reader = response.body.pipeThrough(parser).getReader();
+  while(true) {
+    const { done, value: parsedElementInfo } = await reader.read();
+    if (done) break;
+
+    const { value, key, parent, stack, partial } = parsedElementInfo;
+    if (partial) {
+      console.log(`Parsing value: ${value}... (still parsing)`);
+    } else {
+      console.log(`Value parsed: ${value}`);
+    }
   }
 ```
 

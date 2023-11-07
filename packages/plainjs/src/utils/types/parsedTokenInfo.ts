@@ -5,6 +5,7 @@ export interface ParsedTokenInfo {
   token: TokenType;
   value: JsonPrimitive;
   offset: number;
+  partial?: boolean;
 }
 
 export interface ParsedLeftBraceTokenInfo extends ParsedTokenInfo {

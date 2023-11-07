@@ -6,7 +6,7 @@ import type { ParsedTokenInfo } from "@streamparser/json/utils/types/parsedToken
 import type { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
 
 export type TestData = {
-  value: string | Iterable<number>;
+  value: string | string[] | Iterable<number>;
   paths?: string[];
   expected: any[];
 };

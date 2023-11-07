@@ -8,10 +8,11 @@ import type {
 } from "./jsonTypes.ts";
 
 export interface ParsedElementInfo {
-  value: JsonPrimitive | JsonStruct;
+  value?: JsonPrimitive | JsonStruct;
   parent?: JsonStruct;
   key?: JsonKey;
   stack: StackElement[];
+  partial?: boolean;
 }
 
 export interface ParsedArrayElement extends ParsedElementInfo {

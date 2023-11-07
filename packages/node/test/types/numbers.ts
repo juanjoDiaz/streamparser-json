@@ -51,7 +51,7 @@ describe("number", () => {
     "21e999",
   ];
 
-  const bufferSizes = [0, 64 * 1024];
+  const bufferSizes = [0, 1, 64 * 1024];
 
   bufferSizes.forEach((numberBufferSize) => {
     values.forEach((stringValue) => {

@@ -3,8 +3,8 @@ import type { ParsedElementInfo } from "@streamparser/json/utils/types/parsedEle
 export function cloneParsedElementInfo(
   parsedElementInfo: ParsedElementInfo,
 ): ParsedElementInfo {
-  const { value, key, parent, stack } = parsedElementInfo;
-  return { value, key, parent: clone(parent), stack: clone(stack) };
+  const { value, key, parent, stack, partial } = parsedElementInfo;
+  return { value, key, parent: clone(parent), stack: clone(stack), partial };
 }
 
 function clone<T>(obj: T): T {
