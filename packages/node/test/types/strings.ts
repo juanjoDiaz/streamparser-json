@@ -15,7 +15,7 @@ describe("string", () => {
     "õ",
   ];
 
-  const bufferSizes = [0, 64 * 1024];
+  const bufferSizes = [0, 1, 64 * 1024];
 
   bufferSizes.forEach((stringBufferSize) => {
     values.forEach((stringValue) => {
@@ -159,12 +159,22 @@ describe("string", () => {
     );
   });
 
-  const invalidValues = ["\n", "\\j", "\\ua", "\\u1*", "\\u12*", "\\u123*"];
+  const invalidValues = [
+    '"\n"',
+    '"\\j"',
+    '"\\ua"',
+    '"\\u1*"',
+    '"\\u12*"',
+    "\\u123*",
+    '"\0"',
+    '"\\uG"',
+    '"\\u000G"',
+  ];
 
   invalidValues.forEach((value) => {
-    test("fail on invalid values", async () => {
+    test(`fail on invalid values ${value}`, async () => {
       try {
-        await runJSONParserTest(new JSONParser(), [value]);
+        await runJSONParserTest(new JSONParser(), value);
         fail(`Expected to fail on value "${value}"`);
       } catch (e) {
         // Expected error

@@ -34,12 +34,14 @@ export interface TokenParserOptions {
   paths?: string[];
   keepStack?: boolean;
   separator?: string;
+  emitPartialValues?: boolean;
 }
 
 const defaultOpts: TokenParserOptions = {
   paths: undefined,
   keepStack: true,
   separator: undefined,
+  emitPartialValues: false,
 };
 
 export class TokenParserError extends Error {
@@ -82,6 +84,9 @@ export default class TokenParser {
 
     this.keepStack = opts.keepStack || false;
     this.separator = opts.separator;
+    if (!opts.emitPartialValues) {
+      this.emitPartial = () => {};
+    }
   }
 
   private shouldEmit(): boolean {
@@ -159,12 +164,44 @@ export default class TokenParser {
     }
   }
 
+  private emitPartial(value?: JsonPrimitive): void {
+    if (!this.shouldEmit()) return;
+
+    if (this.state === TokenParserState.KEY) {
+      this.onValue({
+        value: undefined,
+        key: value as JsonKey,
+        parent: this.value,
+        stack: this.stack,
+        partial: true,
+      });
+      return;
+    }
+
+    this.onValue({
+      value: value,
+      key: this.key,
+      parent: this.value,
+      stack: this.stack,
+      partial: true,
+    });
+  }
+
   public get isEnded(): boolean {
     return this.state === TokenParserState.ENDED;
   }
 
-  public write({ token, value }: Omit<ParsedTokenInfo, "offset">): void {
+  public write({
+    token,
+    value,
+    partial,
+  }: Omit<ParsedTokenInfo, "offset">): void {
     try {
+      if (partial) {
+        this.emitPartial(value);
+        return;
+      }
+
       if (this.state === TokenParserState.VALUE) {
         if (
           token === TokenType.STRING ||
@@ -199,6 +236,7 @@ export default class TokenParser {
           this.mode = TokenParserMode.OBJECT;
           this.state = TokenParserState.KEY;
           this.key = undefined;
+          this.emitPartial();
           return;
         }
 
@@ -216,6 +254,7 @@ export default class TokenParser {
           this.mode = TokenParserMode.ARRAY;
           this.state = TokenParserState.VALUE;
           this.key = 0;
+          this.emitPartial();
           return;
         }
 
@@ -233,6 +272,7 @@ export default class TokenParser {
         if (token === TokenType.STRING) {
           this.key = value as string;
           this.state = TokenParserState.COLON;
+          this.emitPartial();
           return;
         }
 

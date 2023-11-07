@@ -15,7 +15,7 @@ describe("string", () => {
     "õ",
   ];
 
-  const bufferSizes = [0, 64 * 1024];
+  const bufferSizes = [0, 1, 64 * 1024];
 
   bufferSizes.forEach((stringBufferSize) => {
     values.forEach((stringValue) => {

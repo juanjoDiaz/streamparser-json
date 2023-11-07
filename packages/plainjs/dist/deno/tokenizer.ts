@@ -78,12 +78,14 @@ export interface TokenizerOptions {
   stringBufferSize?: number;
   numberBufferSize?: number;
   separator?: string;
+  emitPartialTokens?: boolean;
 }
 
 const defaultOpts: TokenizerOptions = {
   stringBufferSize: 0,
   numberBufferSize: 0,
   separator: undefined,
+  emitPartialTokens: false,
 };
 
 export class TokenizerError extends Error {
@@ -97,6 +99,7 @@ export class TokenizerError extends Error {
 export default class Tokenizer {
   private state = TokenizerStates.START;
 
+  private emitPartialTokens: boolean;
   private separator?: string;
   private separatorBytes?: Uint8Array;
   private separatorIndex = 0;
@@ -114,6 +117,7 @@ export default class Tokenizer {
   constructor(opts?: TokenizerOptions) {
     opts = { ...defaultOpts, ...opts };
 
+    this.emitPartialTokens = opts.emitPartialTokens === true;
     this.bufferedString =
       opts.stringBufferSize && opts.stringBufferSize > 4
         ? new BufferedString(opts.stringBufferSize)
@@ -645,7 +649,66 @@ export default class Tokenizer {
           )}`,
         );
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+      if (this.emitPartialTokens) {
+        switch (this.state) {
+          case TokenizerStates.TRUE1:
+          case TokenizerStates.TRUE2:
+          case TokenizerStates.TRUE3:
+            this.onToken({
+              token: TokenType.TRUE,
+              value: true,
+              offset: this.offset,
+              partial: true,
+            });
+            break;
+          case TokenizerStates.FALSE1:
+          case TokenizerStates.FALSE2:
+          case TokenizerStates.FALSE3:
+          case TokenizerStates.FALSE4:
+            this.onToken({
+              token: TokenType.FALSE,
+              value: false,
+              offset: this.offset,
+              partial: true,
+            });
+            break;
+          case TokenizerStates.NULL1:
+          case TokenizerStates.NULL2:
+          case TokenizerStates.NULL3:
+            this.onToken({
+              token: TokenType.NULL,
+              value: null,
+              offset: this.offset,
+              partial: true,
+            });
+            break;
+          case TokenizerStates.STRING_DEFAULT: {
+            const string = this.bufferedString.toString();
+            this.onToken({
+              token: TokenType.STRING,
+              value: string,
+              offset: this.offset,
+              partial: true,
+            });
+            break;
+          }
+          case TokenizerStates.NUMBER_AFTER_INITIAL_ZERO:
+          case TokenizerStates.NUMBER_AFTER_INITIAL_NON_ZERO:
+          case TokenizerStates.NUMBER_AFTER_DECIMAL:
+          case TokenizerStates.NUMBER_AFTER_E_AND_DIGIT:
+            try {
+              this.onToken({
+                token: TokenType.NUMBER,
+                value: this.parseNumber(this.bufferedNumber.toString()),
+                offset: this.offset,
+                partial: true,
+              });
+            } catch (err: unknown) {
+              // Number couldn't be parsed. Do nothing.
+            }
+        }
+      }
     } catch (err: any) {
       this.error(err);
     }

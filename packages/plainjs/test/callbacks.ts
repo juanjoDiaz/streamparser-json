@@ -15,7 +15,7 @@ describe("callback", () => {
     }
   });
 
-  test("should throw if missing onError callback", () => {
+  test("should error if missing onError callback", () => {
     const p = new TokenParser();
     p.end();
 
@@ -45,6 +45,9 @@ describe("callback", () => {
       /* Do nothing */
     });
     p.onValue = onValueCb;
+    p.onToken = () => {
+      /* Do nothing */
+    };
 
     p.write('"test"');
     expect(onValueCb.mock.calls).toHaveLength(1);
