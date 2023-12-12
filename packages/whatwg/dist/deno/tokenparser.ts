@@ -1,6 +1,6 @@
-import { TokenParser, type TokenParserOptions } from "https://deno.land/x/streamparser_json@v0.0.17/index.ts";
-import type { ParsedTokenInfo } from "https://deno.land/x/streamparser_json@v0.0.17/utils/types/parsedTokenInfo.ts";
-import type { ParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.17/utils/types/parsedElementInfo.ts";
+import { TokenParser, type TokenParserOptions } from "https://deno.land/x/streamparser_json@v0.0.18/index.ts";
+import type { ParsedTokenInfo } from "https://deno.land/x/streamparser_json@v0.0.18/utils/types/parsedTokenInfo.ts";
+import type { ParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.18/utils/types/parsedElementInfo.ts";
 import { cloneParsedElementInfo } from "./utils.ts";
 
 class TokenParserTransformer
