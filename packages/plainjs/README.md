@@ -267,59 +267,6 @@ parser.onError = console.error;
 parser.write('"""');
 ```
 
-## Optimistic parsing
-
-Optimistic parsing can be useful when incrementally building a JSON value that
-you expect to be "eventually valid". When parsing optimistically, the parser
-will always make accessible its "best guess" at what the eventually-correct
-parsed value will look like. For example:
-
-```
-import { OptimisticJSONParser } from "@streamparser/json"
-
-const parser = new OptimisticJSONParser()
-
-parser.write('{')
-console.log(parser.value) // {}
-
-parser.write('"')
-console.log(parser.value) // {}
-
-parser.write('a"')
-console.log(parser.value) // { a: undefined }
-
-parser.write(': "b')
-console.log(parser.value) // { a: "b" }
-
-parser.write('ar", ')
-console.log(parser.value) // { a: "bar" }
-
-parser.write('"c":')
-console.log(parser.value) // { a: "bar", c: undefined }
-
-parser.write('[{')
-console.log(parser.value) // { a: "bar", c: [ {} ] }
-
-parser.write('"d')
-console.log(parser.value) // { a: "bar", c: [ { d: undefined } ] }
-
-parser.write('": 1')
-console.log(parser.value) // { a: "bar", c: [ { d: 1 } ] }
-
-parser.write('23')
-console.log(parser.value) // { a: "bar", c: [ { d: 123 } ] }
-
-parser.write('}')
-console.log(parser.value) // { a: "bar", c: [ { d: 123 } ] }
-```
-
-and so on. An optimistic parser will attempt to present incomplete null,
-boolean, string and number literals. It will also optimistically insert keys
-with as-yet-undefied values, and close opened objects and arrays. Under
-the hood, an optimistic tokenizer will emit "incomplete" tokens when it
-thinks that it will eventually reach a state where a token can be definitively
-produced.
-
 ## Examples
 
 ### Stream-parsing a fetch request returning a JSONstream
