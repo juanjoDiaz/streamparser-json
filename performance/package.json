@@ -11,7 +11,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@streamparser/json": "^0.0.19",
+    "@streamparser/json": "^0.0.20",
     "benchmark": "^2.1.4",
     "jsonparse": "^1.3.1"
   }

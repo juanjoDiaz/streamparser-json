@@ -1,7 +1,7 @@
 {
   "name": "@streamparser/json-whatwg",
   "description": "Streaming JSON parser in Javascript for Node.js, Deno and the browser",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "main": "./dist/mjs/index.js",
   "module": "./dist/mjs/index.js",
   "browser": "./dist/mjs/index.js",
@@ -42,6 +42,6 @@
     "stream"
   ],
   "dependencies": {
-    "@streamparser/json": "^0.0.19"
+    "@streamparser/json": "^0.0.20"
   }
 }
