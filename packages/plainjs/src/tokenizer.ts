@@ -38,6 +38,8 @@ const enum TokenizerStates {
   NUMBER_AFTER_E_AND_SIGN,
   NUMBER_AFTER_E_AND_DIGIT,
   SEPARATOR,
+  BOM_OR_START,
+  BOM,
 }
 
 function TokenizerStateToString(tokenizerState: TokenizerStates): string {
@@ -71,6 +73,8 @@ function TokenizerStateToString(tokenizerState: TokenizerStates): string {
     "NUMBER_AFTER_E_AND_SIGN",
     "NUMBER_AFTER_E_AND_DIGIT",
     "SEPARATOR",
+    "BOM_OR_START",
+    "BOM",
   ][tokenizerState];
 }
 
@@ -97,7 +101,10 @@ export class TokenizerError extends Error {
 }
 
 export default class Tokenizer {
-  private state = TokenizerStates.START;
+  private state = TokenizerStates.BOM_OR_START;
+
+  private bom?: number[];
+  private bomIndex = 0;
 
   private emitPartialTokens: boolean;
   private separator?: string;
@@ -144,11 +151,14 @@ export default class Tokenizer {
         buffer = input;
       } else if (typeof input === "string") {
         buffer = this.encoder.encode(input);
-      } else if (
-        (typeof input === "object" && "buffer" in input) ||
-        Array.isArray(input)
-      ) {
+      } else if (Array.isArray(input)) {
         buffer = Uint8Array.from(input);
+      } else if (ArrayBuffer.isView(input)) {
+        buffer = new Uint8Array(
+          input.buffer,
+          input.byteOffset,
+          input.byteLength,
+        );
       } else {
         throw new TypeError(
           "Unexpected type. The `write` function only accepts Arrays, TypedArrays and Strings.",
@@ -158,6 +168,45 @@ export default class Tokenizer {
       for (let i = 0; i < buffer.length; i += 1) {
         const n = buffer[i]; // get current byte from buffer
         switch (this.state) {
+          // @ts-ignore fall through case
+          case TokenizerStates.BOM_OR_START:
+            if (input instanceof Uint8Array && n === 0xef) {
+              this.bom = [0xef, 0xbb, 0xbf];
+              this.bomIndex += 1;
+              this.state = TokenizerStates.BOM;
+              continue;
+            }
+
+            if (input instanceof Uint16Array) {
+              if (n === 0xfe) {
+                this.bom = [0xfe, 0xff];
+                this.bomIndex += 1;
+                this.state = TokenizerStates.BOM;
+                continue;
+              }
+              if (n === 0xff) {
+                this.bom = [0xff, 0xfe];
+                this.bomIndex += 1;
+                this.state = TokenizerStates.BOM;
+                continue;
+              }
+            }
+
+            if (input instanceof Uint32Array) {
+              if (n === 0x00) {
+                this.bom = [0x00, 0x00, 0xfe, 0xff];
+                this.bomIndex += 1;
+                this.state = TokenizerStates.BOM;
+                continue;
+              }
+              if (n === 0xff) {
+                this.bom = [0xff, 0xfe, 0x00, 0x00];
+                this.bomIndex += 1;
+                this.state = TokenizerStates.BOM;
+                continue;
+              }
+            }
+          // Allow cascading
           case TokenizerStates.START:
             this.offset += 1;
 
@@ -629,6 +678,19 @@ export default class Tokenizer {
               this.separatorIndex = 0;
             }
             continue;
+          // BOM support
+          case TokenizerStates.BOM:
+            if (n === this.bom![this.bomIndex]) {
+              if (this.bomIndex === this.bom!.length - 1) {
+                this.state = TokenizerStates.START;
+                this.bom = undefined;
+                this.bomIndex = 0;
+                continue;
+              }
+              this.bomIndex += 1;
+              continue;
+            }
+            break;
           case TokenizerStates.ENDED:
             if (
               n === charset.SPACE ||
@@ -745,6 +807,7 @@ export default class Tokenizer {
         this.emitNumber();
         this.onEnd();
         break;
+      case TokenizerStates.BOM_OR_START:
       case TokenizerStates.START:
       case TokenizerStates.ERROR:
       case TokenizerStates.SEPARATOR:

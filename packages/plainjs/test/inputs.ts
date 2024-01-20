@@ -15,11 +15,11 @@ describe("inputs", () => {
       expected: ["test"],
     },
     {
-      value: new Uint16Array([116, 101, 115, 116]),
+      value: new Uint16Array([25972, 29811]),
       expected: ["test"],
     },
     {
-      value: new Uint32Array([116, 101, 115, 116]),
+      value: new Uint32Array([1953719668]),
       expected: ["test"],
     },
     {
