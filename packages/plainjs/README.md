@@ -366,7 +366,7 @@ jsonparser.onValue = (value, key, parent, stack) => {
 
 ## License
 
-See [LICENSE.md].
+See [LICENSE.md](../../LICENSE).
 
 [npm-version-badge]: https://badge.fury.io/js/@streamparser%2Fjson.svg
 [npm-badge-url]: https://www.npmjs.com/package/@streamparser/json

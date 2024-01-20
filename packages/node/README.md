@@ -182,7 +182,7 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 
 ## License
 
-See [LICENSE.md].
+See [LICENSE.md](../../LICENSE).
 
 [npm-version-badge]: https://badge.fury.io/js/@streamparser%2Fjson-node.svg
 [npm-badge-url]: https://www.npmjs.com/package/@streamparser/json-node
