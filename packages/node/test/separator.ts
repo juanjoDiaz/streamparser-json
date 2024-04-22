@@ -40,6 +40,22 @@ describe("separator", () => {
     });
   });
 
+  test("support multiple whitespace separators", async () => {
+    let i = 0;
+    const value = "1 2\t3\n4\n\r5 \n6\n\n7\n\r\n\r8 \t\n\n\r9";
+    const expected = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const separator = "";
+
+    await runJSONParserTest(
+      new JSONParser({ separator }),
+      value,
+      ({ value }) => {
+        expect(value).toEqual(expected[i]);
+        i += 1;
+      },
+    );
+  });
+
   test(`separator: fail on invalid value`, async () => {
     try {
       await runJSONParserTest(new JSONParser({ separator: "abc" }), ["abe"]);
@@ -74,5 +90,25 @@ describe("separator", () => {
         'Unexpected SEPARATOR ("\\r\\n") in state SEPARATOR',
       );
     }
+  });
+
+  test("not fail when whitespaces match separator", async () => {
+    let i = 0;
+    const value = `{
+      "a": 0,
+      "b": 1,
+      "c": -1
+    }`;
+    const expected = [0, 1, -1, { a: 0, b: 1, c: -1 }];
+    const separator = "\n";
+
+    await runJSONParserTest(
+      new JSONParser({ separator }),
+      value,
+      ({ value }) => {
+        expect(value).toEqual(expected[i]);
+        i += 1;
+      },
+    );
   });
 });

@@ -1,3 +1,4 @@
+import { charset } from "./utils/utf-8.ts";
 import TokenType from "./utils/types/tokenType.ts";
 import type {
   JsonPrimitive,
@@ -323,6 +324,24 @@ export default class TokenParser {
           this.state = TokenParserState.VALUE;
           return;
         }
+      }
+
+      // Edge case in which the separator is just whitespace and it's found in the middle of the JSON
+      if (
+        token === TokenType.SEPARATOR &&
+        this.state !== TokenParserState.SEPARATOR &&
+        Array.from(value as string)
+          .map((n) => n.charCodeAt(0))
+          .every(
+            (n) =>
+              n === charset.SPACE ||
+              n === charset.NEWLINE ||
+              n === charset.CARRIAGE_RETURN ||
+              n === charset.TAB,
+          )
+      ) {
+        // whitespace
+        return;
       }
 
       throw new TokenParserError(
