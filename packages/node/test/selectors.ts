@@ -76,8 +76,9 @@ describe("selectors", () => {
       try {
         new JSONParser({ paths });
         fail("Error expected on invalid selector");
-      } catch (err: any) {
-        expect(err.message).toEqual(expectedError);
+      } catch (err: unknown) {
+        expect(err).toBeInstanceOf(Error);
+        expect((err as Error).message).toEqual(expectedError);
       }
     });
   });

@@ -7,7 +7,7 @@ import type { ParsedElementInfo } from "@streamparser/json/utils/types/parsedEle
 export type TestData = {
   value: string | string[] | Iterable<number>;
   paths?: string[];
-  expected: any[];
+  expected: unknown[];
 };
 
 type ParseableData = string | Iterable<number>;

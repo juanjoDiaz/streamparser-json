@@ -39,10 +39,11 @@ export default class JSONParserTransform extends Transform {
    * @param {Function} done Called when the proceesing of the supplied chunk is done
    */
   override _transform(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     chunk: any,
     encoding: BufferEncoding,
     done: TransformCallback,
-  ) {
+  ): void {
     try {
       this.jsonParser.write(chunk);
       done();
@@ -51,12 +52,12 @@ export default class JSONParserTransform extends Transform {
     }
   }
 
-  override _final(done: any) {
+  override _final(callback: (error?: Error | null) => void): void {
     try {
       if (!this.jsonParser.isEnded) this.jsonParser.end();
-      done();
+      callback();
     } catch (err: unknown) {
-      done(err);
+      callback(err as Error);
     }
   }
 }

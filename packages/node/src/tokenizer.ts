@@ -41,10 +41,11 @@ export default class TokenizerTransform extends Transform {
    * @param {Function} done Called when the proceesing of the supplied chunk is done
    */
   override _transform(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     chunk: any,
     encoding: BufferEncoding,
     done: TransformCallback,
-  ) {
+  ): void {
     try {
       this.tokenizer.write(chunk);
       done();
@@ -53,12 +54,12 @@ export default class TokenizerTransform extends Transform {
     }
   }
 
-  override _final(done: any) {
+  override _final(callback: (error?: Error | null) => void): void {
     try {
       if (!this.tokenizer.isEnded) this.tokenizer.end();
-      done();
+      callback();
     } catch (err: unknown) {
-      done(err);
+      callback(err as Error);
     }
   }
 }

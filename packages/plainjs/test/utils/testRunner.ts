@@ -7,7 +7,7 @@ import { ParsedElementInfo } from "../../src/utils/types/parsedElementInfo.js";
 export type TestData = {
   value: string | string[] | Iterable<number>;
   paths?: string[];
-  expected: any[];
+  expected: unknown[];
 };
 
 type ParseableData = string | Iterable<number>;

@@ -349,9 +349,8 @@ export default class TokenParser {
           value,
         )}) in state ${TokenParserStateToString(this.state)}`,
       );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      this.error(err);
+    } catch (err: unknown) {
+      this.error(err as Error);
     }
   }
 

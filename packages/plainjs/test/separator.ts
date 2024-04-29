@@ -59,8 +59,9 @@ describe("separator", () => {
   test(`separator: fail on invalid value`, async () => {
     try {
       await runJSONParserTest(new JSONParser({ separator: "abc" }), ["abe"]);
-    } catch (err: any) {
-      expect(err.message).toEqual(
+    } catch (err: unknown) {
+      expect(err).toBeInstanceOf(Error);
+      expect((err as Error).message).toEqual(
         'Unexpected "e" at position "2" in state SEPARATOR',
       );
     }
@@ -73,8 +74,11 @@ describe("separator", () => {
         { token: TokenType.TRUE, value: true },
       ]);
       fail("Error expected on invalid selector");
-    } catch (err: any) {
-      expect(err.message).toEqual("Unexpected TRUE (true) in state SEPARATOR");
+    } catch (err: unknown) {
+      expect(err).toBeInstanceOf(Error);
+      expect((err as Error).message).toEqual(
+        "Unexpected TRUE (true) in state SEPARATOR",
+      );
     }
   });
 
@@ -85,8 +89,9 @@ describe("separator", () => {
         { token: TokenType.SEPARATOR, value: "\r\n" },
       ]);
       fail("Error expected on invalid selector");
-    } catch (err: any) {
-      expect(err.message).toEqual(
+    } catch (err: unknown) {
+      expect(err).toBeInstanceOf(Error);
+      expect((err as Error).message).toEqual(
         'Unexpected SEPARATOR ("\\r\\n") in state SEPARATOR',
       );
     }

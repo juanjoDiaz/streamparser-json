@@ -51,7 +51,9 @@ describe("callback", () => {
 
     p.write('"test"');
     expect(onValueCb.mock.calls).toHaveLength(1);
-    expect((onValueCb.mock.calls[0] as any)[0].value).toBe("test");
+    expect(
+      (onValueCb.mock.calls[0] as unknown as [{ value: string }])[0].value,
+    ).toBe("test");
   });
 
   test("should handle invalid input using the onError callback if set", () => {

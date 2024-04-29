@@ -771,8 +771,8 @@ export default class Tokenizer {
             }
         }
       }
-    } catch (err: any) {
-      this.error(err);
+    } catch (err: unknown) {
+      this.error(err as Error);
     }
   }
 
