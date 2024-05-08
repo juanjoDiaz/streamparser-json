@@ -39,6 +39,11 @@ describe("selectors", () => {
       paths: ["$.a.c.1"],
       expected: [4],
     },
+    {
+      value: '{ "a": [ {"b": 1}, {"c": 2} ] }',
+      paths: ["$.a.0.b"],
+      expected: [1],
+    },
   ];
 
   testData.forEach(({ value, paths, expected }) => {
