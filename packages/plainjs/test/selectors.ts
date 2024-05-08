@@ -58,6 +58,8 @@ describe("selectors", () => {
           i += 1;
         },
       );
+
+      expect(i).toEqual(expected.length);
     });
   });
 
