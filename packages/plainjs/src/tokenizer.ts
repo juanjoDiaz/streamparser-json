@@ -110,6 +110,7 @@ export default class Tokenizer {
   private separator?: string;
   private separatorBytes?: Uint8Array;
   private separatorIndex = 0;
+  private escapeLength = 0;
   private bufferedString: StringBuilder;
   private bufferedNumber: StringBuilder;
 
@@ -336,6 +337,9 @@ export default class Tokenizer {
                 value: string,
                 offset: this.offset,
               });
+              this.offset += this.escapeLength;
+              this.escapeLength = 0;
+
               this.offset += this.bufferedString.byteLength + 1;
               continue;
             }
@@ -398,12 +402,14 @@ export default class Tokenizer {
             const controlChar = escapedSequences[n];
             if (controlChar) {
               this.bufferedString.appendChar(controlChar);
+              this.escapeLength += 1;
               this.state = TokenizerStates.STRING_DEFAULT;
               continue;
             }
 
             if (n === charset.LATIN_SMALL_LETTER_U) {
               this.unicode = "";
+              this.escapeLength += 4;
               this.state = TokenizerStates.STRING_UNICODE_DIGIT_1;
               continue;
             }

@@ -4,7 +4,8 @@ import TokenType from "@streamparser/json/utils/types/tokenType.js";
 
 const input1 = '{\n  "string": "value",\n  "number": 3,\n  "object"';
 const input2 = ': {\n  "key": "vд"\n  },\n  "array": [\n  -1,\n  12\n  ]\n  ';
-const input3 = '"null": null, "true": true, "false": false, "frac": 3.14 }';
+const input3 = '"null": null, "true": true, "false": false, "frac": 3.14,';
+const input4 = '"escape": "\\"\\u00e1" }';
 
 const offsets = [
   [0, TokenType.LEFT_BRACE],
@@ -46,7 +47,11 @@ const offsets = [
   [146, TokenType.STRING],
   [152, TokenType.COLON],
   [154, TokenType.NUMBER],
-  [159, TokenType.RIGHT_BRACE],
+  [158, TokenType.COMMA],
+  [159, TokenType.STRING],
+  [167, TokenType.COLON],
+  [169, TokenType.STRING],
+  [180, TokenType.RIGHT_BRACE],
 ];
 
 test("offset", async () => {
@@ -54,7 +59,7 @@ test("offset", async () => {
 
   await runTokenizerTest(
     new Tokenizer(),
-    [input1, input2, input3],
+    [input1, input2, input3, input4],
     ({ token, offset }) => {
       expect(offset).toEqual(offsets[i][0]);
       expect(token).toEqual(offsets[i][1]);
