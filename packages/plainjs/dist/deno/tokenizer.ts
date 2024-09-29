@@ -402,14 +402,13 @@ export default class Tokenizer {
             const controlChar = escapedSequences[n];
             if (controlChar) {
               this.bufferedString.appendChar(controlChar);
-              this.escapeLength += 1;
+              this.escapeLength += 2 - 1; // len(\")=2 minus the fact you're appending len(controlChar)=1
               this.state = TokenizerStates.STRING_DEFAULT;
               continue;
             }
 
             if (n === charset.LATIN_SMALL_LETTER_U) {
               this.unicode = "";
-              this.escapeLength += 4;
               this.state = TokenizerStates.STRING_UNICODE_DIGIT_1;
               continue;
             }
@@ -447,24 +446,24 @@ export default class Tokenizer {
                   //<55296,56319> - highSurrogate
                   this.highSurrogate = intVal;
                 } else {
-                  this.bufferedString.appendBuf(
-                    this.encoder.encode(String.fromCharCode(intVal)),
-                  );
+                  const buf = this.encoder.encode(String.fromCharCode(intVal));
+                  this.bufferedString.appendBuf(buf);
+                  this.escapeLength += 6 - buf.byteLength; // len(\u0000)=6 minus the fact you're appending len(buf)
                 }
               } else {
                 if (intVal >= 0xdc00 && intVal <= 0xdfff) {
                   //<56320,57343> - lowSurrogate
-                  this.bufferedString.appendBuf(
-                    this.encoder.encode(
-                      String.fromCharCode(this.highSurrogate, intVal),
-                    ),
+                  const buf = this.encoder.encode(
+                    String.fromCharCode(this.highSurrogate, intVal),
                   );
+                  this.bufferedString.appendBuf(buf);
+                  this.escapeLength += 6 - buf.byteLength; // len(\u0000)=6 minus the fact you're appending len(buf)
                 } else {
-                  this.bufferedString.appendBuf(
-                    this.encoder.encode(
-                      String.fromCharCode(this.highSurrogate),
-                    ),
+                  const buf = this.encoder.encode(
+                    String.fromCharCode(this.highSurrogate),
                   );
+                  this.bufferedString.appendBuf(buf);
+                  this.escapeLength += 6 - buf.byteLength; // len(\u0000)=6 minus the fact you're appending len(buf)
                 }
                 this.highSurrogate = undefined;
               }
