@@ -45,6 +45,6 @@
     "@streamparser/json": "^0.0.21"
   },
   "devDependencies": {
-    "@types/node": "^20.2.3"
+    "@types/node": "^22.9.0"
   }
 }

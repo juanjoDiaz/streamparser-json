@@ -8,7 +8,7 @@ describe("end", () => {
     try {
       await runJSONParserTest(p, ['"test"', '"test"']);
       fail("Expected to fail!");
-    } catch (e) {
+    } catch {
       // Expected error
     }
   });

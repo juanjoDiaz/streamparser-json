@@ -12,8 +12,8 @@
   "bugs": "https://github.com/juanjoDiaz/streamparser-json/issues",
   "devDependencies": {
     "@types/jest": "^29.2.3",
-    "@typescript-eslint/eslint-plugin": "^7.7.1",
-    "@typescript-eslint/parser": "^7.7.1",
+    "@typescript-eslint/eslint-plugin": "^8.14.0",
+    "@typescript-eslint/parser": "^8.14.0",
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",

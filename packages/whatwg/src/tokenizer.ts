@@ -7,7 +7,7 @@ class TokenizerTransformer
   extends Tokenizer
   implements Transformer<Iterable<number> | string, ParsedTokenInfo>
 {
-  // @ts-ignore Controller always defined during start
+  // @ts-expect-error Controller always defined during start
   private controller: TransformStreamDefaultController<ParsedTokenInfo>;
 
   constructor(opts?: TokenizerOptions) {

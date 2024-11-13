@@ -93,7 +93,7 @@ describe("number", () => {
       try {
         await runJSONParserTest(new JSONParser(), [value]);
         fail(`Expected to fail on value "${value}"`);
-      } catch (e) {
+      } catch {
         // Expected error
       }
     });
