@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/*global process*/
+
 import path from "path";
 import {
   mkdirSync,
@@ -19,7 +21,7 @@ function copyReadme(src, dest) {
     readFileSync("./README.md")
       .toString()
       .replace(
-        /import \{ (.*) \} from '@streamparser\/json';/gm,
+        /import \{ (.*) \} from '@streamparser\/json';/gm,
         `import { $1 } from "${denoXURL}/index.ts";/`,
       )
       .replace(

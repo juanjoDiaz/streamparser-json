@@ -10,7 +10,7 @@ describe("callback", () => {
     try {
       p.write('"test"');
       fail("Expected to fail(");
-    } catch (e) {
+    } catch {
       // Expected error
     }
   });
@@ -22,7 +22,7 @@ describe("callback", () => {
     try {
       p.write({ token: TokenType.TRUE, value: true });
       fail("Expected to fail(");
-    } catch (e) {
+    } catch {
       // Expected error
     }
   });
@@ -33,7 +33,7 @@ describe("callback", () => {
     try {
       p.write('"test"');
       fail("Expected to fail(");
-    } catch (e) {
+    } catch {
       // Expected error
     }
   });

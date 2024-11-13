@@ -46,7 +46,7 @@ describe("inputs", () => {
         [745674 as any],
       );
       fail("Expected to fail!");
-    } catch (e) {
+    } catch {
       // Expected error
     }
   });

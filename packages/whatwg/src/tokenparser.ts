@@ -7,7 +7,7 @@ class TokenParserTransformer
   extends TokenParser
   implements Transformer<ParsedTokenInfo, ParsedElementInfo>
 {
-  // @ts-ignore Controller always defined during start
+  // @ts-expect-error Controller always defined during start
   private controller: TransformStreamDefaultController<ParsedElementInfo>;
 
   constructor(opts: TokenParserOptions) {

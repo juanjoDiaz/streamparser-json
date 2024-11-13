@@ -10,7 +10,7 @@ describe("end", () => {
     try {
       await runJSONParserTest(p, ['"test"']);
       fail("Expected to fail!");
-    } catch (e) {
+    } catch {
       // Expected error
     }
   });
@@ -24,7 +24,7 @@ describe("end", () => {
       try {
         await runJSONParserTest(p, [value]);
         fail(`Expected to fail on value "${value}"`);
-      } catch (e) {
+      } catch {
         expect(p.isEnded).toBeTruthy();
       }
     });
@@ -76,7 +76,7 @@ describe("end", () => {
         await runJSONParserTest(p, [value]);
         p.end();
         fail(`Expected to fail on value "${value}"`);
-      } catch (e) {
+      } catch {
         // Expected error
       }
     });
