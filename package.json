@@ -25,7 +25,7 @@
   },
   "scripts": {
     "lint": "npm run lint -ws && eslint build.* performance samplejson --ext .js,.ts,.json",
-    "format": "npm run lint -ws -- --fix && eslint build.* performance samplejson --ext .js,.ts,.json --fix",
+    "lint:fix": "npm run lint -ws -- --fix && eslint build.* performance samplejson --ext .js,.ts,.json --fix",
     "build:deno": "npm run build:deno -ws",
     "build": "npm run build -ws",
     "prepublishOnly": "npm run build",
