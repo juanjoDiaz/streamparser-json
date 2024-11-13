@@ -26,7 +26,7 @@
   "bugs": "https://github.com/juanjoDiaz/streamparser-json/issues",
   "scripts": {
     "lint": "eslint src test --ext .js,.ts,.json",
-    "format": "npm run lint -- --fix",
+    "lint:fix": "npm run lint -- --fix",
     "build:cjs": "tsc --module commonjs --verbatimModuleSyntax false --outDir ./dist/cjs && node ../../build-cjs.js plainjs",
     "build:mjs": "tsc --module esnext --verbatimModuleSyntax --outDir ./dist/mjs",
     "build:deno": "node ../../build.deno.js . ./dist/deno",
