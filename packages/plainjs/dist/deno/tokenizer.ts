@@ -110,7 +110,7 @@ export default class Tokenizer {
   private separator?: string;
   private separatorBytes?: Uint8Array;
   private separatorIndex = 0;
-  private escapeLength = 0;
+  private escapedCharsByteLength = 0;
   private bufferedString: StringBuilder;
   private bufferedNumber: StringBuilder;
 
@@ -301,6 +301,7 @@ export default class Tokenizer {
 
             if (n === charset.QUOTATION_MARK) {
               this.bufferedString.reset();
+              this.escapedCharsByteLength = 0;
               this.state = TokenizerStates.STRING_DEFAULT;
               continue;
             }
@@ -337,10 +338,10 @@ export default class Tokenizer {
                 value: string,
                 offset: this.offset,
               });
-              this.offset += this.escapeLength;
-              this.escapeLength = 0;
-
-              this.offset += this.bufferedString.byteLength + 1;
+              this.offset +=
+                this.escapedCharsByteLength +
+                this.bufferedString.byteLength +
+                1;
               continue;
             }
 
@@ -402,7 +403,7 @@ export default class Tokenizer {
             const controlChar = escapedSequences[n];
             if (controlChar) {
               this.bufferedString.appendChar(controlChar);
-              this.escapeLength += 2 - 1; // len(\")=2 minus the fact you're appending len(controlChar)=1
+              this.escapedCharsByteLength += 1; // len(\")=2 minus the fact you're appending len(controlChar)=1
               this.state = TokenizerStates.STRING_DEFAULT;
               continue;
             }
@@ -441,32 +442,32 @@ export default class Tokenizer {
                 this.unicode + String.fromCharCode(n),
                 16,
               );
+              let unicodeString: string;
               if (this.highSurrogate === undefined) {
                 if (intVal >= 0xd800 && intVal <= 0xdbff) {
                   //<55296,56319> - highSurrogate
                   this.highSurrogate = intVal;
+                  this.state = TokenizerStates.STRING_DEFAULT;
+                  continue;
                 } else {
-                  const buf = this.encoder.encode(String.fromCharCode(intVal));
-                  this.bufferedString.appendBuf(buf);
-                  this.escapeLength += 6 - buf.byteLength; // len(\u0000)=6 minus the fact you're appending len(buf)
+                  unicodeString = String.fromCharCode(intVal);
                 }
               } else {
                 if (intVal >= 0xdc00 && intVal <= 0xdfff) {
                   //<56320,57343> - lowSurrogate
-                  const buf = this.encoder.encode(
-                    String.fromCharCode(this.highSurrogate, intVal),
+                  unicodeString = String.fromCharCode(
+                    this.highSurrogate,
+                    intVal,
                   );
-                  this.bufferedString.appendBuf(buf);
-                  this.escapeLength += 6 - buf.byteLength; // len(\u0000)=6 minus the fact you're appending len(buf)
                 } else {
-                  const buf = this.encoder.encode(
-                    String.fromCharCode(this.highSurrogate),
-                  );
-                  this.bufferedString.appendBuf(buf);
-                  this.escapeLength += 6 - buf.byteLength; // len(\u0000)=6 minus the fact you're appending len(buf)
+                  unicodeString = String.fromCharCode(this.highSurrogate);
                 }
                 this.highSurrogate = undefined;
               }
+              const unicodeBuffer = this.encoder.encode(unicodeString);
+              this.bufferedString.appendBuf(unicodeBuffer);
+              // len(\u0000)=6 minus the fact you're appending len(buf)
+              this.escapedCharsByteLength += 6 - unicodeBuffer.byteLength;
               this.state = TokenizerStates.STRING_DEFAULT;
               continue;
             }
