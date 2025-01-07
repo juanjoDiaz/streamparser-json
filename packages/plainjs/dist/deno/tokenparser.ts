@@ -101,7 +101,7 @@ export default class TokenParser {
         const selector = path[i];
         const key = this.stack[i + 1].key;
         if (selector === "*") continue;
-        if (selector !== key) return false;
+        if (selector !== key?.toString()) return false;
       }
 
       const selector = path[path.length - 1];
