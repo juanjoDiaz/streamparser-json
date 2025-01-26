@@ -3,7 +3,7 @@ import {
   type TransformOptions,
   type TransformCallback,
 } from "stream";
-import { JSONParser, type JSONParserOptions } from "https://deno.land/x/streamparser_json@v0.0.21/index.ts";
+import { JSONParser, type JSONParserOptions } from "https://deno.land/x/streamparser_json@v0.0.22/index.ts";
 
 export default class JSONParserTransform extends Transform {
   private jsonParser: JSONParser;
