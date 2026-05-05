@@ -176,7 +176,7 @@ This class is just for convenience. In reality, it simply connects the tokenizer
 
 ```javascript
 const tokenizer = new Tokenizer(opts);
-const tokenParser = new TokenParser();
+const tokenParser = new TokenParser(opts);
 tokenizer.onToken = tokenParser.write.bind(tokenParser);
 tokenParser.onValue = (value) => { /* Process values */ }
 ```
@@ -216,7 +216,7 @@ You can use both components independently as
 
 ```javascript
 const tokenizer = new Tokenizer(opts);
-const tokenParser = new TokenParser();
+const tokenParser = new TokenParser(opts);
 tokenizer.onToken = tokenParser.write.bind(tokenParser);
 ```
 
