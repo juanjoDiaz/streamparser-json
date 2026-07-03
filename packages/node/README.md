@@ -7,11 +7,30 @@
 
 Fast dependency-free library to parse a JSON stream using utf-8 encoding in Node.js, Deno or any modern browser. Fully compliant with the JSON spec and `JSON.parse(...)`.
 
-*tldr;*
+*Parse arary of objects from file*
 
 ```javascript
 import { JSONParser } from '@streamparser/json-node';
 
+const parser = new JSONParser({ paths: ['$.*'] });
+parser.onValue = ({ value }) => { /* process data */ };
+
+// Node.js
+const stream = createReadStream('arrayOfObjects.json');
+for await (const chunk of stream) {
+    parser.write(chunk);
+}
+
+// Deno
+await using file = await Deno.open('arrayOfObjects.json', { read: true });
+for await (const chunk of file.readable) {
+   parser.write(chunk);
+}
+```
+
+*Piping*
+
+```javascript
 const parser = new JSONParser();
 
 inputStream.pipe(jsonparser).pipe(destinationStream);
