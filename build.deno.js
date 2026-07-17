@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/*global process*/
+/*global process, URL*/
 
 import path from "path";
 import {
@@ -11,22 +11,23 @@ import {
   writeFileSync,
 } from "fs";
 
-import pkgInfo from "./package.json" assert { type: "json" };
+const pkgInfo = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+);
 
 const denoXURL = `https://deno.land/x/streamparser_json@v${pkgInfo.version}`;
 
 function copyReadme(src, dest) {
   writeFileSync(
     path.join(dest, "README.md"),
-    readFileSync("./README.md")
-      .toString()
+    readFileSync(path.join(src, "README.md"), "utf8")
       .replace(
-        /import \{ (.*) \} from '@streamparser\/json';/gm,
-        `import { $1 } from "${denoXURL}/index.ts";/`,
+        /from ['"]@streamparser\/json\/(.*)\.js['"]/gm,
+        `from "${denoXURL}/$1.ts"`,
       )
       .replace(
-        /import { (.*) } from '@streamparser\/json\/(.*).js';/gm,
-        `import { $1 } from "${denoXURL}/$2.ts)";/`,
+        /from ['"]@streamparser\/json['"]/gm,
+        `from "${denoXURL}/index.ts"`,
       ),
   );
 }

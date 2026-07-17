@@ -1,13 +1,13 @@
 import Tokenizer, {
   type TokenizerOptions,
-} from "https://deno.land/x/streamparser_json@v0.0.21/tokenizer.ts";
-import type { ParsedTokenInfo } from "https://deno.land/x/streamparser_json@v0.0.21/utils/types/parsedTokenInfo.ts";
+} from "https://deno.land/x/streamparser_json@v0.0.22/tokenizer.ts";
+import type { ParsedTokenInfo } from "https://deno.land/x/streamparser_json@v0.0.22/utils/types/parsedTokenInfo.ts";
 
 class TokenizerTransformer
   extends Tokenizer
   implements Transformer<Iterable<number> | string, ParsedTokenInfo>
 {
-  // @ts-ignore Controller always defined during start
+  // @ts-expect-error Controller always defined during start
   private controller: TransformStreamDefaultController<ParsedTokenInfo>;
 
   constructor(opts?: TokenizerOptions) {
