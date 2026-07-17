@@ -44,8 +44,11 @@ describe("end", () => {
     test(`should emit numbers if ending on a valid number: ${numberValue}`, async () => {
       const p = new JSONParser({ separator: "" });
 
-      await runJSONParserTest(p, [numberValue], ({ value }) =>
-        expect(value).toEqual(JSON.parse(numberValue)),
+      await runJSONParserTest(
+        p,
+        [numberValue],
+        ({ value }) => expect(value).toEqual(JSON.parse(numberValue)),
+        false,
       );
       p.end();
 
@@ -86,7 +89,7 @@ describe("end", () => {
     const separator = "\n";
     const p = new JSONParser({ separator });
 
-    await runJSONParserTest(p, ["1", separator, "2"]);
+    await runJSONParserTest(p, ["1", separator, "2"], undefined, false);
     p.end();
 
     expect(p.isEnded).toBeTruthy();

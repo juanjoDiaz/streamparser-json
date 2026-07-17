@@ -25,12 +25,13 @@ export function runJSONParserTest(
   onValue: (parsedElementInfo: ParsedElementInfo) => void = () => {
     /* Do nothing */
   },
+  end = true,
 ) {
   jsonparser.onValue = onValue;
   for (const value of iterableData(data)) {
     jsonparser.write(value);
   }
-  // jsonparser.end();
+  if (end && !jsonparser.isEnded) jsonparser.end();
 }
 
 export function runTokenizerTest(
@@ -44,7 +45,7 @@ export function runTokenizerTest(
   for (const value of iterableData(data)) {
     tokenizer.write(value);
   }
-  tokenizer.end();
+  if (!tokenizer.isEnded) tokenizer.end();
 }
 
 export function runTokenParserTest(
@@ -58,5 +59,5 @@ export function runTokenParserTest(
   for (const value of iterableData(data)) {
     tokenParser.write(value);
   }
-  tokenParser.end();
+  if (!tokenParser.isEnded) tokenParser.end();
 }

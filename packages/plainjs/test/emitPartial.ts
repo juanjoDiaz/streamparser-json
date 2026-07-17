@@ -368,6 +368,7 @@ describe("Emit Partial", () => {
         expected: [
           { value: 12, key: undefined, parent: undefined, partial: true },
           { value: 12.34, key: undefined, parent: undefined, partial: true },
+          { value: 12.34, key: undefined, parent: undefined, partial: false },
         ],
       },
       {

@@ -41,7 +41,6 @@ describe("performance", () => {
         },
         ({ value }) => expect(value).toEqual(1.1111111111111112),
       );
-      jsonParser.end();
     });
   });
 
