@@ -14,7 +14,6 @@ class JSONParserTransformer
     this.onValue = (value) =>
       this.controller.enqueue(cloneParsedElementInfo(value));
     this.onError = (err) => this.controller.error(err);
-    this.onEnd = () => this.controller.terminate();
   }
 
   start(controller: TransformStreamDefaultController<ParsedElementInfo>) {
@@ -26,7 +25,7 @@ class JSONParserTransformer
   }
 
   flush() {
-    this.end();
+    if (!this.isEnded) this.end();
   }
 }
 

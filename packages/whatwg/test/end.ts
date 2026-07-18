@@ -84,4 +84,25 @@ describe("end", () => {
 
     await runJSONParserTest(p, ["1", separator, "2"]);
   });
+
+  test("should let the writer close() normally after the root value has completed", async () => {
+    const p = new JSONParser();
+    const writer = p.writable.getWriter();
+    const reader = p.readable.getReader();
+
+    const values: unknown[] = [];
+    const readLoop = (async () => {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) return;
+        values.push(value.value);
+      }
+    })();
+
+    await writer.write("{}");
+    await writer.close();
+    await readLoop;
+
+    expect(values).toEqual([{}]);
+  });
 });
