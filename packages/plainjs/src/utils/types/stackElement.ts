@@ -10,4 +10,5 @@ export interface StackElement {
   value: JsonStruct;
   mode?: TokenParserMode;
   emit: boolean;
+  memberCount: number;
 }

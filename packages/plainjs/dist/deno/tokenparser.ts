@@ -85,6 +85,10 @@ export default class TokenParser {
   private key: JsonKey = undefined;
   private value: JsonStruct | undefined = undefined;
   private stack: StackElement[] = [];
+  // Tracked explicitly rather than inferred from `value` because keepStack:false
+  // deletes emitted properties from `value`, so Object.keys(value).length can no
+  // longer be trusted to tell an empty object from one whose members were purged.
+  private memberCount = 0;
 
   constructor(opts?: TokenParserOptions) {
     opts = { ...defaultOpts, ...opts };
@@ -139,6 +143,7 @@ export default class TokenParser {
       value: this.value as JsonStruct,
       mode: this.mode,
       emit: this.shouldEmit(),
+      memberCount: this.memberCount,
     });
   }
 
@@ -151,6 +156,7 @@ export default class TokenParser {
       value: this.value,
       mode: this.mode,
       emit,
+      memberCount: this.memberCount,
     } = this.stack.pop() as StackElement);
 
     this.state =
@@ -237,9 +243,11 @@ export default class TokenParser {
           if (this.mode === TokenParserMode.OBJECT) {
             setProperty(this.value as JsonObject, this.key as string, value);
             this.state = TokenParserState.COMMA;
+            this.memberCount++;
           } else if (this.mode === TokenParserMode.ARRAY) {
             (this.value as JsonArray).push(value);
             this.state = TokenParserState.COMMA;
+            this.memberCount++;
           }
 
           this.emit(value, this.shouldEmit());
@@ -247,6 +255,7 @@ export default class TokenParser {
         }
 
         if (token === TokenType.LEFT_BRACE) {
+          this.memberCount++;
           this.push();
           if (this.mode === TokenParserMode.OBJECT) {
             const val = {};
@@ -262,11 +271,13 @@ export default class TokenParser {
           this.mode = TokenParserMode.OBJECT;
           this.state = TokenParserState.KEY;
           this.key = undefined;
+          this.memberCount = 0;
           this.emitPartial();
           return;
         }
 
         if (token === TokenType.LEFT_BRACKET) {
+          this.memberCount++;
           this.push();
           if (this.mode === TokenParserMode.OBJECT) {
             const val: JsonArray = [];
@@ -282,6 +293,7 @@ export default class TokenParser {
           this.mode = TokenParserMode.ARRAY;
           this.state = TokenParserState.VALUE;
           this.key = 0;
+          this.memberCount = 0;
           this.emitPartial();
           return;
         }
@@ -289,7 +301,7 @@ export default class TokenParser {
         if (
           this.mode === TokenParserMode.ARRAY &&
           token === TokenType.RIGHT_BRACKET &&
-          (this.value as JsonArray).length === 0
+          this.memberCount === 0
         ) {
           this.pop();
           return;
@@ -304,10 +316,7 @@ export default class TokenParser {
           return;
         }
 
-        if (
-          token === TokenType.RIGHT_BRACE &&
-          Object.keys(this.value as JsonObject).length === 0
-        ) {
+        if (token === TokenType.RIGHT_BRACE && this.memberCount === 0) {
           this.pop();
           return;
         }
