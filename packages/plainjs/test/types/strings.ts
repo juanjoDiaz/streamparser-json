@@ -121,6 +121,59 @@ describe("string", () => {
             );
           }
         });
+
+        test("2 byte utf8 'De' character split one byte per write: д", async () => {
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [quote, new Uint8Array([0xd0]), new Uint8Array([0xb4]), quote],
+            ({ value }) => expect(value).toEqual("д"),
+          );
+        });
+
+        test("3 byte utf8 'Han' character split one byte per write: 我", async () => {
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [
+              quote,
+              new Uint8Array([0xe6]),
+              new Uint8Array([0x88]),
+              new Uint8Array([0x91]),
+              quote,
+            ],
+            ({ value }) => expect(value).toEqual("我"),
+          );
+        });
+
+        test("4 byte utf8 character split one byte per write (unicode scalar U+2070E): 𠜎", async () => {
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [
+              quote,
+              new Uint8Array([0xf0]),
+              new Uint8Array([0xa0]),
+              new Uint8Array([0x9c]),
+              new Uint8Array([0x8e]),
+              quote,
+            ],
+            ({ value }) => expect(value).toEqual("𠜎"),
+          );
+        });
+
+        test("4 byte utf8 character split across three writes (2+1+1) surrounded by other text: a😀b", async () => {
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [
+              quote,
+              "a",
+              new Uint8Array([0xf0, 0x9f]),
+              new Uint8Array([0x98]),
+              new Uint8Array([0x80]),
+              "b",
+              quote,
+            ],
+            ({ value }) => expect(value).toEqual("a😀b"),
+          );
+        });
       });
 
       describe("surrogate", () => {

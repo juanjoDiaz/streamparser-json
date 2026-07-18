@@ -384,21 +384,33 @@ export default class Tokenizer {
             }
 
             break;
-          case TokenizerStates.STRING_INCOMPLETE_CHAR:
+          case TokenizerStates.STRING_INCOMPLETE_CHAR: {
             // check for carry over of a multi byte char split between data chunks
             // & fill temp buffer it with start of this data chunk up to the boundary limit set in the last iteration
+            // The rest of the sequence might still not be complete if this chunk is smaller
+            // than the number of bytes still missing (e.g. one byte at a time), so only
+            // consume what's actually available and keep waiting otherwise.
+            const available = Math.min(this.bytes_remaining, buffer.length - i);
             this.char_split_buffer.set(
-              buffer.subarray(i, i + this.bytes_remaining),
+              buffer.subarray(i, i + available),
               this.bytes_in_sequence - this.bytes_remaining,
             );
+            this.bytes_remaining -= available;
+
+            if (this.bytes_remaining > 0) {
+              i = buffer.length - 1;
+              continue;
+            }
+
             this.bufferedString.appendBuf(
               this.char_split_buffer,
               0,
               this.bytes_in_sequence,
             );
-            i = this.bytes_remaining - 1;
+            i += available - 1;
             this.state = TokenizerStates.STRING_DEFAULT;
             continue;
+          }
           case TokenizerStates.STRING_AFTER_BACKSLASH:
             // eslint-disable-next-line no-case-declarations
             const controlChar = escapedSequences[n];
