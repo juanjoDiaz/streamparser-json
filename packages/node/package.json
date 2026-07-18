@@ -31,7 +31,7 @@
     "build:mjs": "tsc --module esnext --verbatimModuleSyntax --outDir ./dist/mjs",
     "build:deno": "node ../../build.deno.js . ./dist/deno",
     "build": "npm run build:mjs && npm run build:cjs && npm run build:deno",
-    "prepublishOnly": "npm run build",
+    "prepack": "npm run build",
     "pretest": "npm run build",
     "test": "node test/CommonJS.cjs && jest test",
     "test-with-coverage": "npm test -- --coverage",
@@ -42,6 +42,9 @@
   "tags": [
     "json",
     "stream"
+  ],
+  "files": [
+    "dist"
   ],
   "dependencies": {
     "@streamparser/json": "^0.0.22"

@@ -32,7 +32,8 @@
     "pretest": "npm run build",
     "test": "npm run test -ws",
     "test-with-coverage": "npm test -- --coverage",
-    "test:performance": "npm run test:performance -ws"
+    "test:performance": "npm run test:performance -ws",
+    "test:pack": "node scripts/verify-tarball.mjs"
   },
   "license": "MIT",
   "tags": [
