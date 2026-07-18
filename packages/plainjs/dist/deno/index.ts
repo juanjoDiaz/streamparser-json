@@ -12,8 +12,27 @@ export {
 
 export * as utf8 from "./utils/utf-8.ts";
 export * as JsonTypes from "./utils/types/jsonTypes.ts";
-export * as ParsedTokenInfo from "./utils/types/parsedTokenInfo.ts";
-export * as ParsedElementInfo from "./utils/types/parsedElementInfo.ts";
+export type {
+  ParsedTokenInfo,
+  ParsedLeftBraceTokenInfo,
+  ParsedRightBraceTokenInfo,
+  ParsedLeftBracketTokenInfo,
+  ParsedRighBracketTokenInfo,
+  ParsedColonTokenInfo,
+  ParsedCommaTokenInfo,
+  ParsedTrueTokenInfo,
+  ParsedFalseTokenInfo,
+  ParsedNullTokenInfo,
+  ParsedStringTokenInfo,
+  ParsedNumberTokenInfo,
+  ParsedSeparatorTokenInfo,
+} from "./utils/types/parsedTokenInfo.ts";
+export type {
+  ParsedElementInfo,
+  ParsedArrayElement,
+  ParsedObjectProperty,
+  ParsedTopLevelElement,
+} from "./utils/types/parsedElementInfo.ts";
 export {
   TokenParserMode,
   type StackElement,
