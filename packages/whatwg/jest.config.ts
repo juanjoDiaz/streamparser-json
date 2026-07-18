@@ -11,6 +11,7 @@ const jestConfig: JestConfigWithTsJest = {
   },
   testEnvironment: 'node',
   testMatch: ['<rootDir>/**/test/*.ts', '<rootDir>/**/test/types/*.ts'],
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/test/performance.ts'],
   collectCoverageFrom: ['src/**'],
   setupFilesAfterEnv: ['<rootDir>/test/utils/setup.ts']
 }

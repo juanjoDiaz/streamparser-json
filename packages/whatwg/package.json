@@ -34,7 +34,9 @@
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
     "test": "node test/CommonJS.cjs && jest test",
-    "test-with-coverage": "npm test -- --coverage"
+    "test-with-coverage": "npm test -- --coverage",
+    "pretest:performance": "npm run build",
+    "test:performance": "jest --config jest.performance.config.ts"
   },
   "license": "MIT",
   "tags": [
