@@ -26,9 +26,6 @@ export default class JSONParserTransform extends Transform {
     this.jsonParser.onError = (err) => {
       throw err;
     };
-    this.jsonParser.onEnd = () => {
-      if (!this.writableEnded) this.end();
-    };
   }
 
   /**

@@ -82,4 +82,15 @@ describe("end", () => {
 
     await runJSONParserTest(p, ["1", separator, "2"]);
   });
+
+  test("should not fail on trailing whitespace received after the root value has completed", async () => {
+    const p = new JSONParser();
+
+    let value;
+    await runJSONParserTest(p, ["{}", " "], (parsedElementInfo) => {
+      if (parsedElementInfo.stack.length === 0) value = parsedElementInfo.value;
+    });
+
+    expect(value).toEqual({});
+  });
 });
