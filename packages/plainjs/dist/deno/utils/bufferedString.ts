@@ -2,6 +2,14 @@ export interface StringBuilder {
   byteLength: number;
   appendChar: (char: number) => void;
   appendBuf: (buf: Uint8Array, start?: number, end?: number) => void;
+  // Appends a raw UTF-16 code unit directly to the string, bypassing
+  // UTF-8 encoding entirely. Needed for unpaired surrogates: they are
+  // valid to hold in a JS string (JS strings are just UTF-16 code unit
+  // sequences) but have no valid UTF-8 byte representation, so
+  // TextEncoder/TextDecoder round-tripping would replace them with
+  // U+FFFD. Does not affect byteLength -- callers that use this must
+  // account for the source bytes consumed themselves.
+  appendCharCode: (code: number) => void;
   reset: () => void;
   toString: () => string;
 }
@@ -19,6 +27,10 @@ export class NonBufferedString implements StringBuilder {
   public appendBuf(buf: Uint8Array, start = 0, end: number = buf.length): void {
     this.strings.push(this.decoder.decode(buf.subarray(start, end)));
     this.byteLength += end - start;
+  }
+
+  public appendCharCode(code: number): void {
+    this.strings.push(String.fromCharCode(code));
   }
 
   public reset(): void {
@@ -54,6 +66,11 @@ export class BufferedString implements StringBuilder {
     this.buffer.set(buf.subarray(start, end), this.bufferOffset);
     this.bufferOffset += size;
     this.byteLength += size;
+  }
+
+  public appendCharCode(code: number): void {
+    this.flushStringBuffer();
+    this.string += String.fromCharCode(code);
   }
 
   private flushStringBuffer(): void {

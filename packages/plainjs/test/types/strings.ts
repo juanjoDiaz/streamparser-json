@@ -193,11 +193,54 @@ describe("string", () => {
           );
         });
 
-        test("not error on broken surrogate pair", async () => {
+        test("raw (non-escaped) surrogate pair split across two separate string writes", async () => {
+          const emoji = "😋"; // U+1F60B, a surrogate pair in JS string form
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [`${quote}a${emoji[0]}`, `${emoji[1]}b${quote}`],
+            ({ value }) => expect(value).toEqual(`a${emoji}b`),
+          );
+        });
+
+        test("raw (non-escaped) surrogate pair split one character at a time", async () => {
+          const emoji = "😋";
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [quote, "a", emoji[0], emoji[1], "b", quote],
+            ({ value }) => expect(value).toEqual(`a${emoji}b`),
+          );
+        });
+
+        test("high surrogate not followed by a low surrogate is kept as-is, matching JSON.parse", async () => {
           await runJSONParserTest(
             new JSONParser({ stringBufferSize }),
             [quote, "\\uD83D\\uEFFF", quote],
-            ({ value }) => expect(value).toEqual("�"),
+            ({ value }) =>
+              expect(value).toEqual(JSON.parse('"\\uD83D\\uEFFF"')),
+          );
+        });
+
+        test("lone high surrogate followed by a plain character is kept as-is, matching JSON.parse", async () => {
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [quote, "\\uD800x", quote],
+            ({ value }) => expect(value).toEqual(JSON.parse('"\\uD800x"')),
+          );
+        });
+
+        test("lone high surrogate at the end of the string is kept as-is, matching JSON.parse", async () => {
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [quote, "\\uD800", quote],
+            ({ value }) => expect(value).toEqual(JSON.parse('"\\uD800"')),
+          );
+        });
+
+        test("lone low surrogate is kept as-is, matching JSON.parse", async () => {
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [quote, "\\uDC00", quote],
+            ({ value }) => expect(value).toEqual(JSON.parse('"\\uDC00"')),
           );
         });
       });

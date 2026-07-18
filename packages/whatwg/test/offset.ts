@@ -67,3 +67,23 @@ test("offset", async () => {
     },
   );
 });
+
+test("offset after a valid escaped surrogate pair is not shifted", async () => {
+  // ["😋",5]
+  //  0123456789012345 67 8
+  //            1111111
+  const input = '["\\uD83D\\uDE0B",5]';
+  const tokens: { token: number; offset: number }[] = [];
+
+  await runTokenizerTest(new Tokenizer(), [input], ({ token, offset }) => {
+    tokens.push({ token, offset });
+  });
+
+  expect(tokens).toEqual([
+    { token: TokenType.LEFT_BRACKET, offset: 0 },
+    { token: TokenType.STRING, offset: 1 },
+    { token: TokenType.COMMA, offset: 15 },
+    { token: TokenType.NUMBER, offset: 16 },
+    { token: TokenType.RIGHT_BRACKET, offset: 17 },
+  ]);
+});

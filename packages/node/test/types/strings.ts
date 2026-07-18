@@ -140,11 +140,45 @@ describe("string", () => {
           );
         });
 
-        test("not error on broken surrogate pair", async () => {
+        // Raw (non-escaped) surrogate pairs split across separate string
+        // writes are NOT tested here (unlike plainjs/whatwg): Node's own
+        // Readable.push(string) encodes each chunk to a Buffer immediately
+        // and independently, before _transform ever sees it, so a lone
+        // surrogate at a chunk boundary is already corrupted into U+FFFD by
+        // Node's own stream internals before it ever reaches this library's
+        // tokenizer. That's a Node Readable-stream platform limitation, not
+        // something fixable at the tokenizer level for this adapter.
+
+        test("high surrogate not followed by a low surrogate is kept as-is, matching JSON.parse", async () => {
           await runJSONParserTest(
             new JSONParser({ stringBufferSize }),
             [quote, "\\uD83D\\uEFFF", quote],
-            ({ value }) => expect(value).toEqual("�"),
+            ({ value }) =>
+              expect(value).toEqual(JSON.parse('"\\uD83D\\uEFFF"')),
+          );
+        });
+
+        test("lone high surrogate followed by a plain character is kept as-is, matching JSON.parse", async () => {
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [quote, "\\uD800x", quote],
+            ({ value }) => expect(value).toEqual(JSON.parse('"\\uD800x"')),
+          );
+        });
+
+        test("lone high surrogate at the end of the string is kept as-is, matching JSON.parse", async () => {
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [quote, "\\uD800", quote],
+            ({ value }) => expect(value).toEqual(JSON.parse('"\\uD800"')),
+          );
+        });
+
+        test("lone low surrogate is kept as-is, matching JSON.parse", async () => {
+          await runJSONParserTest(
+            new JSONParser({ stringBufferSize }),
+            [quote, "\\uDC00", quote],
+            ({ value }) => expect(value).toEqual(JSON.parse('"\\uDC00"')),
           );
         });
       });
