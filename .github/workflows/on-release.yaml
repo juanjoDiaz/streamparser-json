@@ -3,15 +3,8 @@ on:
   release:
     types: [published]
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        package:
-          - '@streamparser/json'
-          - '@streamparser/json-node'
-          - '@streamparser/json-whatwg'
 
     steps:
     - uses: actions/checkout@v3
@@ -25,7 +18,7 @@ jobs:
       uses: actions/cache@v3
       if: ${{ runner.OS != 'Windows' }}
       with:
-        path: ~/.npm 
+        path: ~/.npm
         key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.OS }}-node-
@@ -41,6 +34,17 @@ jobs:
           ${{ runner.OS }}-
     - run: npm ci
     - run: npm run build
-    - run: npm publish --access public -w ${{ matrix.package }}
+    # Published in dependency order: the adapters declare a version range on
+    # the core package, so it must be live on the registry before they are.
+    - name: Publish @streamparser/json
+      run: npm publish --access public -w @streamparser/json
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - name: Publish @streamparser/json-node
+      run: npm publish --access public -w @streamparser/json-node
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - name: Publish @streamparser/json-whatwg
+      run: npm publish --access public -w @streamparser/json-whatwg
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
