@@ -131,4 +131,39 @@ describe("objects", () => {
       }
     });
   });
+
+  describe("prototype pollution", () => {
+    test("a __proto__ key becomes an own property instead of altering the prototype", async () => {
+      await runJSONParserTest(
+        new JSONParser(),
+        ['{"__proto__":{"isAdmin":true}}'],
+        ({ value, stack }) => {
+          if (stack.length !== 0) return;
+
+          expect(Object.getPrototypeOf(value)).toBe(Object.prototype);
+          expect(Object.prototype.hasOwnProperty.call(value, "__proto__")).toBe(
+            true,
+          );
+          expect((value as { isAdmin?: boolean }).isAdmin).toBeUndefined();
+          expect(value).toEqual(JSON.parse('{"__proto__":{"isAdmin":true}}'));
+        },
+      );
+    });
+
+    test("a nested __proto__ key becomes an own property instead of altering the prototype", async () => {
+      await runJSONParserTest(
+        new JSONParser(),
+        ['{"a":{"__proto__":{"isAdmin":true}}}'],
+        ({ value, stack }) => {
+          if (stack.length !== 0) return;
+
+          const nested = (value as { a: object }).a;
+          expect(Object.getPrototypeOf(nested)).toBe(Object.prototype);
+          expect(
+            Object.prototype.hasOwnProperty.call(nested, "__proto__"),
+          ).toBe(true);
+        },
+      );
+    });
+  });
 });

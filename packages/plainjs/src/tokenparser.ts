@@ -31,6 +31,29 @@ function TokenParserStateToString(state: TokenParserState): string {
   ];
 }
 
+// Plain bracket assignment invokes the inherited `Object.prototype.__proto__`
+// setter for that one key name, letting a "__proto__" key in the input alter
+// obj's actual prototype instead of becoming a property of obj. Only that key
+// needs the safe (but slower) Object.defineProperty path -- every other key,
+// i.e. the overwhelming majority, keeps the fast, JIT-friendly assignment.
+function setProperty(
+  obj: JsonObject,
+  key: string,
+  value: JsonPrimitive | JsonStruct,
+): void {
+  if (key === "__proto__") {
+    Object.defineProperty(obj, key, {
+      value,
+      writable: true,
+      enumerable: true,
+      configurable: true,
+    });
+    return;
+  }
+
+  obj[key] = value;
+}
+
 export interface TokenParserOptions {
   paths?: string[];
   keepStack?: boolean;
@@ -212,7 +235,7 @@ export default class TokenParser {
           token === TokenType.NULL
         ) {
           if (this.mode === TokenParserMode.OBJECT) {
-            (this.value as JsonObject)[this.key as string] = value;
+            setProperty(this.value as JsonObject, this.key as string, value);
             this.state = TokenParserState.COMMA;
           } else if (this.mode === TokenParserMode.ARRAY) {
             (this.value as JsonArray).push(value);
@@ -226,7 +249,9 @@ export default class TokenParser {
         if (token === TokenType.LEFT_BRACE) {
           this.push();
           if (this.mode === TokenParserMode.OBJECT) {
-            this.value = (this.value as JsonObject)[this.key as string] = {};
+            const val = {};
+            setProperty(this.value as JsonObject, this.key as string, val);
+            this.value = val;
           } else if (this.mode === TokenParserMode.ARRAY) {
             const val = {};
             (this.value as JsonArray).push(val);
@@ -244,7 +269,9 @@ export default class TokenParser {
         if (token === TokenType.LEFT_BRACKET) {
           this.push();
           if (this.mode === TokenParserMode.OBJECT) {
-            this.value = (this.value as JsonObject)[this.key as string] = [];
+            const val: JsonArray = [];
+            setProperty(this.value as JsonObject, this.key as string, val);
+            this.value = val;
           } else if (this.mode === TokenParserMode.ARRAY) {
             const val: JsonArray = [];
             (this.value as JsonArray).push(val);
