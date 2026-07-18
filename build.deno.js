@@ -9,6 +9,7 @@ import {
   lstatSync,
   readFileSync,
   writeFileSync,
+  rmSync,
 } from "fs";
 
 const pkgInfo = JSON.parse(
@@ -59,5 +60,6 @@ function processDir(src, dest) {
 }
 
 const [, , src, dest] = process.argv; // './src', './dist'
+rmSync(dest, { recursive: true, force: true });
 processDir(path.join(src, "src"), dest);
 copyReadme(src, dest);
