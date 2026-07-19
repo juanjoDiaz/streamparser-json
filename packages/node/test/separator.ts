@@ -97,6 +97,34 @@ describe("separator", () => {
     }
   });
 
+  test("fail when the stream ends mid-way through a multi-byte separator", async () => {
+    let didThrow = false;
+    try {
+      // "\r\n" separator, but the input ends right after the "\r", missing
+      // the "\n" -- this must not be mistaken for a clean end of stream.
+      await runJSONParserTest(new JSONParser({ separator: "\r\n" }), [
+        "{}",
+        "\r",
+      ]);
+    } catch {
+      didThrow = true;
+    }
+    expect(didThrow).toEqual(true);
+  });
+
+  test("fail when the stream ends after only part of a longer multi-byte separator", async () => {
+    let didThrow = false;
+    try {
+      await runJSONParserTest(new JSONParser({ separator: "<->" }), [
+        "{}",
+        "<-",
+      ]);
+    } catch {
+      didThrow = true;
+    }
+    expect(didThrow).toEqual(true);
+  });
+
   test("not fail when whitespaces match separator", async () => {
     let i = 0;
     const value = `{
