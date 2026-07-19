@@ -1,5 +1,8 @@
 import { runJSONParserTest } from "./utils/testRunner.js";
 import JSONParser from "../src/jsonparser.js";
+import TokenParser from "../src/tokenparser.js";
+import Tokenizer from "../src/tokenizer.js";
+import TokenType from "@streamparser/json/utils/types/tokenType.js";
 
 describe("end", () => {
   test("should fail if writing after ending", async () => {
@@ -104,5 +107,47 @@ describe("end", () => {
     await readLoop;
 
     expect(values).toEqual([{}]);
+  });
+
+  test("should let the writer close() normally after the root token has completed (TokenParser)", async () => {
+    const p = new TokenParser({});
+    const writer = p.writable.getWriter();
+    const reader = p.readable.getReader();
+
+    const values: unknown[] = [];
+    const readLoop = (async () => {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) return;
+        values.push(value.value);
+      }
+    })();
+
+    await writer.write({ token: TokenType.TRUE, value: true });
+    await writer.close();
+    await readLoop;
+
+    expect(values).toEqual([true]);
+  });
+
+  test("should let the writer close() normally after a token has completed (Tokenizer)", async () => {
+    const p = new Tokenizer({});
+    const writer = p.writable.getWriter();
+    const reader = p.readable.getReader();
+
+    const values: unknown[] = [];
+    const readLoop = (async () => {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) return;
+        values.push(value.value);
+      }
+    })();
+
+    await writer.write("true");
+    await writer.close();
+    await readLoop;
+
+    expect(values).toEqual([true]);
   });
 });

@@ -15,7 +15,6 @@ class TokenParserTransformer
     this.onValue = (parsedElementInfo) =>
       this.controller.enqueue(cloneParsedElementInfo(parsedElementInfo));
     this.onError = (err: Error) => this.controller.error(err);
-    this.onEnd = () => this.controller.terminate();
   }
 
   start(controller: TransformStreamDefaultController<ParsedElementInfo>) {
@@ -27,7 +26,7 @@ class TokenParserTransformer
   }
 
   flush() {
-    this.end();
+    if (!this.isEnded) this.end();
   }
 }
 

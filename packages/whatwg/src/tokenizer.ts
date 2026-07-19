@@ -15,7 +15,6 @@ class TokenizerTransformer
     this.onToken = (parsedTokenInfo) =>
       this.controller.enqueue(parsedTokenInfo);
     this.onError = (err) => this.controller.error(err);
-    this.onEnd = () => this.controller.terminate();
   }
 
   start(controller: TransformStreamDefaultController<ParsedTokenInfo>) {
@@ -27,7 +26,7 @@ class TokenizerTransformer
   }
 
   flush() {
-    this.end();
+    if (!this.isEnded) this.end();
   }
 }
 
