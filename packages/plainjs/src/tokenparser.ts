@@ -228,6 +228,16 @@ export default class TokenParser {
   }: Omit<ParsedTokenInfo, "offset">): void {
     try {
       if (partial) {
+        if (
+          this.state !== TokenParserState.VALUE &&
+          this.state !== TokenParserState.KEY
+        ) {
+          throw new TokenParserError(
+            `Unexpected partial ${TokenType[token]} (${JSON.stringify(
+              value,
+            )}) in state ${TokenParserStateToString(this.state)}`,
+          );
+        }
         this.emitPartial(value);
         return;
       }

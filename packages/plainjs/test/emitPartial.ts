@@ -1,10 +1,12 @@
 import TokenType from "../src/utils/types/tokenType.js";
 import JSONParser from "../src/jsonparser.js";
 import Tokenizer from "../src/tokenizer.js";
+import TokenParser from "../src/tokenparser.js";
 import {
   TestData,
   runJSONParserTest,
   runTokenizerTest,
+  runTokenParserTest,
 } from "./utils/testRunner.js";
 
 describe("Emit Partial", () => {
@@ -616,6 +618,49 @@ describe("Emit Partial", () => {
         );
         expect(i).toEqual(expected.length);
       });
+    });
+  });
+
+  describe("TokenParser rejects partial tokens outside VALUE/KEY state", () => {
+    test("partial token after the parser has already ended", async () => {
+      let didThrow = false;
+      try {
+        await runTokenParserTest(new TokenParser({ emitPartialValues: true }), [
+          { token: TokenType.TRUE, value: true },
+          { token: TokenType.STRING, value: "late", partial: true },
+        ]);
+      } catch {
+        didThrow = true;
+      }
+      expect(didThrow).toEqual(true);
+    });
+
+    test("partial token in COMMA state (between an array element and its comma/bracket)", async () => {
+      let didThrow = false;
+      try {
+        await runTokenParserTest(new TokenParser({ emitPartialValues: true }), [
+          { token: TokenType.LEFT_BRACKET, value: "[" },
+          { token: TokenType.NUMBER, value: 1 },
+          { token: TokenType.NUMBER, value: 2, partial: true },
+        ]);
+      } catch {
+        didThrow = true;
+      }
+      expect(didThrow).toEqual(true);
+    });
+
+    test("partial token in COLON state (between a key and its colon)", async () => {
+      let didThrow = false;
+      try {
+        await runTokenParserTest(new TokenParser({ emitPartialValues: true }), [
+          { token: TokenType.LEFT_BRACE, value: "{" },
+          { token: TokenType.STRING, value: "a" },
+          { token: TokenType.STRING, value: "partial", partial: true },
+        ]);
+      } catch {
+        didThrow = true;
+      }
+      expect(didThrow).toEqual(true);
     });
   });
 
