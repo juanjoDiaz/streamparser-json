@@ -123,6 +123,51 @@ describe("string", () => {
         });
       });
 
+      describe("invalid utf8", () => {
+        const invalidSequences = [
+          {
+            name: "2-byte lead followed by a non-continuation byte",
+            bytes: [0xc2, 0x41],
+          },
+          {
+            name: "3-byte lead followed by only one continuation byte",
+            bytes: [0xe6, 0x88],
+          },
+          {
+            name: "bare continuation byte with no lead byte",
+            bytes: [0x80],
+          },
+          {
+            name: "overlong-encoding lead byte (0xC0)",
+            bytes: [0xc0, 0x80],
+          },
+          {
+            name: "invalid lead byte (0xC1)",
+            bytes: [0xc1, 0x80],
+          },
+          {
+            name: "4-byte lead with a non-continuation 3rd byte",
+            bytes: [0xf0, 0xa0, 0x9c, 0x41],
+          },
+        ];
+
+        invalidSequences.forEach(({ name, bytes }) => {
+          test(`rejects rather than silently replacing: ${name}`, async () => {
+            let didThrow = false;
+            try {
+              await runJSONParserTest(new JSONParser({ stringBufferSize }), [
+                quote,
+                new Uint8Array(bytes),
+                quote,
+              ]);
+            } catch {
+              didThrow = true;
+            }
+            expect(didThrow).toEqual(true);
+          });
+        });
+      });
+
       describe("surrogate", () => {
         test("parse surrogate pair", async () => {
           await runJSONParserTest(

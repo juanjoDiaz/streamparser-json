@@ -15,7 +15,9 @@ export interface StringBuilder {
 }
 
 export class NonBufferedString implements StringBuilder {
-  private decoder = new TextDecoder("utf-8");
+  // fatal: true makes invalid byte sequences (e.g. a lead byte followed by a
+  // non-continuation byte) throw instead of silently decoding to U+FFFD.
+  private decoder = new TextDecoder("utf-8", { fatal: true });
   private strings: string[] = [];
   public byteLength = 0;
 
@@ -44,7 +46,9 @@ export class NonBufferedString implements StringBuilder {
 }
 
 export class BufferedString implements StringBuilder {
-  private decoder = new TextDecoder("utf-8");
+  // fatal: true makes invalid byte sequences (e.g. a lead byte followed by a
+  // non-continuation byte) throw instead of silently decoding to U+FFFD.
+  private decoder = new TextDecoder("utf-8", { fatal: true });
   private buffer: Uint8Array;
   private bufferOffset = 0;
   private string = "";
