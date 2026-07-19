@@ -1,6 +1,6 @@
 import { JSONParser, type JSONParserOptions } from "https://deno.land/x/streamparser_json@v0.0.22/index.ts";
 import type { ParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.22/utils/types/parsedElementInfo.ts";
-import { cloneParsedElementInfo } from "./utils.ts";
+import { cloneParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.22/utils/cloneParsedElementInfo.ts";
 
 class JSONParserTransformer
   extends JSONParser

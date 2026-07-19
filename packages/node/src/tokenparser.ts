@@ -4,6 +4,7 @@ import {
   type TransformCallback,
 } from "stream";
 import { TokenParser, type TokenParserOptions } from "@streamparser/json";
+import { cloneParsedElementInfo } from "@streamparser/json/utils/cloneParsedElementInfo.js";
 
 export default class TokenParserTransform extends Transform {
   private tokenParser: TokenParser;
@@ -22,7 +23,8 @@ export default class TokenParserTransform extends Transform {
     });
     this.tokenParser = new TokenParser(opts);
 
-    this.tokenParser.onValue = (parsedTokenInfo) => this.push(parsedTokenInfo);
+    this.tokenParser.onValue = (parsedElementInfo) =>
+      this.push(cloneParsedElementInfo(parsedElementInfo));
     this.tokenParser.onError = (err) => {
       throw err;
     };

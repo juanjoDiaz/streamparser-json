@@ -4,6 +4,7 @@ import {
   type TransformCallback,
 } from "stream";
 import { TokenParser, type TokenParserOptions } from "https://deno.land/x/streamparser_json@v0.0.22/index.ts";
+import { cloneParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.22/utils/cloneParsedElementInfo.ts";
 
 export default class TokenParserTransform extends Transform {
   private tokenParser: TokenParser;
@@ -22,7 +23,8 @@ export default class TokenParserTransform extends Transform {
     });
     this.tokenParser = new TokenParser(opts);
 
-    this.tokenParser.onValue = (parsedTokenInfo) => this.push(parsedTokenInfo);
+    this.tokenParser.onValue = (parsedElementInfo) =>
+      this.push(cloneParsedElementInfo(parsedElementInfo));
     this.tokenParser.onError = (err) => {
       throw err;
     };

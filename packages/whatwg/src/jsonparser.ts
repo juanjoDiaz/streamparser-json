@@ -1,6 +1,6 @@
 import { JSONParser, type JSONParserOptions } from "@streamparser/json";
 import type { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
-import { cloneParsedElementInfo } from "./utils.js";
+import { cloneParsedElementInfo } from "@streamparser/json/utils/cloneParsedElementInfo.js";
 
 class JSONParserTransformer
   extends JSONParser
