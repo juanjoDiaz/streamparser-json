@@ -62,7 +62,7 @@ describe("separator", () => {
     } catch (err: unknown) {
       expect(err).toBeInstanceOf(Error);
       expect((err as Error).message).toEqual(
-        'Unexpected "e" at position "2" in state SEPARATOR',
+        'Unexpected "e" at chunk position "2" (absolute position "2") in state SEPARATOR',
       );
     }
   });

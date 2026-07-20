@@ -77,10 +77,28 @@ describe("callback", () => {
     };
     p.onError = (err) =>
       expect(err.message).toEqual(
-        'Unexpected "t" at position "2" in state ENDED',
+        'Unexpected "t" at chunk position "2" (absolute position "2") in state ENDED',
       );
 
     p.write('""test""');
+  });
+
+  test("should report a stream-absolute error position spanning multiple writes", () => {
+    const p = new JSONParser();
+    p.onValue = () => {
+      /* Do nothing */
+    };
+    let errMsg: string | undefined;
+    p.onError = (err) => {
+      errMsg = err.message;
+    };
+
+    p.write("          "); // 10 bytes of valid leading whitespace
+    p.write("   X"); // invalid byte at local index 3, absolute index 13
+
+    expect(errMsg).toEqual(
+      'Unexpected "X" at chunk position "3" (absolute position "13") in state BOM_OR_START',
+    );
   });
 
   test("should handle errors on callbacks using the onError callback if set", () => {
