@@ -10,6 +10,37 @@ describe("BOM", () => {
     );
   });
 
+  test("should support UTF-8 BOM via a plain Array", () => {
+    runJSONParserTest(
+      new JSONParser(),
+      [[0xef, 0xbb, 0xbf, 0x31]],
+      ({ value }) => expect(value).toBe(1),
+    );
+  });
+
+  test("should support UTF-8 BOM via a generator", () => {
+    function* gen() {
+      yield 0xef;
+      yield 0xbb;
+      yield 0xbf;
+      yield 0x31;
+    }
+    runJSONParserTest(new JSONParser(), gen(), ({ value }) =>
+      expect(value).toBe(1),
+    );
+  });
+
+  test("should support UTF-8 BOM split across separate writes", () => {
+    runJSONParserTest(
+      new JSONParser(),
+      [
+        [0xef, 0xbb],
+        [0xbf, 0x31],
+      ],
+      ({ value }) => expect(value).toBe(1),
+    );
+  });
+
   test("should support UTF-16 BE BOM", () => {
     runJSONParserTest(
       new JSONParser(),
