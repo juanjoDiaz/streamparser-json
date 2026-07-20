@@ -63,7 +63,7 @@ describe("callback", () => {
     };
     p.onError = (err) =>
       expect(err.message).toEqual(
-        "Unexpected type. The `write` function only accepts Arrays, TypedArrays and Strings.",
+        "Unexpected type. The `write` function only accepts Iterables (e.g. Arrays, Sets, Generators), TypedArrays and Strings.",
       );
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
