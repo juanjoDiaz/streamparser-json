@@ -24,16 +24,17 @@
     "typescript": "~5.1.0"
   },
   "scripts": {
-    "lint": "npm run lint -ws && eslint build.* performance samplejson --ext .js,.ts,.json",
-    "lint:fix": "npm run lint -ws -- --fix && eslint build.* performance samplejson --ext .js,.ts,.json --fix",
-    "build:deno": "npm run build:deno -ws",
-    "build": "npm run build -ws",
+    "lint": "npm run lint -ws && eslint build.* samplejson --ext .js,.ts,.json",
+    "lint:fix": "npm run lint -ws -- --fix && eslint build.* samplejson --ext .js,.ts,.json --fix",
+    "build:deno": "npm run build:deno -ws --if-present",
+    "build": "npm run build -ws --if-present",
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
-    "test": "npm run test -ws",
+    "test": "npm run test -ws --if-present",
     "test-with-coverage": "npm test -- --coverage",
-    "test:performance": "npm run test:performance -ws",
-    "test:pack": "node scripts/verify-tarball.mjs"
+    "test:performance": "npm run test:performance -ws --if-present",
+    "test:pack": "node scripts/verify-tarball.mjs",
+    "benchmark": "npm run benchmark -w packages/performance"
   },
   "license": "MIT",
   "tags": [
@@ -43,6 +44,7 @@
   "workspaces": [
     "packages/plainjs",
     "packages/node",
-    "packages/whatwg"
+    "packages/whatwg",
+    "packages/performance"
   ]
 }
