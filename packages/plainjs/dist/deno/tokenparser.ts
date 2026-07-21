@@ -171,8 +171,13 @@ export default class TokenParser {
       this.value &&
       this.stack.every((item) => !item.emit)
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (this.value as JsonStruct as any)[this.key as string | number];
+      if (Array.isArray(this.value)) {
+        // Shrinking `.length` drops the slot, unlike `delete`, which only leaves a hole
+        this.value.length -= 1;
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        delete (this.value as JsonStruct as any)[this.key as string | number];
+      }
     }
 
     if (emit) {

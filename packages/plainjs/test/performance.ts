@@ -79,6 +79,40 @@ describe("performance", () => {
     );
   });
 
+  test(`should not take quadratically longer to parse a large flat array with keepStack === false`, async () => {
+    const elementCount = 50_000;
+    const items: string[] = [];
+    for (let index = 0; index < elementCount; index++) {
+      items.push(`{"id":${index}}`);
+    }
+    const json = `[${items.join(",")}]`;
+
+    let maxParentLength = 0;
+    const start = Date.now();
+    await runJSONParserTest(
+      new JSONParser({ paths: ["$.*"], keepStack: false }),
+      [json],
+      ({ parent }) => {
+        if (Array.isArray(parent)) {
+          maxParentLength = Math.max(maxParentLength, parent.length);
+        }
+      },
+    );
+    const elapsed = Date.now() - start;
+
+    // `parent` is the top-level array as it's built. With keepStack:false,
+    // each already-emitted element should be dropped (not just hidden),
+    // otherwise `parent` keeps every prior slot forever and cloning/reading
+    // it on each subsequent event costs O(current length) instead of O(1):
+    // quadratic total for a flat n-element array. 50k elements comfortably
+    // finishing in under a couple seconds -- rather than the tens of
+    // seconds a quadratic regression here would take -- is a reliable
+    // signal on its own, without depending on GC/heap-timing the way an
+    // absolute memory threshold would.
+    expect(maxParentLength).toBeLessThanOrEqual(1);
+    expect(elapsed).toBeLessThan(3000);
+  });
+
   test(`should keep memory stable if keepStack === false on object`, async () => {
     const chunk = new Uint8Array(oneKB).fill(charset.LATIN_SMALL_LETTER_A);
     chunk[0] = charset.QUOTATION_MARK;
