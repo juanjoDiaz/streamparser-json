@@ -43,27 +43,110 @@ function shallowClone<T extends JsonStruct | undefined>(value: T): T {
   // The root sentinel stack frame (pushed before the top-level value
   // exists) has no value yet.
   if (value === undefined) return value;
-  if (Array.isArray(value)) return value.slice() as T;
+  return snapshotPrefix(value, prefixLength(value)) as T;
+}
+
+// Number of entries currently in a container: element count for arrays (holes
+// included, so lengths stay comparable), own-key count for objects.
+function prefixLength(container: JsonStruct): number {
+  return Array.isArray(container)
+    ? container.length
+    : Object.keys(container).length;
+}
+
+// An independent snapshot of a container's first `length` entries. For an
+// array that's `slice(0, length)` (holes and -0/Infinity/NaN preserved); for
+// an object it's the first `length` own keys in insertion order, copied with
+// the __proto__ guard.
+function snapshotPrefix(container: JsonStruct, length: number): JsonStruct {
+  if (Array.isArray(container)) return container.slice(0, length);
 
   const copy: JsonObject = {};
-  for (const key of Object.keys(value)) {
-    setProperty(copy, key, (value as JsonObject)[key]);
+  const keys = Object.keys(container);
+  for (let i = 0; i < length; i++) {
+    setProperty(copy, keys[i], (container as JsonObject)[keys[i]]);
   }
-  return copy as T;
+  return copy;
+}
+
+// A memoizing thunk that materializes `container`'s first
+// `prefixLength(container)` entries only on first call.
+//
+// Only correct when `container` is append-only from here on -- i.e.
+// keepStack:true, where the emit-time delete never runs, finished children are
+// frozen, and the container only ever grows by having new siblings appended.
+// Under that guarantee, recording the length now and slicing on first *access*
+// still reproduces exactly the state at emit time, however much later the read
+// happens.
+function lazySnapshot(
+  container: JsonStruct | undefined,
+): () => JsonStruct | undefined {
+  if (container === undefined) return () => undefined;
+
+  const length = prefixLength(container);
+  let snapshot: JsonStruct;
+  let materialized = false;
+  return () => {
+    if (!materialized) {
+      snapshot = snapshotPrefix(container, length);
+      materialized = true;
+    }
+    return snapshot;
+  };
 }
 
 export function cloneParsedElementInfo(
   parsedElementInfo: ParsedElementInfo,
+  // When true (keepStack:true, where every container is append-only from here
+  // on), snapshot `parent`/each stack frame's `value` lazily instead of eagerly
+  // -- see lazySnapshot. The point is that a consumer which never touches these
+  // fields (the common `paths:["$.*"]`-over-a-large-array case) pays nothing,
+  // instead of an O(current length) copy on each of the N events -- which sums
+  // to O(N^2) time and holds N separate growing snapshots live at once (O(N^2)
+  // memory) while they sit in the stream's buffer. Left false by default so any
+  // other caller keeps the straightforward eager clone, and so keepStack:false
+  // (where containers are actively emptied, not append-only, but also already
+  // tiny) stays exact.
+  lazy = false,
 ): ParsedElementInfo {
   const { value, key, parent, stack, partial } = parsedElementInfo;
+
+  if (!lazy) {
+    return {
+      value,
+      key,
+      parent: shallowClone(parent),
+      stack: stack.map((stackElement) => ({
+        ...stackElement,
+        value: shallowClone(stackElement.value) as JsonStruct,
+      })),
+      partial,
+    };
+  }
+
+  // Object-literal getters (not Object.defineProperty) so every clone shares
+  // one hidden class and stays fast to read and to JSON.stringify -- the
+  // getters are still own, enumerable accessor properties. They close over a
+  // per-event memoizing thunk.
+  const parentThunk = lazySnapshot(parent);
   return {
     value,
     key,
-    parent: shallowClone(parent),
-    stack: stack.map((stackElement) => ({
-      ...stackElement,
-      value: shallowClone(stackElement.value) as JsonStruct,
-    })),
+    get parent() {
+      return parentThunk();
+    },
+    stack: stack.map((stackElement) => {
+      const valueThunk = lazySnapshot(stackElement.value);
+      return {
+        key: stackElement.key,
+        get value() {
+          return valueThunk() as JsonStruct;
+        },
+        mode: stackElement.mode,
+        emit: stackElement.emit,
+        memberCount: stackElement.memberCount,
+      };
+    }),
     partial,
   };
 }

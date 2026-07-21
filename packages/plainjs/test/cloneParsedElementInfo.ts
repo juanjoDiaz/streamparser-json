@@ -103,4 +103,131 @@ describe("cloneParsedElementInfo", () => {
     const cloned = cloneParsedElementInfo(elementInfo({ parent: undefined }));
     expect(cloned.parent).toBeUndefined();
   });
+
+  // With keepStack:true the adapters snapshot lazily (cloneParsedElementInfo's
+  // second argument): every container is append-only from that point on, so
+  // recording the length now and slicing on first access still reproduces the
+  // exact state at emit time -- but a consumer that never reads parent/stack
+  // pays nothing instead of an O(n) copy per event.
+  describe("lazy snapshots (keepStack:true)", () => {
+    test("captures the array prefix at clone time even if the container grows afterwards", () => {
+      const parent = [1, 2];
+      const cloned = cloneParsedElementInfo(elementInfo({ parent }), true);
+
+      // The parser keeps appending later siblings to the same array after the
+      // event has fired; the snapshot must still be [1, 2].
+      parent.push(3, 4);
+
+      expect(cloned.parent).toEqual([1, 2]);
+    });
+
+    test("captures the object keys present at clone time even if more are added afterwards", () => {
+      const parent: Record<string, unknown> = { a: 1, b: 2 };
+      const cloned = cloneParsedElementInfo(elementInfo({ parent }), true);
+
+      (parent as Record<string, unknown>).c = 3;
+
+      expect(cloned.parent).toEqual({ a: 1, b: 2 });
+    });
+
+    test("snapshots each stack frame's value at clone time", () => {
+      const frameValue: Record<string, unknown> = { a: 1 };
+      const cloned = cloneParsedElementInfo(
+        elementInfo({
+          stack: [
+            {
+              key: "a",
+              value: frameValue as never,
+              mode: TokenParserMode.OBJECT,
+              emit: false,
+              memberCount: 1,
+            },
+          ],
+        }),
+        true,
+      );
+
+      frameValue.b = 2;
+
+      expect(cloned.stack[0].value).toEqual({ a: 1 });
+    });
+
+    test("is memoized: reading parent twice yields the same array", () => {
+      const cloned = cloneParsedElementInfo(
+        elementInfo({ parent: [1, 2, 3] }),
+        true,
+      );
+      expect(cloned.parent).toBe(cloned.parent);
+    });
+
+    test("mutating the snapshot doesn't affect the source container", () => {
+      const parent = [1, 2, 3];
+      const cloned = cloneParsedElementInfo(elementInfo({ parent }), true);
+
+      (cloned.parent as number[]).push(999);
+
+      expect(parent).toEqual([1, 2, 3]);
+    });
+
+    test("preserves -0, Infinity, -Infinity and NaN", () => {
+      const cloned = cloneParsedElementInfo(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        elementInfo({ parent: [-0, Infinity, -Infinity, NaN] as any }),
+        true,
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const [negZero, inf, negInf, nan] = cloned.parent as any;
+      expect(Object.is(negZero, -0)).toBe(true);
+      expect(inf).toBe(Infinity);
+      expect(negInf).toBe(-Infinity);
+      expect(Number.isNaN(nan)).toBe(true);
+    });
+
+    test("clones a __proto__ own key without polluting Object.prototype", () => {
+      const parent = JSON.parse('{"__proto__":{"polluted":true},"z":9}');
+      const cloned = cloneParsedElementInfo(elementInfo({ parent }), true);
+
+      expect(
+        Object.prototype.hasOwnProperty.call(cloned.parent, "__proto__"),
+      ).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect((cloned.parent as any).__proto__.polluted).toBe(true);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(({} as any).polluted).toBeUndefined();
+    });
+
+    test("returns undefined parent as-is", () => {
+      const cloned = cloneParsedElementInfo(
+        elementInfo({ parent: undefined }),
+        true,
+      );
+      expect(cloned.parent).toBeUndefined();
+    });
+
+    test("leaves value, key and partial untouched", () => {
+      const value = { x: 1 };
+      const cloned = cloneParsedElementInfo(
+        elementInfo({ value, key: "x", partial: true }),
+        true,
+      );
+
+      expect(cloned.value).toBe(value);
+      expect(cloned.key).toBe("x");
+      expect(cloned.partial).toBe(true);
+    });
+
+    test("is JSON.stringify-able (getters are own enumerable properties)", () => {
+      const cloned = cloneParsedElementInfo(
+        elementInfo({ value: 3, key: 0, parent: [3] }),
+        true,
+      );
+      expect(JSON.parse(JSON.stringify(cloned))).toEqual({
+        value: 3,
+        key: 0,
+        parent: [3],
+        stack: [],
+      });
+    });
+  });
 });

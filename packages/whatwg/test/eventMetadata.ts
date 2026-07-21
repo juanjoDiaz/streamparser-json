@@ -65,4 +65,19 @@ describe("event metadata", () => {
 
     expect(parents[2]).toEqual([1, 2, 3]);
   });
+
+  test("parent stays a correct per-event snapshot even when read only after the parse ends", async () => {
+    // The whole event object is collected without touching `parent` during
+    // the callback; `parent` is read only after the stream has fully ended.
+    // With keepStack:true the adapter snapshots lazily, so this exercises the
+    // deferred path -- the snapshot must still reflect the array as it was at
+    // each event, not the final mutated array.
+    const events: { parent?: unknown }[] = [];
+    await runJSONParserTest(
+      new JSONParser({ paths: ["$.*"] }),
+      ["[1,2,3]"],
+      (event) => events.push(event),
+    );
+    expect(events.map((e) => e.parent)).toEqual([[1], [1, 2], [1, 2, 3]]);
+  });
 });

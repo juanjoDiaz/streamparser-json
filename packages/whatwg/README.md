@@ -113,6 +113,7 @@ The available options are:
 
 * paths: Array of paths to emit. Defaults to `undefined` which emits everything. The paths are intended to suppot jsonpath although at the time being it only supports the root object selector (`$`) and subproperties selectors including wildcards (`$.a`, `$.*`, `$.a.b`, , `$.*.b`, etc). 
 * keepStack: Whether to keep full objects on the stack even if they won't be emitted. Defaults to `true`. When set to `false` the it does preserve properties in the parent object some ancestor will be emitted. This means that the parent object passed to the `onValue` function will be empty, which doesn't reflect the truth, but it's more memory-efficient.
+  * When streaming elements out of a large top-level array or object with `paths` (e.g. `paths: ['$.*']`), each event's `parent`/`stack` are snapshotted lazily, so a consumer that only reads `value` (the common case) stays linear regardless of size. Reading `parent`/`stack` on *every* one of many events is different: each read materializes a snapshot of everything parsed so far, which is quadratic overall -- set `keepStack: false` for that case, so already-emitted siblings are dropped instead of accumulating.
 
 ### JSONParser
 

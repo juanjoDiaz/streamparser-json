@@ -11,8 +11,14 @@ class JSONParserTransformer
 
   constructor(opts?: JSONParserOptions) {
     super(opts);
+    // Snapshot lazily unless keepStack:false is set: with keepStack:true the
+    // parser's containers are append-only, so a deferred snapshot is still
+    // correct and avoids an O(n) copy on every event (see
+    // cloneParsedElementInfo). keepStack:false empties them instead, so it
+    // keeps the eager clone.
+    const lazySnapshot = opts?.keepStack !== false;
     this.onValue = (value) =>
-      this.controller.enqueue(cloneParsedElementInfo(value));
+      this.controller.enqueue(cloneParsedElementInfo(value, lazySnapshot));
     this.onError = (err) => this.controller.error(err);
   }
 
