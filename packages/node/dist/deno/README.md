@@ -181,6 +181,21 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
   });
 ```
 
+## Backpressure
+
+When the input arrives in chunks (the normal case for a stream), the parser
+takes part in Node's standard stream backpressure: if a downstream consumer is
+slow, the source is throttled and only a bounded number of parsed values are
+held in the readable buffer at a time. Just pipe as usual and it works.
+
+One caveat: a single `write()` is processed in one synchronous pass, so **all
+the values contained in that one chunk are emitted (and buffered, if unread) at
+once** — backpressure applies *between* chunks, not *within* one. In practice
+this only matters if you hand the parser an entire large document as a single
+`write()`/`end()` call; if you already have the whole document in memory as one
+string that's usually fine, but to get backpressure over a large input, feed it
+in chunks (which is what piping from a file/socket does automatically).
+
 ## License
 
 See [LICENSE.md](../../LICENSE).
