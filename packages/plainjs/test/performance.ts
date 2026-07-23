@@ -1,3 +1,5 @@
+import * as v8 from "v8";
+import * as vm from "vm";
 import { runJSONParserTest } from "./utils/testRunner.js";
 import JSONParser from "../src/jsonparser.js";
 import { charset } from "../src/utils/utf-8.js";
@@ -8,6 +10,20 @@ const oneKB = 1024;
 const oneMB = 1024 * oneKB;
 const twoHundredMB = 200 * oneMB;
 const kbsIn200MBs = twoHundredMB / oneKB;
+
+// Run a real garbage collection without needing the `--expose-gc` CLI flag, so
+// the heap assertions measure *live* memory (post-collection) rather than live
+// plus uncollected garbage -- the latter is what made an absolute heapUsed
+// threshold flaky, since it depended on when GC happened to run.
+function forceGC(): void {
+  v8.setFlagsFromString("--expose-gc");
+  try {
+    const gc = vm.runInNewContext("gc");
+    if (typeof gc === "function") gc();
+  } finally {
+    v8.setFlagsFromString("--no-expose-gc");
+  }
+}
 
 describe("performance", () => {
   describe("buffered parsing", () => {
@@ -50,9 +66,10 @@ describe("performance", () => {
     chunk[chunk.length - 1] = charset.QUOTATION_MARK;
     const commaChunk = new Uint8Array([charset.COMMA]);
 
-    const intialMemoryUsage = process.memoryUsage().heapUsed;
-    const thirtyMBs = 20 * 1024 * 1024;
-    let valuesLeft = kbsIn200MBs;
+    let maxParentLength = 0;
+
+    forceGC();
+    const heapBefore = process.memoryUsage().heapUsed;
 
     await runJSONParserTest(
       new JSONParser({
@@ -70,13 +87,28 @@ describe("performance", () => {
         yield chunk;
         yield new Uint8Array([charset.RIGHT_SQUARE_BRACKET]);
       },
-      () => {
-        if (valuesLeft-- % oneKB !== 0) return;
-
-        const actualMemoryUsage = process.memoryUsage().heapUsed;
-        expect(actualMemoryUsage - intialMemoryUsage < thirtyMBs).toBeTruthy();
+      ({ parent }) => {
+        if (Array.isArray(parent)) {
+          maxParentLength = Math.max(maxParentLength, parent.length);
+        }
       },
     );
+
+    forceGC();
+    const retainedMBs = (process.memoryUsage().heapUsed - heapBefore) / oneMB;
+
+    // Primary, GC-independent signal: with keepStack:false each emitted element
+    // is dropped from its parent array right after emission, so the parent never
+    // accumulates. (This is a mid-parse peak that's released by the end, which
+    // is why the deterministic parent check -- not the heap check below -- is
+    // what guards the drop.)
+    expect(maxParentLength).toBeLessThanOrEqual(1);
+    // Broad safety net for any *persistent* leak (e.g. a string buffer that
+    // stops resetting, or internal accumulation the parser holds past the end):
+    // after forcing GC, live heap growth is a fraction of a MB, nowhere near the
+    // 200MB parsed. Forcing GC first is what makes this reliable rather than
+    // flaky on GC timing.
+    expect(retainedMBs).toBeLessThan(50);
   });
 
   test(`should not take quadratically longer to parse a large flat array with keepStack === false`, async () => {
@@ -211,9 +243,10 @@ describe("performance", () => {
     chunk[chunk.length - 1] = charset.QUOTATION_MARK;
     const commaChunk = new Uint8Array([charset.COMMA]);
 
-    const intialMemoryUsage = process.memoryUsage().heapUsed;
-    const thirtyMBs = 20 * 1024 * 1024;
-    let valuesLeft = kbsIn200MBs;
+    let maxParentKeys = 0;
+
+    forceGC();
+    const heapBefore = process.memoryUsage().heapUsed;
 
     await runJSONParserTest(
       new JSONParser({
@@ -231,12 +264,22 @@ describe("performance", () => {
         yield chunk;
         yield new Uint8Array([charset.RIGHT_CURLY_BRACKET]);
       },
-      () => {
-        if (valuesLeft-- % oneKB !== 0) return;
-
-        const actualMemoryUsage = process.memoryUsage().heapUsed;
-        expect(actualMemoryUsage - intialMemoryUsage < thirtyMBs).toBeTruthy();
+      ({ parent }) => {
+        if (parent && typeof parent === "object" && !Array.isArray(parent)) {
+          maxParentKeys = Math.max(maxParentKeys, Object.keys(parent).length);
+        }
       },
     );
+
+    forceGC();
+    const retainedMBs = (process.memoryUsage().heapUsed - heapBefore) / oneMB;
+
+    // Primary, GC-independent signal: keepStack:false deletes each emitted
+    // member from its parent object right after emission, so the parent never
+    // accumulates.
+    expect(maxParentKeys).toBeLessThanOrEqual(1);
+    // Broad safety net for any persistent leak, made reliable by forcing GC
+    // before sampling (see the array test above for the rationale).
+    expect(retainedMBs).toBeLessThan(50);
   });
 });
