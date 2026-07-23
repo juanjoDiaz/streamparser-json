@@ -689,4 +689,46 @@ describe("Emit Partial", () => {
     );
     expect(i).toEqual(expected.length);
   });
+
+  // A string value streamed one byte at a time produces one partial emit per
+  // byte -- exercising the string builder's toString() hundreds of times on a
+  // single growing value. Every partial must be an exact, non-shrinking prefix
+  // of the final decoded string (incomplete multi-byte characters are held back
+  // until complete, so a partial never cuts through a character).
+  describe("many partial emits on a single growing string value", () => {
+    const cases = [
+      "hello world this is a longer ascii value",
+      "café crème über größe",
+      "中文日本語한국어テスト",
+      "mix 中 a é 🙂 b 日 c 🙂 done",
+    ];
+    cases.forEach((str) => {
+      test(`byte-by-byte partial string: ${str}`, () => {
+        const bytes = new TextEncoder().encode(`"${str}"`);
+        const partials: string[] = [];
+        let final: string | undefined;
+        runJSONParserTest(
+          new JSONParser({
+            emitPartialTokens: true,
+            emitPartialValues: true,
+          }),
+          function* () {
+            for (const b of bytes) yield new Uint8Array([b]);
+          },
+          ({ value, partial }) => {
+            if (typeof value !== "string") return;
+            if (partial) partials.push(value);
+            else final = value;
+          },
+        );
+        expect(final).toEqual(str);
+        let prevLength = 0;
+        for (const partial of partials) {
+          expect(str.startsWith(partial)).toBe(true);
+          expect(partial.length).toBeGreaterThanOrEqual(prevLength);
+          prevLength = partial.length;
+        }
+      });
+    });
+  });
 });

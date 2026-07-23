@@ -18,30 +18,40 @@ export class NonBufferedString implements StringBuilder {
   // fatal: true makes invalid byte sequences (e.g. a lead byte followed by a
   // non-continuation byte) throw instead of silently decoding to U+FFFD.
   private decoder = new TextDecoder("utf-8", { fatal: true });
-  private strings: string[] = [];
+  // Pieces appended since the last toString(), not yet folded into `string`.
+  private pending: string[] = [];
+  private string = "";
   public byteLength = 0;
 
   public appendChar(char: number): void {
-    this.strings.push(String.fromCharCode(char));
+    this.pending.push(String.fromCharCode(char));
     this.byteLength += 1;
   }
 
   public appendBuf(buf: Uint8Array, start = 0, end: number = buf.length): void {
-    this.strings.push(this.decoder.decode(buf.subarray(start, end)));
+    this.pending.push(this.decoder.decode(buf.subarray(start, end)));
     this.byteLength += end - start;
   }
 
   public appendCharCode(code: number): void {
-    this.strings.push(String.fromCharCode(code));
+    this.pending.push(String.fromCharCode(code));
   }
 
   public reset(): void {
-    this.strings = [];
+    this.pending = [];
+    this.string = "";
     this.byteLength = 0;
   }
 
+  // Folds only the pieces appended since the last call into `string`, so
+  // repeated calls (one per chunk when emitting partial tokens) stay linear
+  // overall instead of re-joining the whole accumulated string every time.
   public toString(): string {
-    return this.strings.join("");
+    if (this.pending.length > 0) {
+      this.string += this.pending.join("");
+      this.pending = [];
+    }
+    return this.string;
   }
 }
 

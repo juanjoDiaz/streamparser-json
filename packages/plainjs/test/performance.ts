@@ -113,6 +113,55 @@ describe("performance", () => {
     expect(elapsed).toBeLessThan(3000);
   });
 
+  test(`should not take quadratically longer to emit partial tokens for a large string streamed in small chunks`, () => {
+    const totalChars = 200_000;
+    const bytes = new TextEncoder().encode(
+      quote + "a".repeat(totalChars) + quote,
+    );
+
+    function parseMs(chunkSize: number): number {
+      const parser = new JSONParser({
+        emitPartialTokens: true,
+        emitPartialValues: true,
+      });
+      let finalLength = -1;
+      parser.onValue = ({ value, partial }) => {
+        if (!partial && typeof value === "string") finalLength = value.length;
+      };
+      const start = Date.now();
+      for (let index = 0; index < bytes.length; index += chunkSize) {
+        parser.write(
+          bytes.subarray(index, Math.min(index + chunkSize, bytes.length)),
+        );
+      }
+      if (!parser.isEnded) parser.end();
+      expect(finalLength).toEqual(totalChars);
+      return Date.now() - start;
+    }
+
+    // Warm up both paths so the JIT state is comparable.
+    parseMs(bytes.length);
+    parseMs(64);
+
+    // The single-chunk parse emits one partial (at the end) and is O(n) on any
+    // implementation. The 64-byte-chunk parse emits a partial per chunk; if
+    // each partial rebuilds the whole accumulated string via toString(), those
+    // rebuilds are O(n^2) and this parse is hundreds of times slower. Comparing
+    // both on the same machine is self-calibrating -- measured ~1.3x when the
+    // builder folds incrementally vs ~335x when it re-joins every time -- so the
+    // 25x bound (plus a small absolute floor for the sub-millisecond baseline)
+    // catches a quadratic regression with a wide margin without depending on any
+    // absolute machine speed. Best-of-3 sheds GC/scheduling noise.
+    const single = Math.min(
+      parseMs(bytes.length),
+      parseMs(bytes.length),
+      parseMs(bytes.length),
+    );
+    const many = Math.min(parseMs(64), parseMs(64), parseMs(64));
+
+    expect(many).toBeLessThan(single * 25 + 50);
+  });
+
   test(`should keep memory stable if keepStack === false on object`, async () => {
     const chunk = new Uint8Array(oneKB).fill(charset.LATIN_SMALL_LETTER_A);
     chunk[0] = charset.QUOTATION_MARK;
