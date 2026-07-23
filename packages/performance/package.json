@@ -5,9 +5,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint index.mjs --ext .js,.mjs",
+    "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "npm run lint -- --fix",
-    "benchmark": "node index.mjs"
+    "benchmark": "node index.mjs",
+    "benchmark:strings": "node string-builder-node.mjs",
+    "benchmark:strings:browsers": "node string-builder-browser.mjs",
+    "benchmark:strings:crossover": "node string-crossover-run.mjs"
   },
   "dependencies": {
     "@streamparser/json": "*",
@@ -15,5 +18,8 @@
     "@streamparser/json-whatwg": "*",
     "benchmark": "^2.1.4"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.61.1"
+  }
 }
