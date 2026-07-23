@@ -44,6 +44,33 @@ describe("selectors", () => {
       paths: ["$.a.0.b"],
       expected: [1],
     },
+    // Two selectors sharing a prefix ("a") -- the trie branches at that node.
+    {
+      value: '{ "a": { "b": 1, "c": 2, "d": 3 } }',
+      paths: ["$.a.b", "$.a.c"],
+      expected: [1, 2],
+    },
+    // A literal and a wildcard selector overlap at the same level, so matching
+    // must explore BOTH the literal child and the "*" child: $.x.b matches only
+    // x.b, $.*.c matches x.c and y.c.
+    {
+      value: '{ "x": { "b": 1, "c": 2 }, "y": { "c": 3, "b": 4 } }',
+      paths: ["$.x.b", "$.*.c"],
+      expected: [1, 2, 3],
+    },
+    // Duplicate selectors must still emit each matching value exactly once.
+    {
+      value: '{ "a": 1, "b": 2 }',
+      paths: ["$.a", "$.a"],
+      expected: [1],
+    },
+    // One selector is a prefix of another: $.a.b matches the leaf, $.a matches
+    // the enclosing object (which completes, and so emits, afterwards).
+    {
+      value: '{ "a": { "b": 1 } }',
+      paths: ["$.a", "$.a.b"],
+      expected: [1, { b: 1 }],
+    },
   ];
 
   testData.forEach(({ value, paths, expected }) => {

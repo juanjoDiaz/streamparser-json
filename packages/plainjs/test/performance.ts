@@ -162,6 +162,45 @@ describe("performance", () => {
     expect(many).toBeLessThan(single * 25 + 50);
   });
 
+  test(`should match selectors in time independent of the number of configured paths`, () => {
+    const items: string[] = [];
+    for (let record = 0; record < 20000; record++) {
+      const fields: string[] = [];
+      for (let f = 0; f < 5; f++) fields.push(`"f${f}":${record * 10 + f}`);
+      items.push("{" + fields.join(",") + "}");
+    }
+    const bytes = new TextEncoder().encode("[" + items.join(",") + "]");
+
+    function parseMs(paths: string[]): number {
+      const parser = new JSONParser({ paths });
+      parser.onValue = () => {
+        /* matching runs per value regardless of what the callback does */
+      };
+      const start = Date.now();
+      parser.write(bytes);
+      if (!parser.isEnded) parser.end();
+      return Date.now() - start;
+    }
+
+    const few = ["$.0.f0"];
+    const many = Array.from({ length: 500 }, (_, i) => `$.${i}.f0`);
+
+    parseMs(few);
+    parseMs(many); // warm up
+
+    // shouldEmit() runs on every value. Rescanning the configured selectors made
+    // matching O(number of selectors) per value, so 500 paths took ~13x as long
+    // as 1 (measured ~569ms vs ~44ms). Compiling selectors into a trie makes
+    // matching O(depth) regardless of path count, so the two are ~equal.
+    // Comparing them on the same machine self-calibrates; the 4x bound (plus a
+    // small floor for the sub-millisecond baseline) catches a return to per-value
+    // rescanning with a wide margin. Best-of-3 sheds noise.
+    const fewMs = Math.min(parseMs(few), parseMs(few), parseMs(few));
+    const manyMs = Math.min(parseMs(many), parseMs(many), parseMs(many));
+
+    expect(manyMs).toBeLessThan(fewMs * 4 + 50);
+  });
+
   test(`should keep memory stable if keepStack === false on object`, async () => {
     const chunk = new Uint8Array(oneKB).fill(charset.LATIN_SMALL_LETTER_A);
     chunk[0] = charset.QUOTATION_MARK;

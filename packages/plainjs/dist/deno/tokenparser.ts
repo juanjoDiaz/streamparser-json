@@ -61,6 +61,16 @@ export interface TokenParserOptions {
   emitPartialValues?: boolean;
 }
 
+// Configured selectors are compiled into this trie, keyed by path segment, so
+// matching a value is an O(depth) walk down the trie rather than a rescan of
+// every selector (O(number of selectors)) on every value. "*" is stored as an
+// ordinary key -- it's always the wildcard, since the selector syntax has no
+// way to match a data key literally named "*". `terminal` ends a selector.
+interface SelectorTrieNode {
+  children: Map<string, SelectorTrieNode>;
+  terminal: boolean;
+}
+
 const defaultOpts: TokenParserOptions = {
   paths: undefined,
   keepStack: true,
@@ -77,7 +87,9 @@ export class TokenParserError extends Error {
 }
 
 export default class TokenParser {
-  private readonly paths?: (string[] | undefined)[];
+  // Compiled selectors, or undefined to emit everything -- when no paths are
+  // configured or any path is the match-everything selector (undefined / "$*").
+  private readonly selectorTrie?: SelectorTrieNode;
   private readonly keepStack: boolean;
   private readonly separator?: string;
   private state: TokenParserState = TokenParserState.VALUE;
@@ -94,20 +106,38 @@ export default class TokenParser {
     opts = { ...defaultOpts, ...opts };
 
     if (opts.paths) {
-      this.paths = opts.paths.map((path) => {
-        if (path === undefined || path === "$*") return undefined;
+      const root: SelectorTrieNode = { children: new Map(), terminal: false };
+      // A match-everything selector makes the whole set match everything, which
+      // we represent by leaving the trie undefined (as with no paths at all).
+      let matchEverything = false;
+      for (const path of opts.paths) {
+        if (path === undefined || path === "$*") {
+          matchEverything = true;
+          continue;
+        }
 
         if (!path.startsWith("$"))
           throw new TokenParserError(
             `Invalid selector "${path}". Should start with "$".`,
           );
-        const pathParts = path.split(".").slice(1);
-        if (pathParts.includes(""))
+        const segments = path.split(".").slice(1);
+        if (segments.includes(""))
           throw new TokenParserError(
             `Invalid selector "${path}". ".." syntax not supported.`,
           );
-        return pathParts;
-      });
+
+        let node = root;
+        for (const segment of segments) {
+          let child = node.children.get(segment);
+          if (!child) {
+            child = { children: new Map(), terminal: false };
+            node.children.set(segment, child);
+          }
+          node = child;
+        }
+        node.terminal = true;
+      }
+      if (!matchEverything) this.selectorTrie = root;
     }
 
     this.keepStack = opts.keepStack || false;
@@ -118,23 +148,38 @@ export default class TokenParser {
   }
 
   private shouldEmit(): boolean {
-    if (!this.paths) return true;
+    if (!this.selectorTrie) return true;
+    return this.matchesSelector(this.selectorTrie, 0);
+  }
 
-    return this.paths.some((path) => {
-      if (path === undefined) return true;
-      if (path.length !== this.stack.length) return false;
+  // Depth-first walk of the selector trie down the current value's key path:
+  //   [stack[1].key, ..., stack[n-1].key, this.key]   (n = stack.length)
+  // A value matches iff some branch reaches a terminal node at the exact depth.
+  // Recursion (rather than an explicit frontier) keeps the common single-path
+  // walk allocation-free and short-circuits on the first match, like the old
+  // rescan did, while collapsing its O(number of selectors) cost to O(depth).
+  private matchesSelector(node: SelectorTrieNode, level: number): boolean {
+    const keyCount = this.stack.length;
+    if (level === keyCount) return node.terminal;
 
-      for (let i = 0; i < path.length - 1; i++) {
-        const selector = path[i];
-        const key = this.stack[i + 1].key;
-        if (selector === "*") continue;
-        if (selector !== key?.toString()) return false;
+    const key = level < keyCount - 1 ? this.stack[level + 1].key : this.key;
+
+    // "*" matches any key; try it first since it needs no key lookup.
+    const wildcard = node.children.get("*");
+    if (wildcard && this.matchesSelector(wildcard, level + 1)) return true;
+
+    // Then a literal match. Resolving the key to a string allocates for numeric
+    // array indices, so skip it unless there's a literal child to match.
+    const hasLiteralChild = node.children.size > (wildcard ? 1 : 0);
+    if (hasLiteralChild) {
+      const segment = key?.toString();
+      if (segment !== undefined) {
+        const child = node.children.get(segment);
+        if (child && this.matchesSelector(child, level + 1)) return true;
       }
+    }
 
-      const selector = path[path.length - 1];
-      if (selector === "*") return true;
-      return selector === this.key?.toString();
-    });
+    return false;
   }
 
   private push(): void {
