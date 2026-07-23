@@ -322,4 +322,43 @@ describe("string", () => {
       }
     });
   });
+
+  // The tokenizer decodes a run of multi-byte characters in one appendBuf
+  // rather than one character at a time. When a string is buffered
+  // (stringBufferSize) that hands BufferedString a span larger than its buffer
+  // -- a case that used to throw ("offset is out of bounds") because it only
+  // ever received 2-4 byte spans before. Use a small buffer so the multi-byte
+  // run comfortably exceeds it.
+  describe("multi-byte run larger than the string buffer", () => {
+    test("pure multi-byte string exceeding the buffer decodes correctly", async () => {
+      const str = "文".repeat(1000); // 3000 bytes, >> 64 byte buffer
+      await runJSONParserTest(
+        new JSONParser({ stringBufferSize: 64 }),
+        [quote, str, quote],
+        ({ value }) => expect(value).toEqual(str),
+      );
+    });
+
+    test("ASCII buffered then a large multi-byte span flushes in order", async () => {
+      // 50 ASCII bytes fit in the 64-byte buffer, then a 3000-byte multi-byte
+      // span forces a flush followed by an oversized-span decode.
+      const str = "a".repeat(50) + "文".repeat(1000);
+      await runJSONParserTest(
+        new JSONParser({ stringBufferSize: 64 }),
+        [quote, str, quote],
+        ({ value }) => expect(value).toEqual(str),
+      );
+    });
+
+    test("large multi-byte run split across chunks after complete chars", async () => {
+      // Several complete 3-byte chars, then a char split across the boundary,
+      // exercising the span path plus the STRING_INCOMPLETE_CHAR carry-over.
+      const bytes = new TextEncoder().encode("文".repeat(500)); // 1500 bytes
+      await runJSONParserTest(
+        new JSONParser({ stringBufferSize: 64 }),
+        [quote, bytes.slice(0, 700), bytes.slice(700), quote],
+        ({ value }) => expect(value).toEqual("文".repeat(500)),
+      );
+    });
+  });
 });

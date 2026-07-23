@@ -67,6 +67,16 @@ export class BufferedString implements StringBuilder {
   public appendBuf(buf: Uint8Array, start = 0, end: number = buf.length): void {
     const size = end - start;
     if (this.bufferOffset + size > this.buffer.length) this.flushStringBuffer();
+    if (size > this.buffer.length) {
+      // Span larger than the working buffer: decode it straight into the
+      // string instead of copying it in (buffer.set would overflow). Safe
+      // because callers only append complete-character spans -- the tokenizer
+      // never splits a multi-byte char across appendBuf calls -- so decoding
+      // this span on its own can't cut through the middle of a character.
+      this.string += this.decoder.decode(buf.subarray(start, end));
+      this.byteLength += size;
+      return;
+    }
     this.buffer.set(buf.subarray(start, end), this.bufferOffset);
     this.bufferOffset += size;
     this.byteLength += size;
