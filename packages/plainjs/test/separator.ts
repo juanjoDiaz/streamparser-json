@@ -68,12 +68,12 @@ describe("separator", () => {
   });
 
   test(`fail on invalid token type`, async () => {
+    expect.assertions(2);
     try {
       await runTokenParserTest(new TokenParser({ separator: "\n" }), [
         { token: TokenType.TRUE, value: true },
         { token: TokenType.TRUE, value: true },
       ]);
-      fail("Error expected on invalid selector");
     } catch (err: unknown) {
       expect(err).toBeInstanceOf(Error);
       expect((err as Error).message).toEqual(
@@ -83,12 +83,12 @@ describe("separator", () => {
   });
 
   test("fail on invalid value passed to TokenParser", async () => {
+    expect.assertions(2);
     try {
       await runTokenParserTest(new TokenParser({ separator: "\n" }), [
         { token: TokenType.TRUE, value: true },
         { token: TokenType.SEPARATOR, value: "\r\n" },
       ]);
-      fail("Error expected on invalid selector");
     } catch (err: unknown) {
       expect(err).toBeInstanceOf(Error);
       expect((err as Error).message).toEqual(

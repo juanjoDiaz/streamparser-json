@@ -7,15 +7,33 @@ import TokenType from "@streamparser/json/utils/types/tokenType.js";
 describe("end", () => {
   test("should fail if writing after ending", async () => {
     const p = new JSONParser({ separator: "" });
+    const reader = p.readable.getReader();
+    const writer = p.writable.getWriter();
 
-    await runJSONParserTest(p, ['"test"']);
+    // Drain the output so the write/close below aren't held by backpressure.
+    const drain = (async () => {
+      try {
+        let done = false;
+        while (!done) {
+          done = (await reader.read()).done;
+        }
+      } catch {
+        /* stream closed */
+      }
+    })();
 
-    try {
-      await runJSONParserTest(p, ['"test"']);
-      fail("Expected to fail!");
-    } catch {
-      // Expected error
-    }
+    await writer.write('"test"');
+    await writer.close();
+    await drain;
+
+    // Writing after the stream is closed must reject. (Capture the rejection
+    // rather than asserting its type: the error comes from the WHATWG stream
+    // internals and isn't `instanceof` this realm's Error under jest.)
+    const writeError = await writer
+      .write('"test"')
+      .then(() => undefined)
+      .catch((err) => err);
+    expect(writeError).toBeTruthy();
   });
 
   const autoEndValues = ["2 2", "2.33456{}", "{}{}{}"];
@@ -24,11 +42,11 @@ describe("end", () => {
     test(`should auto-end after emiting one object: ${value}`, async () => {
       const p = new JSONParser();
 
+      expect.assertions(1);
       try {
         await runJSONParserTest(p, [value]);
-        fail(`Expected to fail on value "${value}"`);
-      } catch {
-        // Expected error
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
       }
     });
   });
@@ -72,11 +90,11 @@ describe("end", () => {
     test(`should fail if ending in the middle of parsing: ${value}`, async () => {
       const p = new JSONParser();
 
+      expect.assertions(1);
       try {
         await runJSONParserTest(p, [value]);
-        fail(`Expected to fail on value "${value}"`);
-      } catch {
-        // Expected error
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
       }
     });
   });

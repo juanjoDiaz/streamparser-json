@@ -5,12 +5,16 @@ describe("end", () => {
   test("should fail if writing after ending", async () => {
     const p = new JSONParser({ separator: "" });
 
-    try {
-      await runJSONParserTest(p, ['"test"', '"test"']);
-      fail("Expected to fail!");
-    } catch {
-      // Expected error
-    }
+    await runJSONParserTest(p, ['"test"']);
+
+    // The stream has finished; writing to it now must report an error via the
+    // write callback. (The error originates in Node's stream internals, so it
+    // isn't `instanceof` this realm's Error under jest -- assert it's present
+    // rather than its type, and outside the callback so a failure can't hang.)
+    const writeError = await new Promise((resolve) => {
+      p.write('"test"', (err) => resolve(err));
+    });
+    expect(writeError).toBeTruthy();
   });
 
   const autoEndValues = ["2 2", "2.33456{}", "{}{}{}"];
@@ -19,11 +23,11 @@ describe("end", () => {
     test(`should auto-end after emiting one object: ${value}`, async () => {
       const p = new JSONParser();
 
+      expect.assertions(1);
       try {
         await runJSONParserTest(p, [value]);
-        fail(`Expected to fail on value "${value}"`);
-      } catch {
-        // Expected error
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
       }
     });
   });
@@ -67,11 +71,11 @@ describe("end", () => {
     test(`should fail if ending in the middle of parsing: ${value}`, async () => {
       const p = new JSONParser();
 
+      expect.assertions(1);
       try {
         await runJSONParserTest(p, [value]);
-        fail(`Expected to fail on value "${value}"`);
-      } catch {
-        // Expected error
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
       }
     });
   });

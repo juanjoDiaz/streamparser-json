@@ -247,15 +247,25 @@ describe("string", () => {
     );
   });
 
-  const invalidValues = ["\n", "\\j", "\\ua", "\\u1*", "\\u12*", "\\u123*"];
+  const invalidValues = [
+    '"\n"',
+    '"\\j"',
+    '"\\ua"',
+    '"\\u1*"',
+    '"\\u12*"',
+    "\\u123*",
+    '"\0"',
+    '"\\uG"',
+    '"\\u000G"',
+  ];
 
   invalidValues.forEach((value) => {
     test("fail on invalid values", async () => {
+      expect.assertions(1);
       try {
         await runJSONParserTest(new JSONParser(), [value]);
-        fail(`Expected to fail on value "${value}"`);
-      } catch {
-        // Expected error
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
       }
     });
   });

@@ -107,9 +107,9 @@ describe("selectors", () => {
 
   invalidTestData.forEach(({ paths, expectedError }) => {
     test(`fail on invalid selector ${paths}`, () => {
+      expect.assertions(2);
       try {
         new JSONParser({ paths });
-        fail("Error expected on invalid selector");
       } catch (err: unknown) {
         expect(err).toBeInstanceOf(Error);
         expect((err as Error).message).toEqual(expectedError);

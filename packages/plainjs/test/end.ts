@@ -7,11 +7,11 @@ describe("end", () => {
 
     await runJSONParserTest(p, ['"test"']);
 
+    expect.assertions(1);
     try {
       await runJSONParserTest(p, ['"test"']);
-      fail("Expected to fail!");
-    } catch {
-      // Expected error
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
     }
   });
 
@@ -21,9 +21,9 @@ describe("end", () => {
     test(`should auto-end after emiting one object: ${value}`, async () => {
       const p = new JSONParser();
 
+      expect.assertions(1);
       try {
         await runJSONParserTest(p, [value]);
-        fail(`Expected to fail on value "${value}"`);
       } catch {
         expect(p.isEnded).toBeTruthy();
       }
@@ -75,12 +75,12 @@ describe("end", () => {
     test(`should fail if ending in the middle of parsing: ${value}`, async () => {
       const p = new JSONParser();
 
+      expect.assertions(1);
       try {
         await runJSONParserTest(p, [value]);
         p.end();
-        fail(`Expected to fail on value "${value}"`);
-      } catch {
-        // Expected error
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
       }
     });
   });

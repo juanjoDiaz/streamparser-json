@@ -252,11 +252,11 @@ describe("string", () => {
 
   invalidValues.forEach((value) => {
     test(`fail on invalid values ${value}`, async () => {
+      expect.assertions(1);
       try {
         await runJSONParserTest(new JSONParser(), value);
-        fail(`Expected to fail on value "${value}"`);
-      } catch {
-        // Expected error
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
       }
     });
   });

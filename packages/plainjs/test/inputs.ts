@@ -79,15 +79,15 @@ describe("inputs", () => {
   });
 
   test("write throw on invalid type", async () => {
+    expect.assertions(1);
     try {
       await runJSONParserTest(
         new JSONParser(),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         [745674 as any],
       );
-      fail("Expected to fail!");
-    } catch {
-      // Expected error
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
     }
   });
 });

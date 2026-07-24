@@ -7,11 +7,11 @@ describe("callback", () => {
   test("should error on missing onToken callback", () => {
     const p = new Tokenizer();
 
+    expect.assertions(1);
     try {
       p.write('"test"');
-      fail("Expected to fail(");
-    } catch {
-      // Expected error
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
     }
   });
 
@@ -19,22 +19,22 @@ describe("callback", () => {
     const p = new TokenParser();
     p.end();
 
+    expect.assertions(1);
     try {
       p.write({ token: TokenType.TRUE, value: true });
-      fail("Expected to fail(");
-    } catch {
-      // Expected error
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
     }
   });
 
   test("should error on missing onValue callback", () => {
     const p = new JSONParser();
 
+    expect.assertions(1);
     try {
       p.write('"test"');
-      fail("Expected to fail(");
-    } catch {
-      // Expected error
+    } catch (err) {
+      expect(err).toBeInstanceOf(Error);
     }
   });
 
