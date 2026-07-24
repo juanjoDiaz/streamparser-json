@@ -7,11 +7,11 @@
   "scripts": {
     "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "npm run lint -- --fix",
-    "benchmark": "node index.mjs",
-    "benchmark:strings": "node string-builder-node.mjs",
-    "benchmark:strings:browsers": "node string-builder-browser.mjs",
-    "benchmark:strings:crossover": "node string-crossover-run.mjs",
-    "benchmark:strings:multibyte": "node string-span-run.mjs"
+    "benchmark": "node throughput/index.mjs",
+    "benchmark:strings": "node string-builder/node.mjs",
+    "benchmark:strings:browsers": "node string-builder/browser.mjs",
+    "benchmark:strings:crossover": "node string-crossover/run.mjs",
+    "benchmark:strings:multibyte": "node string-span/run.mjs"
   },
   "dependencies": {
     "@streamparser/json": "*",

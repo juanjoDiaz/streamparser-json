@@ -9,13 +9,13 @@ import {
   NonBufferedString,
   BufferedString,
 } from "@streamparser/json/utils/bufferedString.js";
-import { runSpanBench } from "./string-span-bench.mjs";
+import { runSpanBench } from "./bench.mjs";
 
-const packagesDir = join(dirname(fileURLToPath(import.meta.url)), "..");
+const packagesDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const MIME = { ".js": "text/javascript", ".mjs": "text/javascript" };
 const HTML = `<!doctype html><html><body><script type="module">
 import { NonBufferedString, BufferedString } from '/plainjs/dist/mjs/utils/bufferedString.js';
-import { runSpanBench } from '/performance/string-span-bench.mjs';
+import { runSpanBench } from '/performance/string-span/bench.mjs';
 try { window.__RESULT__ = runSpanBench({ NonBufferedString, BufferedString }); }
 catch (e) { window.__ERROR__ = String((e && e.stack) || e); }
 </script></body></html>`;

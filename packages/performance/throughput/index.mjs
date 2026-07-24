@@ -7,7 +7,7 @@ import { JSONParser as JSONParserTransform } from "@streamparser/json-node";
 import { JSONParser as JSONParserTransformStream } from "@streamparser/json-whatwg";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const sampleJsonDir = join(__dirname, "..", "..", "samplejson");
+const sampleJsonDir = join(__dirname, "..", "..", "..", "samplejson");
 
 function repeat(str, count) {
   return Array(count).fill(str).join("");

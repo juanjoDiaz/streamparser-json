@@ -2,7 +2,7 @@ import {
   NonBufferedString,
   BufferedString,
 } from "@streamparser/json/utils/bufferedString.js";
-import { runStringBuilderBench } from "./string-builder-bench.mjs";
+import { runStringBuilderBench } from "./bench.mjs";
 
 const { results, correctness } = runStringBuilderBench({
   NonBufferedString,
