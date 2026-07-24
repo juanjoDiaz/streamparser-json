@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "npm run lint -- --fix",
-    "benchmark": "node throughput/index.mjs",
+    "benchmark": "node throughput/run.mjs",
     "benchmark:strings": "node string-builder/node.mjs",
     "benchmark:strings:browsers": "node string-builder/browser.mjs",
     "benchmark:strings:crossover": "node string-crossover/run.mjs",
@@ -16,8 +16,7 @@
   "dependencies": {
     "@streamparser/json": "*",
     "@streamparser/json-node": "*",
-    "@streamparser/json-whatwg": "*",
-    "benchmark": "^2.1.4"
+    "@streamparser/json-whatwg": "*"
   },
   "license": "MIT",
   "devDependencies": {
