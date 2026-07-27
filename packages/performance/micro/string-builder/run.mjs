@@ -1,5 +1,7 @@
-// Runs the multibyte span-vs-per-code-point benchmark in Node + Chromium,
-// Firefox and WebKit via Playwright.
+// Runs the string-builder benchmark in Node and in Chromium, Firefox and
+// WebKit (Safari's engine) via Playwright, then prints one comparison table
+// per environment. Serves the built ESM over http so the browsers can import
+// the exact same code Node uses.
 import { chromium, firefox, webkit } from "playwright";
 import http from "node:http";
 import { readFile } from "node:fs/promises";
@@ -9,14 +11,20 @@ import {
   NonBufferedString,
   BufferedString,
 } from "@streamparser/json/utils/bufferedString.js";
-import { runSpanBench } from "./bench.mjs";
+import { runStringBuilderBench } from "./bench.mjs";
 
-const packagesDir = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const packagesDir = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "..",
+  "..",
+);
 const MIME = { ".js": "text/javascript", ".mjs": "text/javascript" };
+
 const HTML = `<!doctype html><html><body><script type="module">
 import { NonBufferedString, BufferedString } from '/plainjs/dist/mjs/utils/bufferedString.js';
-import { runSpanBench } from '/performance/string-span/bench.mjs';
-try { window.__RESULT__ = runSpanBench({ NonBufferedString, BufferedString }); }
+import { runStringBuilderBench } from '/performance/micro/string-builder/bench.mjs';
+try { window.__RESULT__ = runStringBuilderBench({ NonBufferedString, BufferedString }); }
 catch (e) { window.__ERROR__ = String((e && e.stack) || e); }
 </script></body></html>`;
 
@@ -39,11 +47,16 @@ const server = http.createServer(async (req, res) => {
     res.end("not found");
   }
 });
+
 await new Promise((r) => server.listen(0, r));
 const url = `http://localhost:${server.address().port}/`;
 
 const envs = {};
-envs.node = runSpanBench({ NonBufferedString, BufferedString });
+
+// Node, in-process.
+envs.node = runStringBuilderBench({ NonBufferedString, BufferedString });
+
+// Browsers.
 for (const [name, type] of [
   ["chromium", chromium],
   ["firefox", firefox],
@@ -68,12 +81,21 @@ for (const [name, type] of [
 }
 server.close();
 
-for (const [envName, results] of Object.entries(envs)) {
-  console.log(`\n=== ${envName} ===   (MB/s; perCodepoint -> span)`);
-  for (const r of results) {
-    const x = r.perCP && r.span ? `${(r.span / r.perCP).toFixed(2)}x` : "n/a";
-    console.log(
-      `  ${r.case.padEnd(22)} ${r.builder.padEnd(12)} ${String(r.perCP).padStart(5)} -> ${String(r.span).padStart(6)}   ${x}`,
-    );
+// Report.
+for (const [envName, data] of Object.entries(envs)) {
+  const vals = Object.values(data.correctness);
+  const ok = vals.every((v) => v === vals[0]);
+  const cases = [...new Set(data.results.map((r) => r.case))];
+  const variants = [...new Set(data.results.map((r) => r.variant))];
+  console.log(`\n=== ${envName} ===  (correctness ok: ${ok})`);
+  const w = 22;
+  console.log("case".padEnd(10) + variants.map((v) => v.padStart(w)).join(""));
+  for (const c of cases) {
+    let line = c.padEnd(10);
+    for (const v of variants) {
+      const r = data.results.find((x) => x.case === c && x.variant === v);
+      line += `${r.mbps} MB/s`.padStart(w);
+    }
+    console.log(line);
   }
 }
