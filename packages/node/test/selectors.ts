@@ -1,5 +1,5 @@
-import { runJSONParserTest, type TestData } from "./utils/testRunner.js";
 import JSONParser from "../src/jsonparser.js";
+import { runJSONParserTest, type TestData } from "./utils/testRunner.js";
 
 describe("selectors", () => {
   const testData: TestData[] = [

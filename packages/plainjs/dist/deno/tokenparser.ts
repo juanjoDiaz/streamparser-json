@@ -1,18 +1,18 @@
-import { charset } from "./utils/utf-8.ts";
-import TokenType from "./utils/types/tokenType.ts";
 import type {
-  JsonPrimitive,
+  JsonArray,
   JsonKey,
   JsonObject,
-  JsonArray,
+  JsonPrimitive,
   JsonStruct,
 } from "./utils/types/jsonTypes.ts";
+import type { ParsedElementInfo } from "./utils/types/parsedElementInfo.ts";
+import type { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.ts";
 import {
   type StackElement,
   TokenParserMode,
 } from "./utils/types/stackElement.ts";
-import type { ParsedTokenInfo } from "./utils/types/parsedTokenInfo.ts";
-import type { ParsedElementInfo } from "./utils/types/parsedElementInfo.ts";
+import TokenType from "./utils/types/tokenType.ts";
+import { charset } from "./utils/utf-8.ts";
 
 // Parser States
 const enum TokenParserState {
@@ -195,6 +195,7 @@ export default class TokenParser {
   private pop(): void {
     const value = this.value;
 
+    // biome-ignore lint/suspicious/noImplicitAnyLet: assigned via the destructuring assignment below
     let emit;
     ({
       key: this.key,
@@ -220,7 +221,6 @@ export default class TokenParser {
         // Shrinking `.length` drops the slot, unlike `delete`, which only leaves a hole
         this.value.length -= 1;
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         delete (this.value as JsonStruct as any)[this.key as string | number];
       }
     }
@@ -477,7 +477,7 @@ export default class TokenParser {
     }
   }
 
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  // biome-ignore lint/correctness/noUnusedFunctionParameters: override point; the parameter is part of the public signature
   public onValue(parsedElementInfo: ParsedElementInfo): void {
     // Override me
     throw new TokenParserError(

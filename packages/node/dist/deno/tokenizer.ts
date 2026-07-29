@@ -1,8 +1,8 @@
 import {
   Transform,
-  type TransformOptions,
   type TransformCallback,
-} from "stream";
+  type TransformOptions,
+} from "node:stream";
 import Tokenizer, {
   type TokenizerOptions,
 } from "https://deno.land/x/streamparser_json@v0.0.22/tokenizer.ts";
@@ -41,9 +41,8 @@ export default class TokenizerTransform extends Transform {
    * @param {Function} done Called when the proceesing of the supplied chunk is done
    */
   override _transform(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     chunk: any,
-    encoding: BufferEncoding,
+    _encoding: BufferEncoding,
     done: TransformCallback,
   ): void {
     try {

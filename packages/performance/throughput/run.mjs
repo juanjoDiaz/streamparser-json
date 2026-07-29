@@ -8,24 +8,25 @@
 // scenario per fresh page so Firefox's heap resets -- see lib/serve.mjs).
 //
 // Usage: node throughput/run.mjs [--node-only]
-import os from "node:os";
-import { writeFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+
 import { spawnSync } from "node:child_process";
+import { writeFileSync } from "node:fs";
+import os from "node:os";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { JSONParser } from "@streamparser/json";
 import { JSONParser as JSONParserNode } from "@streamparser/json-node";
 import { JSONParser as JSONParserWhatwg } from "@streamparser/json-whatwg";
+import { benchInBrowser, startServer } from "../lib/serve.mjs";
+import { mbps } from "../lib/stats.mjs";
 import {
-  runTier1Scenario,
-  tier1Scenarios,
+  DEFAULT_TARGET_BYTES,
   measureCells,
   measureTTFV,
-  DEFAULT_TARGET_BYTES,
+  runTier1Scenario,
+  tier1Scenarios,
 } from "./bench.mjs";
-import { TIER1, TIER3_STRESS, generate } from "./corpus.mjs";
-import { mbps } from "../lib/stats.mjs";
-import { startServer, benchInBrowser } from "../lib/serve.mjs";
+import { generate, TIER1, TIER3_STRESS } from "./corpus.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packagesDir = join(__dirname, "..", "..");
@@ -141,7 +142,7 @@ async function runNodeTier1() {
       await runTier1Scenario(NODE_PARSERS, i, DEFAULT_TARGET_BYTES, forceGC),
     );
   }
-  process.stderr.write("".padEnd(60) + "\r");
+  process.stderr.write(`${"".padEnd(60)}\r`);
   return rows;
 }
 
@@ -186,7 +187,7 @@ async function runTier2() {
       });
     }
   }
-  process.stderr.write("".padEnd(60) + "\r");
+  process.stderr.write(`${"".padEnd(60)}\r`);
   return rows;
 }
 const nodeTier2 = await runTier2();
@@ -206,7 +207,7 @@ async function runTier3() {
     });
     rows.push({ corpus: entry.name, bytes: bytes.length, cells });
   }
-  process.stderr.write("".padEnd(60) + "\r");
+  process.stderr.write(`${"".padEnd(60)}\r`);
   return rows;
 }
 const nodeTier3 = await runTier3();
@@ -269,7 +270,7 @@ function runMemory() {
       streamDrop: +retainedStreaming(bytes, false).toFixed(1),
     });
   }
-  process.stderr.write("".padEnd(60) + "\r");
+  process.stderr.write(`${"".padEnd(60)}\r`);
   return rows;
 }
 const memory = runMemory();
@@ -291,7 +292,7 @@ async function runTTFV() {
       ttfv: await measureTTFV(NODE_PARSERS, { bytes, ndjson, opts }),
     });
   }
-  process.stderr.write("".padEnd(60) + "\r");
+  process.stderr.write(`${"".padEnd(60)}\r`);
   return rows;
 }
 const ttfv = await runTTFV();
@@ -331,7 +332,7 @@ window.__bench = {
       try {
         const { rows } = await benchInBrowser(type, server.url, {
           onScenario: (label) =>
-            process.stderr.write(`  ${name} · ${label}`.padEnd(60) + "\r"),
+            process.stderr.write(`${`  ${name} · ${label}`.padEnd(60)}\r`),
         });
         results.engines[name] = { tier1: rows.filter(Boolean) };
       } catch (e) {
@@ -339,7 +340,7 @@ window.__bench = {
           `  ${name} could not run: ${e.message.split("\n")[0]}\n`,
         );
       }
-      process.stderr.write("".padEnd(60) + "\r");
+      process.stderr.write(`${"".padEnd(60)}\r`);
     }
   } finally {
     server.close();

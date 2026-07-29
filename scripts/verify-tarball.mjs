@@ -10,7 +10,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -60,7 +60,9 @@ try {
       ["--input-type=module", "-e", `await import('${pkg.name}');`],
       { cwd: installDir, stdio: "inherit" },
     );
-    console.log(`OK: ${pkg.name} requires and imports from an installed tarball`);
+    console.log(
+      `OK: ${pkg.name} requires and imports from an installed tarball`,
+    );
   }
 } finally {
   rmSync(packDestination, { recursive: true, force: true });

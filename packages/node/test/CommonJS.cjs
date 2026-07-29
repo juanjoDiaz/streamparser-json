@@ -1,1 +1,1 @@
-require('@streamparser/json-node');
+require("@streamparser/json-node");

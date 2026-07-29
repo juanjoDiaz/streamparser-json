@@ -1,8 +1,8 @@
-import * as v8 from "v8";
-import * as vm from "vm";
-import { runJSONParserTest } from "./utils/testRunner.js";
+import * as v8 from "node:v8";
+import * as vm from "node:vm";
 import JSONParser from "../src/jsonparser.js";
 import { charset } from "../src/utils/utf-8.js";
+import { runJSONParserTest } from "./utils/testRunner.js";
 
 const quote = String.fromCharCode(charset.QUOTATION_MARK);
 
@@ -199,9 +199,9 @@ describe("performance", () => {
     for (let record = 0; record < 20000; record++) {
       const fields: string[] = [];
       for (let f = 0; f < 5; f++) fields.push(`"f${f}":${record * 10 + f}`);
-      items.push("{" + fields.join(",") + "}");
+      items.push(`{${fields.join(",")}}`);
     }
-    const bytes = new TextEncoder().encode("[" + items.join(",") + "]");
+    const bytes = new TextEncoder().encode(`[${items.join(",")}]`);
 
     function parseMs(paths: string[]): number {
       const parser = new JSONParser({ paths });

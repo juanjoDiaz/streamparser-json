@@ -1,11 +1,11 @@
-import type { StackElement } from "./stackElement.ts";
 import type {
-  JsonPrimitive,
+  JsonArray,
   JsonKey,
   JsonObject,
-  JsonArray,
+  JsonPrimitive,
   JsonStruct,
 } from "./jsonTypes.ts";
+import type { StackElement } from "./stackElement.ts";
 
 export interface ParsedElementInfo {
   value?: JsonPrimitive | JsonStruct;

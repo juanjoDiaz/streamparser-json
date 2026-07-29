@@ -27,17 +27,14 @@ describe("cloneParsedElementInfo", () => {
     const cloned = cloneParsedElementInfo(elementInfo({ parent }));
 
     expect(cloned.parent).not.toBe(parent);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((cloned.parent as any).a).toBe(nested);
   });
 
   test("preserves -0, Infinity, -Infinity and NaN", () => {
     const cloned = cloneParsedElementInfo(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       elementInfo({ parent: [-0, Infinity, -Infinity, NaN] as any }),
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [negZero, inf, negInf, nan] = cloned.parent as any;
     expect(Object.is(negZero, -0)).toBe(true);
     expect(inf).toBe(Infinity);
@@ -58,12 +55,9 @@ describe("cloneParsedElementInfo", () => {
     const parent = JSON.parse('{"__proto__":{"polluted":true},"z":9}');
     const cloned = cloneParsedElementInfo(elementInfo({ parent }));
 
-    expect(
-      Object.prototype.hasOwnProperty.call(cloned.parent, "__proto__"),
-    ).toBe(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect(Object.hasOwn(cloned.parent, "__proto__")).toBe(true);
+    // biome-ignore lint/suspicious/noProto: intentionally reads __proto__ to assert prototype-pollution protection
     expect((cloned.parent as any).__proto__.polluted).toBe(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(({} as any).polluted).toBeUndefined();
   });
 
@@ -94,7 +88,6 @@ describe("cloneParsedElementInfo", () => {
       }),
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (cloned.stack[0].value as any).a = 999;
     expect(frameValue).toEqual({ a: 1 });
   });
@@ -171,12 +164,10 @@ describe("cloneParsedElementInfo", () => {
 
     test("preserves -0, Infinity, -Infinity and NaN", () => {
       const cloned = cloneParsedElementInfo(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         elementInfo({ parent: [-0, Infinity, -Infinity, NaN] as any }),
         true,
       );
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const [negZero, inf, negInf, nan] = cloned.parent as any;
       expect(Object.is(negZero, -0)).toBe(true);
       expect(inf).toBe(Infinity);
@@ -188,12 +179,9 @@ describe("cloneParsedElementInfo", () => {
       const parent = JSON.parse('{"__proto__":{"polluted":true},"z":9}');
       const cloned = cloneParsedElementInfo(elementInfo({ parent }), true);
 
-      expect(
-        Object.prototype.hasOwnProperty.call(cloned.parent, "__proto__"),
-      ).toBe(true);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect(Object.hasOwn(cloned.parent, "__proto__")).toBe(true);
+      // biome-ignore lint/suspicious/noProto: intentionally reads __proto__ to assert prototype-pollution protection
       expect((cloned.parent as any).__proto__.polluted).toBe(true);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(({} as any).polluted).toBeUndefined();
     });
 

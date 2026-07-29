@@ -5,8 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint . --ext .js,.mjs",
-    "lint:fix": "npm run lint -- --fix",
+    "lint": "biome check .",
     "benchmark": "node throughput/run.mjs",
     "benchmark:node": "node throughput/run.mjs --node-only",
     "benchmark:micro": "npm run benchmark:micro:builder && npm run benchmark:micro:crossover && npm run benchmark:micro:span",

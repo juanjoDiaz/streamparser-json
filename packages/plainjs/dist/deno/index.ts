@@ -1,40 +1,39 @@
 export { default as JSONParser, type JSONParserOptions } from "./jsonparser.ts";
 export {
   default as Tokenizer,
-  type TokenizerOptions,
   TokenizerError,
+  type TokenizerOptions,
 } from "./tokenizer.ts";
 export {
   default as TokenParser,
-  type TokenParserOptions,
   TokenParserError,
+  type TokenParserOptions,
 } from "./tokenparser.ts";
-
-export * as utf8 from "./utils/utf-8.ts";
 export * as JsonTypes from "./utils/types/jsonTypes.ts";
 export type {
-  ParsedTokenInfo,
-  ParsedLeftBraceTokenInfo,
-  ParsedRightBraceTokenInfo,
-  ParsedLeftBracketTokenInfo,
-  ParsedRighBracketTokenInfo,
-  ParsedColonTokenInfo,
-  ParsedCommaTokenInfo,
-  ParsedTrueTokenInfo,
-  ParsedFalseTokenInfo,
-  ParsedNullTokenInfo,
-  ParsedStringTokenInfo,
-  ParsedNumberTokenInfo,
-  ParsedSeparatorTokenInfo,
-} from "./utils/types/parsedTokenInfo.ts";
-export type {
-  ParsedElementInfo,
   ParsedArrayElement,
+  ParsedElementInfo,
   ParsedObjectProperty,
   ParsedTopLevelElement,
 } from "./utils/types/parsedElementInfo.ts";
+export type {
+  ParsedColonTokenInfo,
+  ParsedCommaTokenInfo,
+  ParsedFalseTokenInfo,
+  ParsedLeftBraceTokenInfo,
+  ParsedLeftBracketTokenInfo,
+  ParsedNullTokenInfo,
+  ParsedNumberTokenInfo,
+  ParsedRighBracketTokenInfo,
+  ParsedRightBraceTokenInfo,
+  ParsedSeparatorTokenInfo,
+  ParsedStringTokenInfo,
+  ParsedTokenInfo,
+  ParsedTrueTokenInfo,
+} from "./utils/types/parsedTokenInfo.ts";
 export {
-  TokenParserMode,
   type StackElement,
+  TokenParserMode,
 } from "./utils/types/stackElement.ts";
 export { default as TokenType } from "./utils/types/tokenType.ts";
+export * as utf8 from "./utils/utf-8.ts";

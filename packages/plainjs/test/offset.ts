@@ -1,6 +1,6 @@
-import { runTokenizerTest } from "./utils/testRunner.js";
 import { Tokenizer } from "../src/index.js";
 import TokenType from "../src/utils/types/tokenType.js";
+import { runTokenizerTest } from "./utils/testRunner.js";
 
 const input1 = '{\n  "string": "value",\n  "number": 3,\n  "object"';
 const input2 = ': {\n  "key": "vд"\n  },\n  "array": [\n  -1,\n  12\n  ]\n  ';

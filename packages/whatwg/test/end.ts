@@ -1,8 +1,8 @@
-import { runJSONParserTest } from "./utils/testRunner.js";
-import JSONParser from "../src/jsonparser.js";
-import TokenParser from "../src/tokenparser.js";
-import Tokenizer from "../src/tokenizer.js";
 import TokenType from "@streamparser/json/utils/types/tokenType.js";
+import JSONParser from "../src/jsonparser.js";
+import Tokenizer from "../src/tokenizer.js";
+import TokenParser from "../src/tokenparser.js";
+import { runJSONParserTest } from "./utils/testRunner.js";
 
 describe("end", () => {
   test("should fail if writing after ending", async () => {

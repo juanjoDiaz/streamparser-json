@@ -1,6 +1,6 @@
-import { runJSONParserTest } from "../utils/testRunner.js";
 import JSONParser from "../../src/jsonparser.js";
 import { charset } from "../../src/utils/utf-8.js";
+import { runJSONParserTest } from "../utils/testRunner.js";
 
 const quote = String.fromCharCode(charset.QUOTATION_MARK);
 

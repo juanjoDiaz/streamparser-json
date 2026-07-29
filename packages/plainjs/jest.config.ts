@@ -1,18 +1,21 @@
-import type { JestConfigWithTsJest } from 'ts-jest';
+import type { JestConfigWithTsJest } from "ts-jest";
 
 const jestConfig: JestConfigWithTsJest = {
-  extensionsToTreatAsEsm: ['.ts'],
-  moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' },
+  extensionsToTreatAsEsm: [".ts"],
+  moduleNameMapper: { "^(\\.{1,2}/.*)\\.js$": "$1" },
   transform: {
-    '^.+\\.m?[t]sx?$': ['ts-jest', {
-      isolatedModules: true,
-      useESM: true
-    }],
+    "^.+\\.m?[t]sx?$": [
+      "ts-jest",
+      {
+        isolatedModules: true,
+        useESM: true,
+      },
+    ],
   },
-  testEnvironment: 'node',
-  testMatch: ['<rootDir>/**/test/*.ts', '<rootDir>/**/test/types/*.ts'],
-  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/test/performance.ts'],
-  collectCoverageFrom: ['src/**'],
+  testEnvironment: "node",
+  testMatch: ["<rootDir>/**/test/*.ts", "<rootDir>/**/test/types/*.ts"],
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/test/performance.ts"],
+  collectCoverageFrom: ["src/**"],
 };
 
 export = jestConfig;

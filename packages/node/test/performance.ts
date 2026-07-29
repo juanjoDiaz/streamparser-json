@@ -1,8 +1,8 @@
-import * as v8 from "v8";
-import * as vm from "vm";
-import { runJSONParserTest } from "./utils/testRunner.js";
-import JSONParser from "../src/jsonparser.js";
+import * as v8 from "node:v8";
+import * as vm from "node:vm";
 import { charset } from "@streamparser/json/utils/utf-8.js";
+import JSONParser from "../src/jsonparser.js";
+import { runJSONParserTest } from "./utils/testRunner.js";
 
 const quote = String.fromCharCode(charset.QUOTATION_MARK);
 

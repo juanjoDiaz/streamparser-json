@@ -1,1 +1,1 @@
-require('@streamparser/json-whatwg');
+require("@streamparser/json-whatwg");

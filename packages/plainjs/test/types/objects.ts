@@ -1,6 +1,6 @@
-import { runJSONParserTest, type TestData } from "../utils/testRunner.js";
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 import JSONParser from "../../src/jsonparser.js";
+import { runJSONParserTest, type TestData } from "../utils/testRunner.js";
 
 describe("objects", () => {
   const testData: TestData[] = [
@@ -141,9 +141,7 @@ describe("objects", () => {
           if (stack.length !== 0) return;
 
           expect(Object.getPrototypeOf(value)).toBe(Object.prototype);
-          expect(Object.prototype.hasOwnProperty.call(value, "__proto__")).toBe(
-            true,
-          );
+          expect(Object.hasOwn(value, "__proto__")).toBe(true);
           expect((value as { isAdmin?: boolean }).isAdmin).toBeUndefined();
           expect(value).toEqual(JSON.parse('{"__proto__":{"isAdmin":true}}'));
         },
@@ -159,9 +157,7 @@ describe("objects", () => {
 
           const nested = (value as { a: object }).a;
           expect(Object.getPrototypeOf(nested)).toBe(Object.prototype);
-          expect(
-            Object.prototype.hasOwnProperty.call(nested, "__proto__"),
-          ).toBe(true);
+          expect(Object.hasOwn(nested, "__proto__")).toBe(true);
         },
       );
     });

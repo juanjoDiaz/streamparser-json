@@ -66,7 +66,6 @@ describe("callback", () => {
         "Unexpected type. The `write` function only accepts Iterables (e.g. Arrays, Sets, Generators), TypedArrays and Strings.",
       );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     p.write(745674 as any);
   });
 

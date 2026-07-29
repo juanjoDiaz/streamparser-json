@@ -2,15 +2,15 @@
 
 /*global process, URL*/
 
-import path from "path";
 import {
+  lstatSync,
   mkdirSync,
   readdirSync,
-  lstatSync,
   readFileSync,
-  writeFileSync,
   rmSync,
-} from "fs";
+  writeFileSync,
+} from "node:fs";
+import path from "node:path";
 
 const pkgInfo = JSON.parse(
   readFileSync(new URL("./package.json", import.meta.url), "utf8"),

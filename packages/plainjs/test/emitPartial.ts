@@ -1,12 +1,12 @@
-import TokenType from "../src/utils/types/tokenType.js";
 import JSONParser from "../src/jsonparser.js";
 import Tokenizer from "../src/tokenizer.js";
 import TokenParser from "../src/tokenparser.js";
+import TokenType from "../src/utils/types/tokenType.js";
 import {
-  TestData,
   runJSONParserTest,
   runTokenizerTest,
   runTokenParserTest,
+  type TestData,
 } from "./utils/testRunner.js";
 
 describe("Emit Partial", () => {

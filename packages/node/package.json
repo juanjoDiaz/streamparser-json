@@ -25,8 +25,7 @@
   "homepage": "https://github.com/juanjoDiaz/jsonparse2#readme",
   "bugs": "https://github.com/juanjoDiaz/streamparser-json/issues",
   "scripts": {
-    "lint": "eslint src test --ext .js,.ts,.json",
-    "lint:fix": "npm run lint -- --fix",
+    "lint": "biome check src test",
     "build:cjs": "tsc --module commonjs --verbatimModuleSyntax false --outDir ./dist/cjs && node ../../build-cjs.js whatwg",
     "build:mjs": "tsc --module esnext --verbatimModuleSyntax --outDir ./dist/mjs",
     "build:deno": "node ../../build.deno.js . ./dist/deno",

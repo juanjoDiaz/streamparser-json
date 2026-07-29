@@ -1,5 +1,5 @@
-import { runJSONParserTest } from "../utils/testRunner.js";
 import JSONParser from "../../src/jsonparser.js";
+import { runJSONParserTest } from "../utils/testRunner.js";
 
 describe("null", () => {
   const values = ["null"];

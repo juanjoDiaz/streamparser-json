@@ -1,11 +1,11 @@
-import type { StackElement } from "./stackElement.js";
 import type {
-  JsonPrimitive,
+  JsonArray,
   JsonKey,
   JsonObject,
-  JsonArray,
+  JsonPrimitive,
   JsonStruct,
 } from "./jsonTypes.js";
+import type { StackElement } from "./stackElement.js";
 
 export interface ParsedElementInfo {
   value?: JsonPrimitive | JsonStruct;

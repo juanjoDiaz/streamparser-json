@@ -45,7 +45,7 @@ function fitToBytes(item, sep, frame, targetBytes) {
   for (let i = 0; i < n; i++) parts[i] = item(i);
   return frame(parts.join(sep));
 }
-const arrayFrame = (s) => "[" + s + "]";
+const arrayFrame = (s) => `[${s}]`;
 
 // --- 1. realistic-mixed: heterogeneous REST records (the headline "real JSON") -
 function uuid(i) {
@@ -122,7 +122,7 @@ const geoCoordinates = (target) =>
   fitToBytes(
     geoFeature,
     ",",
-    (s) => '{"type":"FeatureCollection","features":[' + s + "]}",
+    (s) => `{"type":"FeatureCollection","features":[${s}]}`,
     target,
   );
 
@@ -138,7 +138,7 @@ function idNameMap(seed, n, prefix) {
       "-" +
       i +
       '"';
-  return "{" + p.join(",") + "}";
+  return `{${p.join(",")}}`;
 }
 const CATALOG_EVENTS = 200;
 function catalogEvent(e) {
@@ -152,7 +152,7 @@ function catalogEvent(e) {
     '":{"id":' +
     id +
     ',"logo":' +
-    (e % 3 ? "null" : '"/img/' + id + '.png"') +
+    (e % 3 ? "null" : `"/img/${id}.png"`) +
     ',"name":"Event ' +
     e +
     '","subTopicIds":[' +
@@ -176,7 +176,7 @@ function catalogPerf(p) {
         "}",
     );
   for (let k = 0; k < 1 + (p % 5); k++)
-    areas.push('{"areaId":' + (205000000 + k) + ',"blockIds":[]}');
+    areas.push(`{"areaId":${205000000 + k},"blockIds":[]}`);
   const id = 339000000 + p;
   return (
     '{"eventId":' +
@@ -184,7 +184,7 @@ function catalogPerf(p) {
     ',"id":' +
     id +
     ',"logo":null,"name":' +
-    (p % 4 ? "null" : '"Perf ' + p + '"') +
+    (p % 4 ? "null" : `"Perf ${p}"`) +
     ',"prices":[' +
     prices.join(",") +
     '],"seatCategories":[{"areas":[' +
@@ -266,7 +266,7 @@ function feedUser(i) {
   );
 }
 function tweet(i) {
-  const idNum = "70000000000000" + String(1000 + i);
+  const idNum = `70000000000000${String(1000 + i)}`;
   const tags = [];
   for (let k = 0; k < i % 3; k++)
     tags.push(
@@ -374,7 +374,7 @@ function sentence(i) {
   let s = w.join(" ");
   if (i % 20 === 0) s += ' \\"quote\\" and\\ttab';
   if (i % 13 === 0) s += " café résumé";
-  return '"' + s + '"';
+  return `"${s}"`;
 }
 const stringsArray = (target) => fitToBytes(sentence, ",", arrayFrame, target);
 
@@ -449,16 +449,15 @@ const ndjsonLogs = (target) => fitToBytes(logLine, "\n", (s) => s, target);
 // --- Tier-3 stress shapes (Node-only, explicitly NOT representative) -----------
 function whitespaceHeavy(target) {
   const pad = " ".repeat(200);
-  const unitStr =
-    pad + "{" + pad + '"k"' + pad + ":" + pad + '"v"' + pad + "}" + pad;
+  const unitStr = `${pad}{${pad}"k"${pad}:${pad}"v"${pad}}${pad}`;
   return fitToBytes(() => unitStr, ",", arrayFrame, target);
 }
 function deepNested(target) {
   // A single object nested `depth` levels; size ~ depth so derive depth from target.
   const depth = Math.max(1, Math.round(target / 6));
-  return "{" + '"a":{'.repeat(depth) + '"v":1' + "}".repeat(depth + 1);
+  return `{${'"a":{'.repeat(depth)}"v":1${"}".repeat(depth + 1)}`;
 }
-const longString = (target) => '"' + "a".repeat(Math.max(1, target - 2)) + '"';
+const longString = (target) => `"${"a".repeat(Math.max(1, target - 2))}"`;
 const longNumber = (target) => "9".repeat(Math.max(1, target));
 
 // --- Registry ------------------------------------------------------------------

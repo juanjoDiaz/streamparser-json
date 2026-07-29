@@ -1,7 +1,7 @@
 import { TokenParser, type TokenParserOptions } from "@streamparser/json";
-import type { ParsedTokenInfo } from "@streamparser/json/utils/types/parsedTokenInfo.js";
-import type { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
 import { cloneParsedElementInfo } from "@streamparser/json/utils/cloneParsedElementInfo.js";
+import type { ParsedElementInfo } from "@streamparser/json/utils/types/parsedElementInfo.js";
+import type { ParsedTokenInfo } from "@streamparser/json/utils/types/parsedTokenInfo.js";
 
 class TokenParserTransformer
   extends TokenParser

@@ -2,15 +2,16 @@
 // WebKit (Safari's engine) via Playwright, then prints one comparison table
 // per environment. Serves the built ESM over http so the browsers can import
 // the exact same code Node uses.
-import { chromium, firefox, webkit } from "playwright";
-import http from "node:http";
+
 import { readFile } from "node:fs/promises";
+import http from "node:http";
+import { dirname, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { dirname, join, extname } from "node:path";
 import {
-  NonBufferedString,
   BufferedString,
+  NonBufferedString,
 } from "@streamparser/json/utils/bufferedString.js";
+import { chromium, firefox, webkit } from "playwright";
 import { runStringBuilderBench } from "./bench.mjs";
 
 const packagesDir = join(

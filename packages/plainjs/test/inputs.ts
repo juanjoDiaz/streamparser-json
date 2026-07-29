@@ -1,6 +1,6 @@
-import { runJSONParserTest, type TestData } from "./utils/testRunner.js";
 import JSONParser from "../src/jsonparser.js";
 import { charset } from "../src/utils/utf-8.js";
+import { runJSONParserTest, type TestData } from "./utils/testRunner.js";
 
 const quote = String.fromCharCode(charset.QUOTATION_MARK);
 
@@ -81,11 +81,7 @@ describe("inputs", () => {
   test("write throw on invalid type", async () => {
     expect.assertions(1);
     try {
-      await runJSONParserTest(
-        new JSONParser(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        [745674 as any],
-      );
+      await runJSONParserTest(new JSONParser(), [745674 as any]);
     } catch (err) {
       expect(err).toBeInstanceOf(Error);
     }

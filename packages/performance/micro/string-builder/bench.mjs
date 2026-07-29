@@ -23,7 +23,7 @@ function makeCases() {
     numTypical.push(enc.encode(String(i + 0.25)));
   }
   // one very long number
-  const numLong = [enc.encode("1." + "9".repeat(200000))];
+  const numLong = [enc.encode(`1.${"9".repeat(200000)}`)];
   return { small, medium, large, numTypical, numLong };
 }
 

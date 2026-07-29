@@ -1,5 +1,5 @@
-import { runJSONParserTest } from "./utils/testRunner.js";
 import JSONParser from "../src/jsonparser.js";
+import { runJSONParserTest } from "./utils/testRunner.js";
 
 describe("end", () => {
   test("should fail if writing after ending", async () => {
@@ -90,6 +90,7 @@ describe("end", () => {
   test("should not fail on trailing whitespace received after the root value has completed", async () => {
     const p = new JSONParser();
 
+    // biome-ignore lint/suspicious/noImplicitAnyLet: assigned inside the async callback below
     let value;
     await runJSONParserTest(p, ["{}", " "], (parsedElementInfo) => {
       if (parsedElementInfo.stack.length === 0) value = parsedElementInfo.value;

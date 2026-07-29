@@ -1,6 +1,6 @@
-import { runJSONParserTest, type TestData } from "../utils/testRunner.js";
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 import JSONParser from "../../src/jsonparser.js";
+import { runJSONParserTest, type TestData } from "../utils/testRunner.js";
 
 describe("objects", () => {
   const testData: TestData[] = [

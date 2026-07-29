@@ -1,5 +1,5 @@
-import type { ParsedElementInfo } from "./types/parsedElementInfo.js";
 import type { JsonObject, JsonStruct } from "./types/jsonTypes.js";
+import type { ParsedElementInfo } from "./types/parsedElementInfo.js";
 
 // Mirrors the __proto__ guard in tokenparser.ts's setProperty: plain bracket
 // assignment (and this project's ES2015 build target, which downlevels
@@ -19,7 +19,6 @@ function setProperty(obj: JsonObject, key: string, value: unknown): void {
     return;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (obj as any)[key] = value;
 }
 

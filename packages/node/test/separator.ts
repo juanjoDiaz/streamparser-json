@@ -1,11 +1,11 @@
+import TokenType from "@streamparser/json/utils/types/tokenType.js";
+import JSONParser from "../src/jsonparser.js";
+import TokenParser from "../src/tokenparser.js";
 import {
   runJSONParserTest,
   runTokenParserTest,
-  TestData,
+  type TestData,
 } from "./utils/testRunner.js";
-import JSONParser from "../src/jsonparser.js";
-import TokenParser from "../src/tokenparser.js";
-import TokenType from "@streamparser/json/utils/types/tokenType.js";
 
 describe("separator", () => {
   const testData: TestData[] = [
@@ -22,6 +22,7 @@ describe("separator", () => {
 
   const expected = testData
     .map(({ expected }) => expected)
+    // biome-ignore lint/performance/noAccumulatingSpread: test fixture setup, not a hot path
     .reduce((acc, val) => [...acc, ...val], []);
 
   const separators = ["", "\n", "\t\n", "abc", "SEPARATOR"];

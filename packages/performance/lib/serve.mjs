@@ -2,9 +2,10 @@
 // in Chromium/Firefox/WebKit. Node-only (http + Playwright); never served to a
 // page. Factors out the http server + MIME + import-map page shell + the
 // fresh-page-per-scenario Playwright loop shared by every browser benchmark.
-import http from "node:http";
+
 import { readFile } from "node:fs/promises";
-import { join, extname } from "node:path";
+import http from "node:http";
+import { extname, join } from "node:path";
 
 const MIME = {
   ".js": "text/javascript",

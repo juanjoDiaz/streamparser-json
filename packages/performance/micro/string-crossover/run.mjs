@@ -1,13 +1,14 @@
 // Runs the string-length crossover sweep in Node + Chromium/Firefox/WebKit.
-import { chromium, firefox, webkit } from "playwright";
-import http from "node:http";
+
 import { readFile } from "node:fs/promises";
+import http from "node:http";
+import { dirname, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { dirname, join, extname } from "node:path";
 import {
-  NonBufferedString,
   BufferedString,
+  NonBufferedString,
 } from "@streamparser/json/utils/bufferedString.js";
+import { chromium, firefox, webkit } from "playwright";
 import { runCrossoverBench } from "./bench.mjs";
 
 const packagesDir = join(

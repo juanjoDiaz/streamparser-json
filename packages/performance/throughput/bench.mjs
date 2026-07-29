@@ -4,8 +4,8 @@
 // WHATWG TransformStream + JSON.parse) and in a browser page (core + WHATWG +
 // JSON.parse; the Node adapter needs node:stream). The Node runner also drives
 // the settings/stress tiers through the same primitives.
-import { now, measureCell, median } from "../lib/stats.mjs";
-import { TIER1, generate } from "./corpus.mjs";
+import { measureCell, median, now } from "../lib/stats.mjs";
+import { generate, TIER1 } from "./corpus.mjs";
 
 export const DEFAULT_TARGET_BYTES = 2_000_000; // ~2 MB per corpus (runtime knob)
 const CHUNK_BYTES = 16 * 1024; // realistic socket/file read
