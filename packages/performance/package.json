@@ -1,6 +1,6 @@
 {
   "name": "@streamparser/json-performance",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "Performance benchmarks for streamparser-json, comparing the core parser and its Node/WHATWG stream adapters",
   "private": true,
   "type": "module",

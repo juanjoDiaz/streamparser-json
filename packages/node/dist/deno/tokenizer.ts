@@ -5,7 +5,7 @@ import {
 } from "node:stream";
 import Tokenizer, {
   type TokenizerOptions,
-} from "https://deno.land/x/streamparser_json@v0.0.22/tokenizer.ts";
+} from "https://deno.land/x/streamparser_json@v0.0.23/tokenizer.ts";
 
 export default class TokenizerTransform extends Transform {
   private tokenizer: Tokenizer;
