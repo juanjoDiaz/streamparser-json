@@ -28,7 +28,7 @@ describe("end", () => {
 
     // Writing after the stream is closed must reject. (Capture the rejection
     // rather than asserting its type: the error comes from the WHATWG stream
-    // internals and isn't `instanceof` this realm's Error under jest.)
+    // internals and isn't `instanceof` this realm's Error under vitest.)
     const writeError = await writer
       .write('"test"')
       .then(() => undefined)

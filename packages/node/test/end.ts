@@ -9,7 +9,7 @@ describe("end", () => {
 
     // The stream has finished; writing to it now must report an error via the
     // write callback. (The error originates in Node's stream internals, so it
-    // isn't `instanceof` this realm's Error under jest -- assert it's present
+    // isn't `instanceof` this realm's Error under vitest -- assert it's present
     // rather than its type, and outside the callback so a failure can't hang.)
     const writeError = await new Promise((resolve) => {
       p.write('"test"', (err) => resolve(err));

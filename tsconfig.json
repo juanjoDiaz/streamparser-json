@@ -2,8 +2,9 @@
   "compilerOptions": {
     /* Language and Environment */
     "target": "es6",
-    "module": "esnext",
+    "module": "nodenext",
     "moduleResolution": "nodenext",
+    "ignoreDeprecations": "6.0",
     "lib": ["es2020", "dom"],
     /* Emit */
     "declaration": true,
@@ -13,7 +14,7 @@
     /* Interop Constraints */
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     /* Type Checking */
     "allowUnreachableCode": false,
     // "exactOptionalPropertyTypes": true,

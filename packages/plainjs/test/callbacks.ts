@@ -41,7 +41,7 @@ describe("callback", () => {
   test("should emit onValue callback when the onToken callback is also set", () => {
     const p = new JSONParser();
 
-    const onValueCb = jest.fn(() => {
+    const onValueCb = vi.fn(() => {
       /* Do nothing */
     });
     p.onValue = onValueCb;
@@ -122,15 +122,16 @@ describe("callback", () => {
     p.write('"test"');
   });
 
-  test("should handle processing end using the onEnd callback if set", (done) => {
-    const p = new JSONParser();
-    p.onValue = () => {
-      /* Do nothing */
-    };
-    p.onEnd = () => done();
+  test("should handle processing end using the onEnd callback if set", () =>
+    new Promise<void>((resolve) => {
+      const p = new JSONParser();
+      p.onValue = () => {
+        /* Do nothing */
+      };
+      p.onEnd = () => resolve();
 
-    p.write('"test"');
-  });
+      p.write('"test"');
+    }));
 
   test("should use default onEnd callback if none set up", () => {
     const p = new Tokenizer();

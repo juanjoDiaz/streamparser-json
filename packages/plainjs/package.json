@@ -26,16 +26,15 @@
   "bugs": "https://github.com/juanjoDiaz/streamparser-json/issues",
   "scripts": {
     "lint": "biome check src test",
-    "build:cjs": "tsc --module commonjs --verbatimModuleSyntax false --outDir ./dist/cjs && node ../../build-cjs.js plainjs",
-    "build:mjs": "tsc --module esnext --verbatimModuleSyntax --outDir ./dist/mjs",
+    "build:cjs": "tsc --module commonjs --moduleResolution bundler --verbatimModuleSyntax false --outDir ./dist/cjs && node ../../build-cjs.js plainjs",
+    "build:mjs": "tsc --module nodenext --outDir ./dist/mjs",
     "build:deno": "node ../../build.deno.js . ./dist/deno",
     "build": "npm run build:mjs && npm run build:cjs && npm run build:deno",
     "prepack": "npm run build",
     "pretest": "npm run build",
-    "test": "node test/CommonJS.cjs && jest test",
-    "test-with-coverage": "npm test -- --coverage",
+    "test": "node test/CommonJS.cjs && vitest run",
     "pretest:performance": "npm run build",
-    "test:performance": "jest --config jest.performance.config.ts"
+    "test:performance": "vitest run --config vitest.performance.config.ts"
   },
   "license": "MIT",
   "tags": [

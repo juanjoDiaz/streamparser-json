@@ -12,11 +12,9 @@
   "bugs": "https://github.com/juanjoDiaz/streamparser-json/issues",
   "devDependencies": {
     "@biomejs/biome": "^2.5.6",
-    "@types/jest": "^29.2.3",
-    "jest": "^29.3.1",
-    "ts-jest": "^29.0.3",
-    "ts-node": "^10.9.1",
-    "typescript": "~5.1.0"
+    "@vitest/coverage-v8": "^4.1.10",
+    "typescript": "~7.0.2",
+    "vitest": "^4.1.10"
   },
   "scripts": {
     "lint": "biome check .",
@@ -25,7 +23,8 @@
     "build": "npm run build -ws --if-present",
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",
-    "test": "npm run test -ws --if-present",
+    "test:cjs": "node packages/plainjs/test/CommonJS.cjs && node packages/node/test/CommonJS.cjs && node packages/whatwg/test/CommonJS.cjs",
+    "test": "npm run test:cjs && vitest run",
     "test-with-coverage": "npm test -- --coverage",
     "test:performance": "npm run test:performance -ws --if-present",
     "test:pack": "node scripts/verify-tarball.mjs",
