@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest] # macos-latest is too slow
-        node-version: [20.x, 22.x, 24.x] # vitest 4 requires Node 20+
+        node-version: [22.x, 24.x] # Node 20 dropped: its webstreams throws ERR_INTERNAL_ASSERTION on write-after-close (fixed in 22)
 
     steps:
       - uses: actions/checkout@v3

@@ -2,49 +2,22 @@ name: Node.js Publish
 on:
   release:
     types: [published]
+
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: Ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
-    - uses: actions/checkout@v3
-    # Setup .npmrc file to publish to npm
-    - uses: actions/setup-node@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
-        node-version: '20.x'
-        # Needs to be explicitly specified for auth to work
+        node-version: '24.x'
         registry-url: 'https://registry.npmjs.org'
-    - name: Cache Node.js modules on Linux
-      uses: actions/cache@v3
-      if: ${{ runner.OS != 'Windows' }}
-      with:
-        path: ~/.npm
-        key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.OS }}-node-
-          ${{ runner.OS }}-
-    - name: Cache Node.js modules on Windows
-      uses: actions/cache@v3
-      if: ${{ runner.OS == 'Windows' }}
-      with:
-        path: ~\AppData\Roaming\npm-cache
-        key: ${{ runner.os }}-node-${{ hashFiles('**\package-lock.json') }}
-        restore-keys: |
-          ${{ runner.OS }}-node-
-          ${{ runner.OS }}-
     - run: npm ci
     - run: npm run build
-    # Published in dependency order: the adapters declare a version range on
-    # the core package, so it must be live on the registry before they are.
-    - name: Publish @streamparser/json
-      run: npm publish --access public -w @streamparser/json
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    - name: Publish @streamparser/json-node
-      run: npm publish --access public -w @streamparser/json-node
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    - name: Publish @streamparser/json-whatwg
-      run: npm publish --access public -w @streamparser/json-whatwg
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - run: npm publish --access public -w @streamparser/json
+    - run: npm publish --access public -w @streamparser/json-node
+    - run: npm publish --access public -w @streamparser/json-whatwg
