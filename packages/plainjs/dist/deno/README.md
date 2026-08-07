@@ -31,7 +31,7 @@ try {
 
 There are multiple flavours of @streamparser:
 
-* The **[@streamparser/json](https://www.npmjs.com/package/@streamparser/json)** package allows to parse any JSON string or stream using pure Javascript.
+* The **[@streamparser/json](https://www.npmjs.com/package/@streamparser/json)** package allows to parse any JSON string or stream using pure JavaScript.
 * The **[@streamparser/json-whatwg](https://www.npmjs.com/package/@streamparser/json-whatwg)** wraps `@streamparser/json` into a WHATWG TransformStream.
 * The **[@streamparser/json-node](https://www.npmjs.com/package/@streamparser/json-node)** wraps `@streamparser/json` into a node Transform stream.
 
@@ -43,7 +43,7 @@ There are multiple flavours of @streamparser:
 * [TextEncoder](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder)
 * [TextDecoder](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder)
 
-If you are targeting browsers or systems in which these might be missing, you need to polyfil them.
+If you are targeting browsers or systems in which these might be missing, you need to polyfill them.
 
 ## Components
 
@@ -68,13 +68,13 @@ The available options are:
 }
 ```
 
-If buffer sizes are set to anything else than zero, instead of using a string to apppend the data as it comes in, the data is buffered using a TypedArray. A reasonable size could be `64 * 1024` (64 KB).
+If buffer sizes are set to anything else than zero, instead of using a string to append the data as it comes in, the data is buffered using a TypedArray. A reasonable size could be `64 * 1024` (64 KB).
 
 #### Buffering
 
 When parsing strings or numbers, the parser needs to gather the data in-memory until the whole value is ready.
 
-Strings are inmutable in Javascript so every string operation creates a new string. The V8 engine, behind Node, Deno and most modern browsers, performs a many different types of optimization. One of this optimizations is to over-allocate memory when it detects many string concatenations. This increases significatly the memory consumption and can easily exhaust your memory when parsing JSON containing very large strings or numbers. For those cases, the parser can buffer the characters using a TypedArray. This requires encoding/decoding from/to the buffer into an actual string once the value is ready. This is done using the `TextEncoder` and `TextDecoder` APIs. Unfortunately, these APIs creates a significant overhead when the strings are small so should be used only when strictly necessary.
+Strings are immutable in JavaScript so every string operation creates a new string. The V8 engine, behind Node, Deno and most modern browsers, performs many different types of optimization. One of these optimizations is to over-allocate memory when it detects many string concatenations. This increases significantly the memory consumption and can easily exhaust your memory when parsing JSON containing very large strings or numbers. For those cases, the parser can buffer the characters using a TypedArray. This requires encoding/decoding from/to the buffer into an actual string once the value is ready. This is done using the `TextEncoder` and `TextDecoder` APIs. Unfortunately, these APIs create a significant overhead when the strings are small so should be used only when strictly necessary.
 
 #### Properties & Methods
 
@@ -91,14 +91,14 @@ Strings are inmutable in Javascript so every string operation creates a new stri
 class MyTokenizer extends Tokenizer {
   parseNumber(numberStr) {
     const number = super.parseNumber(numberStr);
-    // if number is too large. Just keep the string.
-    return Number.isFinite(numberStr) ? number : numberStr;
+    // if the number is too large, just keep the string.
+    return Number.isFinite(number) ? number : numberStr;
   }
-  onToken({ token, value }) {
-    if (token = TokenTypes.NUMBER && typeof value === 'string') {
-      super(TokenTypes.STRING, value);
+  onToken({ token, value, offset }) {
+    if (token === TokenType.NUMBER && typeof value === 'string') {
+      super.onToken({ token: TokenType.STRING, value, offset });
     } else {
-      super(token, value);
+      super.onToken({ token, value, offset });
     }
   }
 }
@@ -132,7 +132,7 @@ The available options are:
 }
 ```
 
-* paths: Array of paths to emit. Defaults to `undefined` which emits everything. The paths are intended to suppot jsonpath although at the time being it only supports the root object selector (`$`) and subproperties selectors including wildcards (`$.a`, `$.*`, `$.a.b`, , `$.*.b`, etc). 
+* paths: Array of paths to emit. Defaults to `undefined` which emits everything. The paths are intended to support jsonpath although at the time being it only supports the root object selector (`$`) and subproperties selectors including wildcards (`$.a`, `$.*`, `$.a.b`, , `$.*.b`, etc). 
 * keepStack: Whether to keep full objects on the stack even if they won't be emitted. Defaults to `true`. When set to `false` the it does preserve properties in the parent object some ancestor will be emitted. This means that the parent object passed to the `onValue` function will be empty, which doesn't reflect the truth, but it's more memory-efficient.
   * `onValue` receives `parent`/`stack` as live references to the parser's in-progress structures (no copy is made). When streaming elements out of a large top-level array or object with `paths` (e.g. `paths: ['$.*']`), the default `keepStack: true` keeps every already-emitted sibling in `parent` for the whole parse, so memory grows with the number of elements. Set `keepStack: false` to drop them as they're emitted.
 
@@ -177,7 +177,7 @@ This class is just for convenience. In reality, it simply connects the tokenizer
 
 ```javascript
 const tokenizer = new Tokenizer(opts);
-const tokenParser = new TokenParser();
+const tokenParser = new TokenParser(opts);
 tokenizer.onToken = tokenParser.write.bind(tokenParser);
 tokenParser.onValue = (value) => { /* Process values */ }
 ```
@@ -217,7 +217,7 @@ You can use both components independently as
 
 ```javascript
 const tokenizer = new Tokenizer(opts);
-const tokenParser = new TokenParser();
+const tokenParser = new TokenParser(opts);
 tokenizer.onToken = tokenParser.write.bind(tokenParser);
 ```
 
@@ -277,9 +277,9 @@ Imagine an endpoint that send a large amount of JSON objects one after the other
 ```js
   import { JSONParser} from "https://deno.land/x/streamparser_json@v0.0.23/index.ts";
 
-  const parser = new JSONParser();
-  parser.onValue = (value, key, parent, stack) => {
-    if (stack > 0) return; // ignore inner values
+  const jsonparser = new JSONParser();
+  jsonparser.onValue = ({ value, key, parent, stack }) => {
+    if (stack.length > 0) return; // ignore inner values
     // TODO process element
   };
 
@@ -347,20 +347,20 @@ The arguments of callbacks have been objectified.
 What used to be
 
 ```js
-jsonparser.onToken = ({ token, value }) => {
+jsonparser.onToken = (token, value) => {
   // TODO process token
 };
-jsonparser.onValue = ({ value, key, parent, stack }) => {
+jsonparser.onValue = (value, key, parent, stack) => {
   // TODO process element
 };
 ```
 now is:
 
 ```js
-jsonparser.onToken = (token, value) => {
+jsonparser.onToken = ({ token, value }) => {
   // TODO process token
 };
-jsonparser.onValue = (value, key, parent, stack) => {
+jsonparser.onValue = ({ value, key, parent, stack }) => {
   // TODO process element
 };
 ```
