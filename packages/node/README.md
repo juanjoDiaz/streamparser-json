@@ -129,6 +129,20 @@ parser.on("end", () => { /* ... */ });
 
 ## Examples
 
+### Parsing a JSON array from a file
+
+Imagine a large file containing a JSON array of objects (`[{"id":1},{"id":2},{"id":3},...]`) that you want to process one element at a time without loading the whole file into memory.
+
+```js
+  import { createReadStream } from 'node:fs';
+  import { JSONParser } from '@streamparser/json-node';
+
+  const parser = new JSONParser({ paths: ['$.*'], keepStack: false });
+  parser.on('data', ({ value }) => { /* process element */ });
+
+  createReadStream('arrayOfObjects.json').pipe(parser);
+```
+
 ### Stream-parsing a fetch request returning a JSONstream
 
 Imagine an endpoint that send a large amount of JSON objects one after the other (`{"id":1}{"id":2}{"id":3}...`).

@@ -270,6 +270,40 @@ parser.write('"""');
 
 ## Examples
 
+### Parsing a JSON array from a file
+
+Imagine a large file containing a JSON array of objects (`[{"id":1},{"id":2},{"id":3},...]`) that you want to process one element at a time without loading the whole file into memory.
+
+`@streamparser/json` is runtime-agnostic: it just needs the file's bytes fed to `write()` as they are read, so opening the file is done with whatever API your runtime provides.
+
+**Node.js**
+
+```js
+  import { createReadStream } from 'node:fs';
+  import { JSONParser } from '@streamparser/json';
+
+  const parser = new JSONParser({ paths: ['$.*'], keepStack: false });
+  parser.onValue = ({ value }) => { /* process element */ };
+
+  for await (const chunk of createReadStream('arrayOfObjects.json')) {
+    parser.write(chunk);
+  }
+```
+
+**Deno**
+
+```js
+  import { JSONParser } from '@streamparser/json';
+
+  const parser = new JSONParser({ paths: ['$.*'], keepStack: false });
+  parser.onValue = ({ value }) => { /* process element */ };
+
+  using file = await Deno.open('arrayOfObjects.json', { read: true });
+  for await (const chunk of file.readable) {
+    parser.write(chunk);
+  }
+```
+
 ### Stream-parsing a fetch request returning a JSONstream
 
 Imagine an endpoint that send a large amount of JSON objects one after the other (`{"id":1}{"id":2}{"id":3}...`).

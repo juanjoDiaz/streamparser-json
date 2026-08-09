@@ -190,6 +190,48 @@ try {
 
 ## Examples
 
+### Parsing a JSON array from a file
+
+Imagine a large file containing a JSON array of objects (`[{"id":1},{"id":2},{"id":3},...]`) that you want to process one element at a time without loading the whole file into memory.
+
+`@streamparser/json-whatwg` is a WHATWG `TransformStream`, so you pipe any `ReadableStream` of the file's bytes through it. How you obtain that stream from a file is runtime-specific.
+
+**Browser** (a `File` from an `<input type="file">`)
+
+```js
+  import { JSONParser } from '@streamparser/json-whatwg';
+
+  const parser = new JSONParser({ paths: ['$.*'], keepStack: false });
+
+  const reader = file.stream().pipeThrough(parser).getReader();
+  while (true) {
+    const { done, value: parsedElementInfo } = await reader.read();
+    if (done) break;
+
+    const { value } = parsedElementInfo;
+    // TODO process element
+  }
+```
+
+**Deno** (`Deno.open(...).readable` is a `ReadableStream`)
+
+```js
+  import { JSONParser } from '@streamparser/json-whatwg';
+
+  const parser = new JSONParser({ paths: ['$.*'], keepStack: false });
+
+  using file = await Deno.open('arrayOfObjects.json', { read: true });
+
+  const reader = file.readable.pipeThrough(parser).getReader();
+  while (true) {
+    const { done, value: parsedElementInfo } = await reader.read();
+    if (done) break;
+
+    const { value } = parsedElementInfo;
+    // TODO process element
+  }
+```
+
 ### Stream-parsing a fetch request returning a JSONstream
 
 Imagine an endpoint that send a large amount of JSON objects one after the other (`{"id":1}{"id":2}{"id":3}...`).
