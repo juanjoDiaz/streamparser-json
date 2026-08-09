@@ -20,7 +20,7 @@ export interface ParsedLeftBracketTokenInfo extends ParsedTokenInfo {
   token: TokenType.LEFT_BRACKET;
   value: "[";
 }
-export interface ParsedRighBracketTokenInfo extends ParsedTokenInfo {
+export interface ParsedRightBracketTokenInfo extends ParsedTokenInfo {
   token: TokenType.RIGHT_BRACKET;
   value: "]";
 }
