@@ -3,8 +3,8 @@ import {
   type TransformCallback,
   type TransformOptions,
 } from "node:stream";
-import { TokenParser, type TokenParserOptions } from "https://deno.land/x/streamparser_json@v0.0.23/index.ts";
-import { cloneParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.23/utils/cloneParsedElementInfo.ts";
+import { TokenParser, type TokenParserOptions } from "https://deno.land/x/streamparser_json@v0.0.24/index.ts";
+import { cloneParsedElementInfo } from "https://deno.land/x/streamparser_json@v0.0.24/utils/cloneParsedElementInfo.ts";
 
 export default class TokenParserTransform extends Transform {
   private tokenParser: TokenParser;
