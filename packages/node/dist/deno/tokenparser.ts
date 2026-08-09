@@ -28,9 +28,6 @@ export default class TokenParserTransform extends Transform {
     this.tokenParser.onError = (err) => {
       throw err;
     };
-    this.tokenParser.onEnd = () => {
-      if (!this.writableEnded) this.end();
-    };
   }
 
   /**

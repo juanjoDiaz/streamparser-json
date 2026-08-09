@@ -1,5 +1,7 @@
+import TokenType from "@streamparser/json/utils/types/tokenType.js";
 import JSONParser from "../src/jsonparser.js";
-import { runJSONParserTest } from "./utils/testRunner.js";
+import TokenParser from "../src/tokenparser.js";
+import { runJSONParserTest, runTokenParserTest } from "./utils/testRunner.js";
 
 describe("end", () => {
   test("should fail if writing after ending", async () => {
@@ -95,6 +97,30 @@ describe("end", () => {
     await runJSONParserTest(p, ["{}", " "], (parsedElementInfo) => {
       if (parsedElementInfo.stack.length === 0) value = parsedElementInfo.value;
     });
+
+    expect(value).toEqual({});
+  });
+
+  test("TokenParser transform should not end its writable side when the root value completes", async () => {
+    const p = new TokenParser();
+
+    // A trailing (whitespace-separator) token after the root value completes
+    // must not trip "write after end": the transform's writable side should
+    // only close in response to the upstream ending, via Node's _final hook.
+    // biome-ignore lint/suspicious/noImplicitAnyLet: assigned inside the async callback below
+    let value;
+    await runTokenParserTest(
+      p,
+      [
+        { token: TokenType.LEFT_BRACE, value: "{" },
+        { token: TokenType.RIGHT_BRACE, value: "}" },
+        { token: TokenType.SEPARATOR, value: " " },
+      ],
+      (parsedElementInfo) => {
+        if (parsedElementInfo.stack.length === 0)
+          value = parsedElementInfo.value;
+      },
+    );
 
     expect(value).toEqual({});
   });
