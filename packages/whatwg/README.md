@@ -106,7 +106,7 @@ The available options are:
 {
   paths: <string[]>,
   keepStack: <boolean>, // whether to keep all the properties in the stack
-  separator: <string>, // separator between object. For example `\n` for nd-js. If left empty or set to undefined, the token parser will end after parsing the first object. To parse multiple object without any delimiter just set it to the empty string `''`.
+  separator: <string>, // separator between object. For example `\n` for nd-js. If undefined, the token parser will end after parsing the first object. Whitespace between objects is always ignored. To parse multiple object without any delimiter just set it to the empty string `''`.
   emitPartialValues: <boolean>, // whether to emit values mid-parsing.
 }
 ```
