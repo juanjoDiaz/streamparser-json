@@ -1,4 +1,4 @@
-name: Node.js Publish
+name: Publish
 on:
   release:
     types: [published]
@@ -17,7 +17,17 @@ jobs:
         node-version: '24.x'
         registry-url: 'https://registry.npmjs.org'
     - run: npm ci
-    - run: npm run build
+
+    # Publish to npm. Each `npm publish` runs the package's prepack build, which
+    # also produces the dist/jsr published below (rebuild if JSR moves to its own job).
     - run: npm publish --access public -w @streamparser/json
     - run: npm publish --access public -w @streamparser/json-node
     - run: npm publish --access public -w @streamparser/json-whatwg
+
+    # Publish to JSR. The base package must go first so the others resolve it via jsr:.
+    - run: npx --yes jsr publish --allow-dirty
+      working-directory: packages/plainjs/dist/jsr
+    - run: npx --yes jsr publish --allow-dirty
+      working-directory: packages/node/dist/jsr
+    - run: npx --yes jsr publish --allow-dirty
+      working-directory: packages/whatwg/dist/jsr
