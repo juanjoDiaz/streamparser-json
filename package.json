@@ -19,7 +19,6 @@
   "scripts": {
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "build:deno": "npm run build:deno -ws --if-present",
     "build": "npm run build -ws --if-present",
     "prepublishOnly": "npm run build",
     "pretest": "npm run build",

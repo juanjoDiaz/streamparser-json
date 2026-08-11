@@ -102,9 +102,4 @@ typings/
 # TernJS port file
 .tern-port
 
-# !dist
-# dist/*
-# !dist/deno
-
 packages/*/dist/*
-!packages/*/dist/deno
