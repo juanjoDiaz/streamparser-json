@@ -42,6 +42,9 @@
     "stream"
   ],
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "!dist/*.tsbuildinfo",
+    "!dist/jsr"
   ]
 }

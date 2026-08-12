@@ -42,7 +42,10 @@
     "stream"
   ],
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "!dist/*.tsbuildinfo",
+    "!dist/jsr"
   ],
   "dependencies": {
     "@streamparser/json": "^0.0.24"
