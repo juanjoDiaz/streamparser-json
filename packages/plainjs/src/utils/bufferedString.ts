@@ -1,6 +1,22 @@
+/**
+ * The accumulators that the tokenizer gathers strings and numbers into while
+ * their bytes arrive.
+ *
+ * @module
+ */
+
+/**
+ * An accumulator of utf-8 bytes that can be turned into a string.
+ *
+ * The tokenizer uses one of these per string and number token, since a value
+ * can be split across any number of `write()` calls.
+ */
 export interface StringBuilder {
+  /** How many bytes have been appended since the last {@linkcode StringBuilder.reset}. */
   byteLength: number;
+  /** Appends a single-byte (ASCII) character. */
   appendChar: (char: number) => void;
+  /** Appends the utf-8 bytes in `buf` between `start` and `end`, which must not cut through a character. */
   appendBuf: (buf: Uint8Array, start?: number, end?: number) => void;
   // Appends a raw UTF-16 code unit directly to the string, bypassing
   // UTF-8 encoding entirely. Needed for unpaired surrogates: they are
@@ -10,10 +26,17 @@ export interface StringBuilder {
   // U+FFFD. Does not affect byteLength -- callers that use this must
   // account for the source bytes consumed themselves.
   appendCharCode: (code: number) => void;
+  /** Discards everything appended so far, so the builder can be reused for the next token. */
   reset: () => void;
+  /** The string that the appended bytes decode to. */
   toString: () => string;
 }
 
+/**
+ * A {@linkcode StringBuilder} that accumulates the token as a JavaScript
+ * string. This is the default: it's the fastest option for the small strings
+ * and numbers that dominate real JSON.
+ */
 export class NonBufferedString implements StringBuilder {
   // fatal: true makes invalid byte sequences (e.g. a lead byte followed by a
   // non-continuation byte) throw instead of silently decoding to U+FFFD.
@@ -55,6 +78,15 @@ export class NonBufferedString implements StringBuilder {
   }
 }
 
+/**
+ * A {@linkcode StringBuilder} that accumulates the token's bytes into a
+ * fixed-size `Uint8Array` and only decodes them once the buffer is full.
+ *
+ * Enabled through the tokenizer's `stringBufferSize`/`numberBufferSize`
+ * options. It avoids V8's over-allocation on repeated string concatenation,
+ * which is what makes very large strings and numbers exhaust memory, at the
+ * cost of an encoding/decoding round trip that isn't worth it for small values.
+ */
 export class BufferedString implements StringBuilder {
   // fatal: true makes invalid byte sequences (e.g. a lead byte followed by a
   // non-continuation byte) throw instead of silently decoding to U+FFFD.
@@ -64,6 +96,9 @@ export class BufferedString implements StringBuilder {
   private string = "";
   public byteLength = 0;
 
+  /**
+   * @param bufferSize The size, in bytes, of the buffer to accumulate into.
+   */
   public constructor(bufferSize: number) {
     this.buffer = new Uint8Array(bufferSize);
   }

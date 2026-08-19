@@ -1,3 +1,24 @@
+/**
+ * A parser that assembles the tokens emitted by the tokenizer into JSON values.
+ *
+ * @example
+ * ```ts
+ * import Tokenizer from "@streamparser/json/tokenizer.js";
+ * import TokenParser from "@streamparser/json/tokenparser.js";
+ *
+ * const tokenizer = new Tokenizer();
+ * const tokenParser = new TokenParser({ paths: ["$.*"] });
+ * tokenizer.onToken = tokenParser.write.bind(tokenParser);
+ * tokenParser.onValue = ({ value }) => {
+ *   // process the value
+ * };
+ *
+ * tokenizer.write('{ "test": ["a"] }');
+ * ```
+ *
+ * @module
+ */
+
 import type {
   JsonArray,
   JsonKey,
@@ -54,10 +75,36 @@ function setProperty(
   obj[key] = value;
 }
 
+/** The options that a {@linkcode TokenParser} can be created with. */
 export interface TokenParserOptions {
+  /**
+   * The paths of the values to emit, as a subset of jsonpath: the root selector
+   * (`$`), subproperty selectors (`$.a`, `$.a.b`) and wildcards (`$.*`,
+   * `$.*.b`) are supported. Defaults to `undefined`, which emits every value.
+   */
   paths?: string[];
+  /**
+   * Whether to keep the members of a container that have already been emitted.
+   * Defaults to `true`. Setting it to `false` deletes each value from its parent
+   * as it is emitted, which means the `parent` and `stack` reported to
+   * {@linkcode TokenParser.onValue} no longer show the already-emitted siblings,
+   * but keeps memory flat when streaming a large array or object.
+   */
   keepStack?: boolean;
+  /**
+   * The separator between consecutive JSON documents in the stream, for example
+   * `"\n"` for newline-delimited JSON. Defaults to `undefined`, which ends the
+   * parser after the first document. Set it to `""` to accept documents that
+   * follow each other with no delimiter at all. Whitespace between documents is
+   * always ignored.
+   */
   separator?: string;
+  /**
+   * Whether to emit values that are still being parsed, as the partial tokens
+   * that make them up arrive. Defaults to `false`. Requires the tokenizer's
+   * `emitPartialTokens` to be enabled too, and partial values are flagged with
+   * `partial: true`.
+   */
   emitPartialValues?: boolean;
 }
 
@@ -78,7 +125,11 @@ const defaultOpts: TokenParserOptions = {
   emitPartialValues: false,
 };
 
+/** The error thrown when the token parser is misconfigured or gets an unexpected token. */
 export class TokenParserError extends Error {
+  /**
+   * @param message What went wrong.
+   */
   constructor(message: string) {
     super(message);
     // Typescript is broken. This is a workaround
@@ -86,6 +137,31 @@ export class TokenParserError extends Error {
   }
 }
 
+/**
+ * A parser that assembles the tokens emitted by a tokenizer into JSON values.
+ *
+ * Tokens are pushed in with {@linkcode TokenParser.write} and the resulting
+ * values come back through the {@linkcode TokenParser.onValue} callback, which
+ * the user is expected to override. Values are emitted innermost first, as soon
+ * as each one is complete, and can be narrowed down to the ones of interest with
+ * the `paths` option.
+ *
+ * @example
+ * ```ts
+ * import Tokenizer from "@streamparser/json/tokenizer.js";
+ * import TokenParser from "@streamparser/json/tokenparser.js";
+ *
+ * const tokenizer = new Tokenizer();
+ * const tokenParser = new TokenParser();
+ * tokenizer.onToken = tokenParser.write.bind(tokenParser);
+ * tokenParser.onValue = ({ value, key, parent, stack }) => {
+ *   // process the value
+ * };
+ *
+ * tokenizer.write('{ "test": ["a"] }');
+ * // onValue is called 3 times: "a", ["a"] and { test: ["a"] }
+ * ```
+ */
 export default class TokenParser {
   // Compiled selectors, or undefined to emit everything -- when no paths are
   // configured or any path is the match-everything selector (undefined / "$*").
@@ -102,6 +178,10 @@ export default class TokenParser {
   // longer be trusted to tell an empty object from one whose members were purged.
   private memberCount = 0;
 
+  /**
+   * @param opts What to emit and how. See {@linkcode TokenParserOptions}.
+   * @throws {TokenParserError} If any of the configured `paths` is not a valid selector.
+   */
   constructor(opts?: TokenParserOptions) {
     opts = { ...defaultOpts, ...opts };
 
@@ -267,10 +347,21 @@ export default class TokenParser {
     });
   }
 
+  /** Whether the token parser is ended, and thus no longer accepting tokens. */
   public get isEnded(): boolean {
     return this.state === TokenParserState.ENDED;
   }
 
+  /**
+   * Pushes the next token into the parser.
+   *
+   * Parsing happens synchronously, so every value that the token completes is
+   * emitted through {@linkcode TokenParser.onValue} before this returns.
+   *
+   * @param parsedTokenInfo The token to process, as emitted by a tokenizer.
+   * @throws {TokenParserError} If the token can't appear at this point of the
+   * JSON document and no {@linkcode TokenParser.onError} callback has been set.
+   */
   public write({
     token,
     value,
@@ -450,6 +541,12 @@ export default class TokenParser {
     }
   }
 
+  /**
+   * Puts the token parser in an error state and reports `err` through
+   * {@linkcode TokenParser.onError}. The parser can't be used afterwards.
+   *
+   * @param err What went wrong.
+   */
   public error(err: Error): void {
     if (this.state !== TokenParserState.ENDED) {
       this.state = TokenParserState.ERROR;
@@ -458,6 +555,13 @@ export default class TokenParser {
     this.onError(err);
   }
 
+  /**
+   * Signals that there are no more tokens, ending the token parser, which can't
+   * be used afterwards.
+   *
+   * @throws {Error} If the JSON document was left half-parsed and no
+   * {@linkcode TokenParser.onError} callback has been set.
+   */
   public end(): void {
     if (
       (this.state !== TokenParserState.VALUE &&
@@ -477,6 +581,14 @@ export default class TokenParser {
     }
   }
 
+  /**
+   * Called with every value that matches the configured `paths`. Override it to
+   * consume them; by default it throws.
+   *
+   * @param parsedElementInfo The value and where it was found. Its `parent` and
+   * `stack` are live references into the parser's in-progress structures, so use
+   * `cloneParsedElementInfo` to snapshot them if they need to outlive the call.
+   */
   // biome-ignore lint/correctness/noUnusedFunctionParameters: override point; the parameter is part of the public signature
   public onValue(parsedElementInfo: ParsedElementInfo): void {
     // Override me
@@ -485,11 +597,19 @@ export default class TokenParser {
     );
   }
 
+  /**
+   * Called when the tokens don't add up to valid JSON. Override it to handle
+   * errors asynchronously; by default it throws, so the error surfaces out of the
+   * {@linkcode TokenParser.write} or {@linkcode TokenParser.end} call that caused it.
+   *
+   * @param err What went wrong.
+   */
   public onError(err: Error): void {
     // Override me
     throw err;
   }
 
+  /** Called once the token parser has ended. Override it to react to that; by default it does nothing. */
   public onEnd(): void {
     // Override me
   }

@@ -1,3 +1,21 @@
+/**
+ * A JSON-compliant tokenizer that turns a utf-8 stream into JSON tokens.
+ *
+ * @example
+ * ```ts
+ * import Tokenizer from "@streamparser/json/tokenizer.js";
+ *
+ * const tokenizer = new Tokenizer();
+ * tokenizer.onToken = ({ token, value, offset }) => {
+ *   // process the token
+ * };
+ *
+ * tokenizer.write('{ "test": ["a"] }');
+ * ```
+ *
+ * @module
+ */
+
 import {
   BufferedString,
   NonBufferedString,
@@ -78,10 +96,32 @@ function TokenizerStateToString(tokenizerState: TokenizerStates): string {
   ][tokenizerState];
 }
 
+/** The options that a {@linkcode Tokenizer} can be created with. */
 export interface TokenizerOptions {
+  /**
+   * The size, in bytes, of the buffer to accumulate strings into. Defaults to
+   * `0`, which accumulates them as JavaScript strings instead of buffering.
+   * Values between 1 and 4 are also treated as no buffering. A reasonable size
+   * when buffering is `64 * 1024` (64 KB). See {@linkcode BufferedString}.
+   */
   stringBufferSize?: number;
+  /**
+   * The size, in bytes, of the buffer to accumulate numbers into. Defaults to
+   * `0`, which accumulates them as JavaScript strings instead of buffering.
+   */
   numberBufferSize?: number;
+  /**
+   * The separator between consecutive JSON documents in the stream, for example
+   * `"\n"` for newline-delimited JSON. Defaults to `undefined`, which ends the
+   * tokenizer after the first document. Set it to `""` to accept documents that
+   * follow each other with no delimiter at all.
+   */
   separator?: string;
+  /**
+   * Whether to emit a token for the part of a string or number tokenized so far
+   * every time a chunk ends in the middle of one. Defaults to `false`. Partial
+   * tokens are flagged with `partial: true`.
+   */
   emitPartialTokens?: boolean;
 }
 
@@ -92,7 +132,11 @@ const defaultOpts: TokenizerOptions = {
   emitPartialTokens: false,
 };
 
+/** The error thrown when the tokenizer is misconfigured or hits invalid JSON. */
 export class TokenizerError extends Error {
+  /**
+   * @param message What went wrong.
+   */
   constructor(message: string) {
     super(message);
     // Typescript is broken. This is a workaround
@@ -135,6 +179,28 @@ function multiByteRunEnd(buffer: Uint8Array, start: number): number {
   return j;
 }
 
+/**
+ * A JSON-compliant tokenizer that turns a utf-8 stream into JSON tokens.
+ *
+ * Data is pushed in with {@linkcode Tokenizer.write} and the resulting tokens
+ * come back through the {@linkcode Tokenizer.onToken} callback, which the user
+ * is expected to override. Feed the tokens to a `TokenParser` to get JSON
+ * values back, or use a `JSONParser`, which chains both.
+ *
+ * @example
+ * ```ts
+ * import Tokenizer from "@streamparser/json/tokenizer.js";
+ *
+ * const tokenizer = new Tokenizer({ separator: "\n" });
+ * tokenizer.onToken = ({ token, value, offset }) => {
+ *   // process the token
+ * };
+ * tokenizer.onError = (err) => console.error(err);
+ *
+ * tokenizer.write('{ "test": ["a"] }');
+ * tokenizer.end();
+ * ```
+ */
 export default class Tokenizer {
   private state = TokenizerStates.BOM_OR_START;
 
@@ -165,6 +231,9 @@ export default class Tokenizer {
   private offset = -1;
   private streamByteLength = 0; // Total bytes consumed across all write() calls before the current one
 
+  /**
+   * @param opts How to tokenize. See {@linkcode TokenizerOptions}.
+   */
   constructor(opts?: TokenizerOptions) {
     opts = { ...defaultOpts, ...opts };
 
@@ -187,6 +256,7 @@ export default class Tokenizer {
       : undefined;
   }
 
+  /** Whether the tokenizer is ended, and thus no longer accepting data. */
   public get isEnded(): boolean {
     return this.state === TokenizerStates.ENDED;
   }
@@ -256,6 +326,19 @@ export default class Tokenizer {
     this.state = TokenizerStates.STRING_INCOMPLETE_CHAR;
   }
 
+  /**
+   * Pushes the next chunk of the JSON stream into the tokenizer.
+   *
+   * Tokenizing happens synchronously, so every token in `input` is emitted
+   * through {@linkcode Tokenizer.onToken} before this returns. A chunk may end
+   * anywhere, including in the middle of a multi-byte character; the rest of it
+   * is picked up from the next chunk.
+   *
+   * @param input The chunk to tokenize: a string, a `TypedArray`, or any
+   * iterable of utf-8 byte values.
+   * @throws {TokenizerError} If the data is not valid JSON and no
+   * {@linkcode Tokenizer.onError} callback has been set.
+   */
   public write(input: Iterable<number> | string): void {
     try {
       let buffer: Uint8Array;
@@ -926,10 +1009,25 @@ export default class Tokenizer {
     this.offset += this.bufferedNumber.byteLength - 1;
   }
 
+  /**
+   * Turns the characters of a JSON number into a JavaScript value.
+   *
+   * Equivalent to `Number(numberStr)`. Override it to handle numbers that a
+   * JavaScript number can't represent, for example by keeping them as strings.
+   *
+   * @param numberStr The number, as it appeared in the JSON stream.
+   * @returns The parsed number.
+   */
   protected parseNumber(numberStr: string): number {
     return Number(numberStr);
   }
 
+  /**
+   * Puts the tokenizer in an error state and reports `err` through
+   * {@linkcode Tokenizer.onError}. The tokenizer can't be used afterwards.
+   *
+   * @param err What went wrong.
+   */
   public error(err: Error): void {
     if (this.state !== TokenizerStates.ENDED) {
       this.state = TokenizerStates.ERROR;
@@ -938,6 +1036,13 @@ export default class Tokenizer {
     this.onError(err);
   }
 
+  /**
+   * Signals that the stream is over, flushing any number that was still being
+   * tokenized and then ending the tokenizer, which can't be used afterwards.
+   *
+   * @throws {TokenizerError} If the stream ended in the middle of a token and no
+   * {@linkcode Tokenizer.onError} callback has been set.
+   */
   public end(): void {
     switch (this.state) {
       case TokenizerStates.NUMBER_AFTER_INITIAL_ZERO:
@@ -965,6 +1070,12 @@ export default class Tokenizer {
     }
   }
 
+  /**
+   * Called with every token found in the stream. Override it to consume them;
+   * by default it throws.
+   *
+   * @param parsedToken The token and where it was found.
+   */
   // biome-ignore lint/correctness/noUnusedFunctionParameters: override point; the parameter is part of the public signature
   public onToken(parsedToken: ParsedTokenInfo): void {
     // Override me
@@ -973,11 +1084,19 @@ export default class Tokenizer {
     );
   }
 
+  /**
+   * Called when the data can't be tokenized. Override it to handle errors
+   * asynchronously; by default it throws, so the error surfaces out of the
+   * {@linkcode Tokenizer.write} or {@linkcode Tokenizer.end} call that caused it.
+   *
+   * @param err What went wrong.
+   */
   public onError(err: Error): void {
     // Override me
     throw err;
   }
 
+  /** Called once the tokenizer has ended. Override it to react to that; by default it does nothing. */
   public onEnd(): void {
     // Override me
   }

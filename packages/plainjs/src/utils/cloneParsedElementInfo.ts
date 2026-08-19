@@ -1,3 +1,10 @@
+/**
+ * Snapshotting of emitted values, so that they can safely outlive the parse
+ * they came from.
+ *
+ * @module
+ */
+
 import type { JsonObject, JsonStruct } from "./types/jsonTypes.js";
 import type { ParsedElementInfo } from "./types/parsedElementInfo.js";
 
@@ -94,6 +101,23 @@ function lazySnapshot(
   };
 }
 
+/**
+ * Snapshots the mutable parts of a value emitted by the token parser.
+ *
+ * The `parent` and `stack` of a {@linkcode ParsedElementInfo} are live
+ * references into the parser's in-progress structures, so they keep changing
+ * after the value has been emitted. Consumers that hand the value over to
+ * someone else -- such as the Node.js and WHATWG wrappers, which push it into a
+ * stream that may be read much later -- need a copy that reflects the state at
+ * emit time.
+ *
+ * @param parsedElementInfo The value to snapshot.
+ * @param lazy Whether to materialize the snapshot on first access instead of
+ * immediately. Only safe when the parser's containers are append-only from here
+ * on, i.e. with the default `keepStack: true`. It makes a consumer that never
+ * reads `parent`/`stack` pay nothing at all.
+ * @returns A copy of `parsedElementInfo` that is unaffected by the rest of the parse.
+ */
 export function cloneParsedElementInfo(
   parsedElementInfo: ParsedElementInfo,
   // When true (keepStack:true, where every container is append-only from here

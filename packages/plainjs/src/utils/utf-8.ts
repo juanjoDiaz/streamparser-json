@@ -1,3 +1,10 @@
+/**
+ * The utf-8 byte values that the tokenizer matches the incoming stream against.
+ *
+ * @module
+ */
+
+/** The utf-8 byte value of each character that is meaningful to the tokenizer. */
 export const enum charset {
   BACKSPACE = 0x8, // "\b"
   FORM_FEED = 0xc, // "\f"
@@ -101,6 +108,11 @@ export const enum charset {
   TILDE = 0x7e, // ~
 }
 
+/**
+ * The character that each JSON escape sequence stands for, keyed by the byte
+ * that follows the backslash. Unicode escapes (`\uXXXX`) are not in here; the
+ * tokenizer resolves those itself.
+ */
 export const escapedSequences: { [key: number]: number } = {
   [charset.QUOTATION_MARK]: charset.QUOTATION_MARK,
   [charset.REVERSE_SOLIDUS]: charset.REVERSE_SOLIDUS,
