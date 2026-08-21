@@ -1,7 +1,7 @@
 {
   "name": "@streamparser/json-node",
   "description": "Streaming JSON parser in Javascript for Node.js, Deno and the browser",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "main": "./dist/mjs/index.js",
   "module": "./dist/mjs/index.js",
   "browser": "./dist/mjs/index.js",
@@ -48,7 +48,7 @@
     "!dist/jsr"
   ],
   "dependencies": {
-    "@streamparser/json": "^0.0.25"
+    "@streamparser/json": "^0.0.26"
   },
   "devDependencies": {
     "@types/node": "^26.2.0"
