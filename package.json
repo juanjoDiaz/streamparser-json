@@ -11,10 +11,10 @@
   "homepage": "https://github.com/juanjoDiaz/streamparser-json#readme",
   "bugs": "https://github.com/juanjoDiaz/streamparser-json/issues",
   "devDependencies": {
-    "@biomejs/biome": "^2.5.8",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@biomejs/biome": "^2.5.9",
+    "@vitest/coverage-v8": "^4.1.11",
     "typescript": "~7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "scripts": {
     "lint": "biome check .",
