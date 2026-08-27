@@ -169,6 +169,7 @@ export default class TokenParser {
   private readonly keepStack: boolean;
   private readonly separator?: string;
   private state: TokenParserState = TokenParserState.VALUE;
+  private hasParsedValue = false;
   private mode: TokenParserMode | undefined = undefined;
   private key: JsonKey = undefined;
   private value: JsonStruct | undefined = undefined;
@@ -315,6 +316,7 @@ export default class TokenParser {
     }
 
     if (this.stack.length === 0) {
+      this.hasParsedValue = true;
       if (this.separator) {
         this.state = TokenParserState.SEPARATOR;
       } else if (this.separator === undefined) {
@@ -566,7 +568,8 @@ export default class TokenParser {
     if (
       (this.state !== TokenParserState.VALUE &&
         this.state !== TokenParserState.SEPARATOR) ||
-      this.stack.length > 0
+      this.stack.length > 0 ||
+      (this.separator === undefined && !this.hasParsedValue)
     ) {
       this.error(
         new Error(

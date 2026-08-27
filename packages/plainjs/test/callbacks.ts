@@ -1,7 +1,6 @@
 import JSONParser from "../src/jsonparser.js";
 import Tokenizer from "../src/tokenizer.js";
 import TokenParser from "../src/tokenparser.js";
-import TokenType from "../src/utils/types/tokenType.js";
 
 describe("callback", () => {
   test("should error on missing onToken callback", () => {
@@ -17,11 +16,10 @@ describe("callback", () => {
 
   test("should error if missing onError callback", () => {
     const p = new TokenParser();
-    p.end();
 
     expect.assertions(1);
     try {
-      p.write({ token: TokenType.TRUE, value: true });
+      p.end();
     } catch (err) {
       expect(err).toBeInstanceOf(Error);
     }
