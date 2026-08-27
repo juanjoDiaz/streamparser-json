@@ -85,6 +85,36 @@ describe("end", () => {
     });
   });
 
+  const emptyValues: [string, string][] = [
+    ["empty string", ""],
+    ["single space", " "],
+    ["whitespace", "\t\n "],
+    ["BOM only", "\uFEFF"],
+  ];
+
+  emptyValues.forEach(([name, value]) => {
+    test(`should fail if ending without a value: ${name}`, async () => {
+      const p = new JSONParser();
+
+      expect.assertions(1);
+      try {
+        await runJSONParserTest(p, value ? [value] : [], undefined, false);
+        p.end();
+      } catch (err) {
+        expect(err).toBeInstanceOf(Error);
+      }
+    });
+  });
+
+  test("should not fail if ending an empty stream with a separator", async () => {
+    const p = new JSONParser({ separator: "\n" });
+
+    await runJSONParserTest(p, [], undefined, false);
+    p.end();
+
+    expect(p.isEnded).toBeTruthy();
+  });
+
   test("should not fail if ending waiting for a separator", async () => {
     const separator = "\n";
     const p = new JSONParser({ separator });
